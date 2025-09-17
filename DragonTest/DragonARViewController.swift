@@ -16,8 +16,22 @@ final class DragonARViewController: UIViewController {
     private var dragon: Entity?
     private var cancellables: Set<AnyCancellable> = []
 
+    private let modelName: String
+    private let bgColors: [CGColor]
+
+    init(modelName: String, backgroundColors: [CGColor]) {
+        self.modelName = modelName
+        self.bgColors  = backgroundColors
+        super.init(nibName: nil, bundle: nil)
+        title = "AR"
+        tabBarItem = UITabBarItem(title: "AR", image: UIImage(systemName: "arkit"), tag: 1)
+    }
+    required init?(coder: NSCoder) { fatalError() }
+
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        _ = GradientBackground.attach(to: view, colors: bgColors)
 
         arView = ARView(frame: view.bounds)
         arView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -34,8 +48,7 @@ final class DragonARViewController: UIViewController {
 
     private func loadDragonAndPlayLooped() async {
         do {
-            // Имя файла без .usdz
-            let entity = try await Entity.load(named: "Dragon_Celebration")
+            let entity = try await Entity.load(named: modelName)
             self.dragon = entity
 
             entity.scale = [0.7, 0.7, 0.7]
@@ -44,14 +57,12 @@ final class DragonARViewController: UIViewController {
             anchor.addChild(entity)
 
             guard let anim = entity.availableAnimations.first else {
-                print("⚠️ Нет встроенных анимаций в Dragon_Celebration")
+                print("⚠️ Нет встроенных анимаций в \(modelName)")
                 return
             }
 
-            // 1) первый запуск
             entity.playAnimation(anim, transitionDuration: 0.25, startsPaused: false)
 
-            // 2) лупим через событие завершения
             arView.scene
                 .subscribe(to: AnimationEvents.PlaybackCompleted.self, on: entity) { [weak self] _ in
                     guard let self = self, let dragon = self.dragon else { return }
@@ -60,11 +71,11 @@ final class DragonARViewController: UIViewController {
                 .store(in: &cancellables)
 
         } catch {
-            print("Не удалось загрузить Dragon_Celebration: \(error)")
+            print("Не удалось загрузить \(modelName): \(error)")
         }
     }
 
-    // MARK: Триггеры под UX
+    // MARK: Доп. жесты/эффекты
     func celebrate() {
         guard let dragon = dragon else { return }
         let base = dragon.transform
@@ -73,30 +84,5 @@ final class DragonARViewController: UIViewController {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
             dragon.move(to: base, relativeTo: dragon.parent, duration: 0.18, timingFunction: .easeIn)
         }
-    }
-
-    func deny() {
-        guard let dragon = dragon else { return }
-        let base = dragon.orientation
-        let left  = simd_quatf(angle:  0.18, axis: [0, 1, 0])
-        let right = simd_quatf(angle: -0.36, axis: [0, 1, 0])
-
-        dragon.setOrientation(base * left,  relativeTo: dragon.parent, duration: 0.08)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) {
-            dragon.setOrientation(base * right, relativeTo: dragon.parent, duration: 0.16)
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.24) {
-            dragon.setOrientation(base * left,  relativeTo: dragon.parent, duration: 0.08)
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.32) {
-            dragon.setOrientation(base, relativeTo: dragon.parent, duration: 0.08)
-        }
-    }
-}
-
-private extension Entity {
-    func setOrientation(_ q: simd_quatf, relativeTo: Entity?, duration: TimeInterval) {
-        move(to: Transform(scale: scale, rotation: q, translation: position),
-             relativeTo: relativeTo, duration: duration, timingFunction: .easeInOut)
     }
 }
