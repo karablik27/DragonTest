@@ -36,7 +36,6 @@ final class DragonSelectViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Select Dragon"
         view.backgroundColor = .black
         GradientBackground.attach(to: view, colors: kinds[currentIndex].gradientColors)
         

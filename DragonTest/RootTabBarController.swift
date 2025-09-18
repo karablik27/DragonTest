@@ -11,12 +11,28 @@ final class RootTabBarController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let main = UINavigationController(rootViewController: MainViewController())
-        main.tabBarItem = UITabBarItem(title: "Main", image: UIImage(systemName: "house"), tag: 0)
+        let profile = UINavigationController(rootViewController: MainViewController())
+        profile.tabBarItem = UITabBarItem(title: "Профиль", image: UIImage(systemName: "person.crop.circle"), tag: 0)
+        
+        let test = UINavigationController(rootViewController: DragonSelectViewController())
+        test.tabBarItem = UITabBarItem(title: "Тест", image: UIImage(named: "dragon.icon"), tag: 1)
+        
+        let settings = UINavigationController(rootViewController: MainViewController())
+        settings.tabBarItem = UITabBarItem(title: "Настройки", image: UIImage(systemName: "gearshape"), tag: 2)
 
-        let select = UINavigationController(rootViewController: DragonSelectViewController())
-        select.tabBarItem = UITabBarItem(title: "Select", image: UIImage(systemName: "circle.grid.3x3"), tag: 1)
+        viewControllers = [profile,test, settings]
+        
+        let appearance = UITabBarAppearance()
+        
 
-        viewControllers = [main, select]
+        appearance.stackedLayoutAppearance.selected.iconColor = UIColor(red: 2.05, green: 1.65, blue: 0.72, alpha: 0.5)
+        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor(red: 2.05, green: 1.65, blue: 0.72, alpha: 0.5)]
+        
+        appearance.stackedLayoutAppearance.normal.iconColor = .gray
+        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.gray]
+        
+        tabBar.standardAppearance = appearance
+        tabBar.scrollEdgeAppearance = appearance
+        
     }
 }
