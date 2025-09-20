@@ -1,0 +1,22 @@
+//
+//  Authentication.swift
+//  DragonTest
+//
+//  Created by Sergey on 20.09.2025.
+//
+
+import UIKit
+import FirebaseAuth
+
+
+final class Authentication {
+    func createUser(email: String, password: String) async throws -> User {
+        let authDataResult = try await Auth.auth().createUser(withEmail: email, password: password)
+        return User(user: authDataResult.user)
+    }
+    
+    func signInUser(email: String, password: String) async throws -> User {
+        let authDataResult = try await Auth.auth().signIn(withEmail: email, password: password)
+        return User(user: authDataResult.user)
+    }
+}

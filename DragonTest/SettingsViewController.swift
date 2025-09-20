@@ -89,6 +89,15 @@ final class SettingsViewController: UIViewController {
         langStack.axis = .vertical
         langStack.spacing = 6
         
+        let themeLabel = UILabel()
+        themeLabel.text = "Тема"
+        themeLabel.font = .systemFont(ofSize: 14, weight: .medium)
+        let themeSegment = UISegmentedControl(items: ["Светлая", "Темная"])
+        themeSegment.selectedSegmentIndex = 0
+        let themeStack = UIStackView(arrangedSubviews: [themeLabel, themeSegment])
+        themeStack.axis = .vertical
+        themeStack.spacing = 6
+        
         let notifLabel = UILabel()
         notifLabel.text = "Уведомления"
         notifLabel.font = .systemFont(ofSize: 14, weight: .medium)
@@ -112,6 +121,7 @@ final class SettingsViewController: UIViewController {
         contentStack.addArrangedSubview(passwordField)
         contentStack.addArrangedSubview(roleStack)
         contentStack.addArrangedSubview(langStack)
+        contentStack.addArrangedSubview(themeStack)
         contentStack.addArrangedSubview(notifStack)
         contentStack.addArrangedSubview(logoutButton)
     }

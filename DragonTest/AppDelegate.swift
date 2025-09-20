@@ -7,6 +7,7 @@
 
 import UIKit
 import RealityKit
+import FirebaseCore
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -18,6 +19,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         Task { @MainActor in
             await DragonCache.shared.preload()
         }
+        
+        // Firebase
+        FirebaseApp.configure()
 
         return true
     }
