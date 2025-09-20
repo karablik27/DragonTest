@@ -51,15 +51,13 @@ final class DragonPreviewView: UIView {
 
     required init?(coder: NSCoder) { fatalError() }
 
-    func display(kind: DragonKind, scale: SIMD3<Float>) {
+    // Новый метод — принимает уже готовый entity из кэша
+    func displayEntity(_ entity: Entity) {
         if let a = modelAnchor { arView.scene.removeAnchor(a) }
-        guard let entity = DragonCache.shared.clone(for: kind, scale: scale) else { return }
-
         let anchor = AnchorEntity(world: .zero)
         anchor.addChild(entity)
         arView.scene.addAnchor(anchor)
         modelAnchor = anchor
-
         DragonCache.shared.loopFirstAnimation(on: entity, in: arView.scene)
     }
 
