@@ -7,7 +7,11 @@
 
 import UIKit
 
-final class SignUpViewController: UIViewController {
+final class SignUpViewController: UIViewController, UITextFieldDelegate {
+    
+    private let authentification = Authentication()
+    private let userService = UserService()
+    
 
     // MARK: - UI
     private let titleLabel: UILabel = {
@@ -29,7 +33,13 @@ final class SignUpViewController: UIViewController {
         tf.textColor = .white
         tf.setLeftPaddingPoints(12)
         tf.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        tf.delegate = self
         return tf
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
 
     private lazy var nameTextField       = makeTextField(placeholder: "Имя")
@@ -130,7 +140,38 @@ final class SignUpViewController: UIViewController {
 
     // MARK: - Actions
     @objc private func signUpTapped() {
-        // пока без логики
+        guard
+            let name = nameTextField.text, !name.isEmpty,
+            let surname = surnameTextField.text, !surname.isEmpty,
+            let lastname = lastnameTextField.text, !lastname.isEmpty,
+            let email = emailTextField.text, !email.isEmpty,
+            let password = passwordTextField.text, !password.isEmpty,
+            let telegramId = telegramIdTextField.text
+        else {
+            print("Заполните все поля!")
+            return
+        }
+        
+        let language: Language = languageControl.selectedSegmentIndex == 0 ? .russian : .english
+        
+        Task {
+            do {
+                var newUser = try await authentification.createUser(email: email, password: password)
+                
+                newUser.name = name
+                newUser.surname = surname
+                newUser.lastname = lastname
+                newUser.telegramId = telegramId
+                newUser.role = .student
+                newUser.language = language
+                
+                try await userService.saveUser(newUser)
+                
+                print("Успешная регистрация: \(newUser)")
+            } catch {
+                print("Ошибка регистрации: \(error.localizedDescription)")
+            }
+        }
     }
 }
 

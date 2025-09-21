@@ -19,29 +19,36 @@ enum Language: String, Codable {
 }
 
 struct User: Codable {
-    var id: UUID
+    var id: String
     var image: String?
     var name: String
     var surname: String
     var lastname: String
     var email: String
-    var password: String
     var telegramId: String
     var role: Role
     var language: Language
     var isNotificationEnabled: Bool
     
-    init(user: FirebaseAuth.User) {
-            self.id = UUID()
-            self.image = nil
-            self.name = ""
-            self.surname = ""
-            self.lastname = ""
-            self.email = user.email ?? ""
-            self.password = ""
-            self.telegramId = ""
-            self.role = .student
-            self.language = .russian
-            self.isNotificationEnabled = true
-        }
+    init(
+        firebaseUser: FirebaseAuth.User,
+        name: String = "",
+        surname: String = "",
+        lastname: String = "",
+        telegramId: String = "",
+        role: Role = .student,
+        language: Language = .russian,
+        isNotificationEnabled: Bool = true
+    ) {
+        self.id = firebaseUser.uid
+        self.image = nil
+        self.name = name
+        self.surname = surname
+        self.lastname = lastname
+        self.email = firebaseUser.email ?? ""
+        self.telegramId = telegramId
+        self.role = role
+        self.language = language
+        self.isNotificationEnabled = isNotificationEnabled
+    }
 }

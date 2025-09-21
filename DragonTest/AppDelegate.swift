@@ -8,6 +8,7 @@
 import UIKit
 import RealityKit
 import FirebaseCore
+import FirebaseAppCheck
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
