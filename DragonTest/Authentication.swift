@@ -12,11 +12,11 @@ import FirebaseAuth
 final class Authentication {
     func createUser(email: String, password: String) async throws -> User {
         let authDataResult = try await Auth.auth().createUser(withEmail: email, password: password)
-        return User(user: authDataResult.user)
+        return User(firebaseUser: authDataResult.user)
     }
     
     func signInUser(email: String, password: String) async throws -> User {
         let authDataResult = try await Auth.auth().signIn(withEmail: email, password: password)
-        return User(user: authDataResult.user)
+        return User(firebaseUser: authDataResult.user)
     }
 }
