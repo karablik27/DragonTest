@@ -16,9 +16,9 @@ final class SettingsViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemGray6
         title = "Настройки"
         
+        setupBackground()
         setupLayout()
         addProfileSettings()
     }
@@ -45,6 +45,34 @@ final class SettingsViewController: UIViewController {
             contentStack.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -16),
             contentStack.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -32)
         ])
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        if let gradient = view.layer.sublayers?.first(where: { $0.name == "backgroundGradient" }) as? CAGradientLayer {
+            gradient.frame = view.bounds
+        }
+    }
+    
+    private func setupBackground() {
+        view.layer.sublayers?
+            .filter { $0.name == "backgroundGradient" }
+            .forEach { $0.removeFromSuperlayer() }
+
+        let gradient = CAGradientLayer()
+        gradient.name = "backgroundGradient"
+        gradient.colors = [
+            UIColor(red: 0.55, green: 0.53, blue: 0.50, alpha: 1).cgColor,
+            UIColor(red: 206/255, green: 204/255, blue: 195/255, alpha: 1).cgColor,
+            UIColor(red: 0.45, green: 0.47, blue: 0.52, alpha: 1).cgColor,
+            UIColor(red: 0.90, green: 0.88, blue: 0.85, alpha: 1).cgColor
+        ]
+        gradient.locations = [0.0, 0.25, 0.65, 1.0]
+        gradient.startPoint = CGPoint(x: 0, y: 0)
+        gradient.endPoint   = CGPoint(x: 1, y: 1)
+        gradient.frame      = view.bounds
+        gradient.zPosition  = -1000
+        view.layer.insertSublayer(gradient, at: 0)
     }
     
     // MARK: - Profile Settings
