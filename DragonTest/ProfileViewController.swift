@@ -7,7 +7,26 @@
 
 import UIKit
 
-final class ProfileViewController: UIViewController {
+final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDelegate {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int { 1 }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return testNames.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return testNames[row]
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        testTextField?.text = testNames[row]
+    }
+    
+    
+    // MARK: - Data
+    private var testNames: [String] = []
+    private var pickerView: UIPickerView?
+    private weak var testTextField: UITextField?
     
     // MARK: - UI (основной экран)
     private let headerView = UIView()
@@ -28,14 +47,43 @@ final class ProfileViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemGray
+        
+        setupBackground()
         setupHeader()
         setupLayout()
         addStatsSection()
         addCalendarSection()
-        addTopTeachersSection()
+        addSudentsResultsSection()
         
         setupRightPanel()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        if let gradient = view.layer.sublayers?.first(where: { $0.name == "backgroundGradient" }) as? CAGradientLayer {
+            gradient.frame = view.bounds
+        }
+    }
+    
+    private func setupBackground() {
+        view.layer.sublayers?
+            .filter { $0.name == "backgroundGradient" }
+            .forEach { $0.removeFromSuperlayer() }
+
+        let gradient = CAGradientLayer()
+        gradient.name = "backgroundGradient"
+        gradient.colors = [
+            UIColor(red: 0.55, green: 0.53, blue: 0.50, alpha: 1).cgColor,
+            UIColor(red: 206/255, green: 204/255, blue: 195/255, alpha: 1).cgColor,
+            UIColor(red: 0.45, green: 0.47, blue: 0.52, alpha: 1).cgColor,
+            UIColor(red: 0.90, green: 0.88, blue: 0.85, alpha: 1).cgColor
+        ]
+        gradient.locations = [0.0, 0.25, 0.65, 1.0]
+        gradient.startPoint = CGPoint(x: 0, y: 0)
+        gradient.endPoint   = CGPoint(x: 1, y: 1)
+        gradient.frame      = view.bounds
+        gradient.zPosition  = -1000
+        view.layer.insertSublayer(gradient, at: 0)
     }
     
     // MARK: - Header
@@ -43,7 +91,6 @@ final class ProfileViewController: UIViewController {
         headerView.backgroundColor = .white
         headerView.layer.cornerRadius = 32
         headerView.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
-        headerView.layer.masksToBounds = false
         headerView.layer.shadowColor = UIColor.black.cgColor
         headerView.layer.shadowOpacity = 0.20
         headerView.layer.shadowOffset = CGSize(width: 0, height: 4)
@@ -68,8 +115,10 @@ final class ProfileViewController: UIViewController {
         bellButton.setImage(bellImage, for: .normal)
         bellButton.tintColor = .label
         bellButton.translatesAutoresizingMaskIntoConstraints = false
-        bellButton.widthAnchor.constraint(equalToConstant: 28).isActive = true
-        bellButton.heightAnchor.constraint(equalToConstant: 28).isActive = true
+        NSLayoutConstraint.activate([
+            bellButton.widthAnchor.constraint(equalToConstant: 28),
+            bellButton.heightAnchor.constraint(equalToConstant: 28)
+        ])
         bellButton.addTarget(self, action: #selector(didTapBell), for: .touchUpInside)
         
         avatarImageView.image = UIImage(named: "avatar")
@@ -77,8 +126,10 @@ final class ProfileViewController: UIViewController {
         avatarImageView.layer.cornerRadius = 20
         avatarImageView.clipsToBounds = true
         avatarImageView.translatesAutoresizingMaskIntoConstraints = false
-        avatarImageView.widthAnchor.constraint(equalToConstant: 40).isActive = true
-        avatarImageView.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        NSLayoutConstraint.activate([
+            avatarImageView.widthAnchor.constraint(equalToConstant: 40),
+            avatarImageView.heightAnchor.constraint(equalToConstant: 40)
+        ])
         
         let rightStack = UIStackView(arrangedSubviews: [bellButton, avatarImageView])
         rightStack.axis = .horizontal
@@ -231,71 +282,128 @@ final class ProfileViewController: UIViewController {
         contentStack.addArrangedSubview(container)
     }
     
-    // MARK: - Top Teachers Section
-    private func addTopTeachersSection() {
+    // MARK: - Students Results Section (подиум)
+    private func addSudentsResultsSection() {
         let container = UIView()
         container.backgroundColor = .white
         container.layer.cornerRadius = 12
         container.layer.shadowColor = UIColor.black.cgColor
-        container.layer.shadowOpacity = 0.05
         container.layer.shadowOffset = CGSize(width: 0, height: 2)
         container.layer.shadowRadius = 4
         container.translatesAutoresizingMaskIntoConstraints = false
-        container.heightAnchor.constraint(equalToConstant: 300).isActive = true
+        container.heightAnchor.constraint(equalToConstant: 450).isActive = true
+     
+        let titleLabel = UILabel()
+        titleLabel.text = "Рейтинг прохождения тестов"
+        titleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
         
-        func makeTeacherView(place: Int, name: String, score: String, imageName: String, color: UIColor) -> UIView {
+        testNames = ["Коллоквиум №1", "Коллоквиум №2", "Итоговый тест", "Практика iOS"]
+
+        let picker = UIPickerView()
+        picker.dataSource = self
+        picker.delegate = self
+        self.pickerView = picker
+
+        let textField = UITextField()
+        textField.placeholder = "Выберите тест"
+        textField.borderStyle = .roundedRect
+        textField.inputView = picker
+      
+        let search = UISearchBar()
+        search.placeholder = "Поиск по названию"
+        
+        let filterStack = UIStackView(arrangedSubviews: [titleLabel, textField, search])
+        filterStack.axis = .vertical
+        filterStack.spacing = 20
+        
+        func makeStudentView(place: Int, name: String, score: String, imageName: String) -> UIView {
             let column = UIView()
-            
+
             let avatar = UIImageView(image: UIImage(named: imageName))
             avatar.contentMode = .scaleAspectFill
             avatar.layer.cornerRadius = 30
             avatar.clipsToBounds = true
             avatar.translatesAutoresizingMaskIntoConstraints = false
-            avatar.widthAnchor.constraint(equalToConstant: 60).isActive = true
-            avatar.heightAnchor.constraint(equalToConstant: 60).isActive = true
-            
+            NSLayoutConstraint.activate([
+                avatar.widthAnchor.constraint(equalToConstant: 60),
+                avatar.heightAnchor.constraint(equalToConstant: 60)
+            ])
+
+            let kind: DragonKind = {
+                switch place {
+                case 1: return .red
+                case 2: return .green
+                default: return .blue
+                }
+            }()
+
             let podium = UIView()
-            podium.backgroundColor = color
             podium.layer.cornerRadius = 12
+            podium.clipsToBounds = true
             podium.translatesAutoresizingMaskIntoConstraints = false
-            podium.heightAnchor.constraint(equalToConstant: place == 1 ? 140 : 100).isActive = true
-            podium.widthAnchor.constraint(equalToConstant: 80).isActive = true
-            
+            NSLayoutConstraint.activate([
+                podium.heightAnchor.constraint(equalToConstant: place == 1 ? 140 : 100),
+                podium.widthAnchor.constraint(equalToConstant: 105)
+            ])
+
+            let gradient = GradientBackground.attach(to: podium, colors: kind.gradientColors)
+            DispatchQueue.main.async { gradient.frame = podium.bounds }
+
+            switch place {
+            case 1:
+                podium.layer.borderWidth = 2
+                podium.layer.borderColor = UIColor(red: 0.99, green: 0.84, blue: 0.33, alpha: 1).cgColor
+            case 2:
+                podium.layer.borderWidth = 2
+                podium.layer.borderColor = UIColor(white: 0.85, alpha: 1).cgColor
+            case 3:
+                podium.layer.borderWidth = 2
+                podium.layer.borderColor = UIColor(red: 0.80, green: 0.55, blue: 0.30, alpha: 1).cgColor
+            default: break
+            }
+
             let placeLabel = UILabel()
-            placeLabel.text = "\(place)"
+            placeLabel.text = {
+                switch place {
+                case 1: return "1 🏆"
+                case 2: return "2 🥈"
+                case 3: return "3 🥉"
+                default: return "\(place)"
+                }
+            }()
             placeLabel.font = .systemFont(ofSize: 20, weight: .bold)
             placeLabel.textColor = .white
             placeLabel.textAlignment = .center
-            
+
             let nameLabel = UILabel()
             nameLabel.text = name
             nameLabel.font = .systemFont(ofSize: 14, weight: .medium)
             nameLabel.textColor = .white
             nameLabel.textAlignment = .center
-            
+
             let scoreLabel = UILabel()
             scoreLabel.text = score
             scoreLabel.font = .systemFont(ofSize: 12)
             scoreLabel.textColor = .white
             scoreLabel.textAlignment = .center
-            
+
             let vstack = UIStackView(arrangedSubviews: [placeLabel, nameLabel, scoreLabel])
             vstack.axis = .vertical
             vstack.alignment = .center
             vstack.spacing = 4
             vstack.translatesAutoresizingMaskIntoConstraints = false
-            
+
             podium.addSubview(vstack)
             NSLayoutConstraint.activate([
                 vstack.centerXAnchor.constraint(equalTo: podium.centerXAnchor),
                 vstack.centerYAnchor.constraint(equalTo: podium.centerYAnchor)
             ])
-            
+
             let stack = UIStackView(arrangedSubviews: [avatar, podium])
             stack.axis = .vertical
             stack.alignment = .center
             stack.spacing = 8
-            
+
             column.addSubview(stack)
             stack.translatesAutoresizingMaskIntoConstraints = false
             NSLayoutConstraint.activate([
@@ -304,31 +412,36 @@ final class ProfileViewController: UIViewController {
                 stack.topAnchor.constraint(equalTo: column.topAnchor),
                 stack.bottomAnchor.constraint(equalTo: column.bottomAnchor)
             ])
-            
+
             return column
         }
+
+        let first  = makeStudentView(place: 1, name: "Maxwell", score: "7,120", imageName: "teacher1")
+        let second = makeStudentView(place: 2, name: "Camelia", score: "6,500", imageName: "teacher2")
+        let third  = makeStudentView(place: 3, name: "Wilson", score: "4,800", imageName: "teacher3")
+
+        let podiumStack = UIStackView(arrangedSubviews: [second, first, third])
+        podiumStack.axis = .horizontal
+        podiumStack.alignment = .bottom
+        podiumStack.distribution = .equalSpacing
+        podiumStack.spacing = 12
         
-        let second = makeTeacherView(place: 2, name: "Camelia", score: "6,500", imageName: "teacher2", color: .systemBlue)
-        let first  = makeTeacherView(place: 1, name: "Maxwell", score: "7,120", imageName: "teacher1", color: .systemRed)
-        let third  = makeTeacherView(place: 3, name: "Wilson", score: "4,800", imageName: "teacher3", color: .systemIndigo)
+        let mainStack = UIStackView(arrangedSubviews: [filterStack, podiumStack])
+        mainStack.axis = .vertical
+        mainStack.spacing = 40
         
-        let hstack = UIStackView(arrangedSubviews: [second, first, third])
-        hstack.axis = .horizontal
-        hstack.alignment = .bottom
-        hstack.distribution = .equalSpacing
-        hstack.spacing = 12
-        
-        container.addSubview(hstack)
-        hstack.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(mainStack)
+        mainStack.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            hstack.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
-            hstack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
-            hstack.topAnchor.constraint(equalTo: container.topAnchor, constant: 16),
-            hstack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -16)
+            mainStack.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
+            mainStack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
+            mainStack.topAnchor.constraint(equalTo: container.topAnchor, constant: 24),
+            mainStack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -16)
         ])
         
         contentStack.addArrangedSubview(container)
     }
+
 }
 
 // MARK: - Правая панель уведомлений
@@ -344,8 +457,7 @@ private extension ProfileViewController {
             dimView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             dimView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
-        let dimTap = UITapGestureRecognizer(target: self, action: #selector(hidePanel))
-        dimView.addGestureRecognizer(dimTap)
+        dimView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(hidePanel)))
         
         panelView.backgroundColor = .systemBackground
         panelView.layer.cornerRadius = 20
@@ -365,6 +477,9 @@ private extension ProfileViewController {
             panelView.widthAnchor.constraint(equalToConstant: panelWidth)
         ])
         
+        panelGrabber.backgroundColor = UIColor.secondaryLabel.withAlphaComponent(0.3)
+        panelGrabber.layer.cornerRadius = 2
+        
         let title = UILabel()
         title.text = "Уведомления"
         title.font = .systemFont(ofSize: 20, weight: .semibold)
@@ -380,12 +495,11 @@ private extension ProfileViewController {
         let list = UIStackView()
         list.axis = .vertical
         list.spacing = 12
-    
+        
         let panelStack = UIStackView(arrangedSubviews: [panelGrabber, header, list])
         panelStack.axis = .vertical
         panelStack.spacing = 16
         panelStack.translatesAutoresizingMaskIntoConstraints = false
-        
         panelView.addSubview(panelStack)
         NSLayoutConstraint.activate([
             panelGrabber.heightAnchor.constraint(equalToConstant: 4),
@@ -396,17 +510,10 @@ private extension ProfileViewController {
             panelStack.bottomAnchor.constraint(lessThanOrEqualTo: panelView.safeAreaLayoutGuide.bottomAnchor, constant: -16)
         ])
         
-        let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePanelPan(_:)))
-        panelView.addGestureRecognizer(pan)
-        
-        let swipe = UISwipeGestureRecognizer(target: self, action: #selector(hidePanel))
-        swipe.direction = .right
-        panelView.addGestureRecognizer(swipe)
+        panelView.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handlePanelPan(_:))))
     }
     
-    @objc func didTapBell() {
-        showPanel()
-    }
+    @objc func didTapBell() { showPanel() }
     
     private func showPanel(animated: Bool = true) {
         guard !panelIsVisible else { return }
@@ -417,9 +524,7 @@ private extension ProfileViewController {
             self.dimView.alpha = 1
         }
         if animated {
-            UIView.animate(withDuration: 0.28, delay: 0, options: [.curveEaseOut]) {
-                animations()
-            }
+            UIView.animate(withDuration: 0.28, delay: 0, options: [.curveEaseOut]) { animations() }
         } else {
             animations()
         }
@@ -443,19 +548,14 @@ private extension ProfileViewController {
         case .changed:
             let next = min(0, panelPanStartX + translation)
             panelLeadingConstraint.constant = next
-            let visibleRatio = 1 - abs(next) / panelWidth // 0..1
+            let visibleRatio = 1 - abs(next) / panelWidth
             dimView.alpha = max(0, min(1, visibleRatio))
             view.layoutIfNeeded()
         case .ended, .cancelled:
             let velocityX = g.velocity(in: view).x
             let shouldClose = (velocityX > 500) || (panelLeadingConstraint.constant > -panelWidth * 0.5)
-            if shouldClose {
-                hidePanel()
-            } else {
-                showPanel()
-            }
-        default:
-            break
+            if shouldClose { hidePanel() } else { showPanel() }
+        default: break
         }
     }
 }

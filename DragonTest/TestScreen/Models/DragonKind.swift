@@ -49,4 +49,9 @@ enum DragonKind: CaseIterable {
             ]
         }
     }
+    
+    func getFirstColor(colors:[CGColor]) -> CGColor {
+        var color = colors[0]
+        return color
+    }
 }
