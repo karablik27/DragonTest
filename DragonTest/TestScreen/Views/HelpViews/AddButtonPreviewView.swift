@@ -5,13 +5,6 @@
 //  Created by Верховный Маг on 18.09.2025.
 //
 
-//
-//  AddButtonPreviewView.swift
-//  DragonTest
-//
-//  Created by Верховный Маг on 19.09.2025.
-//
-
 import UIKit
 
 final class AddButtonPreviewView: UIView {
