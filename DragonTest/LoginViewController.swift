@@ -6,8 +6,11 @@
 //
 
 import UIKit
+import FirebaseAuth
 
-final class LoginViewController: UIViewController {
+final class LoginViewController: UIViewController, UITextFieldDelegate {
+    
+    private let authentification = Authentication()
 
     // MARK: - UI
     private let titleLabel: UILabel = {
@@ -19,7 +22,7 @@ final class LoginViewController: UIViewController {
         return label
     }()
 
-    private let emailTextField: UITextField = {
+    private lazy var  emailTextField: UITextField = {
         let tf = UITextField()
         tf.placeholder = "Почта"
         tf.autocapitalizationType = .none
@@ -30,10 +33,12 @@ final class LoginViewController: UIViewController {
         tf.textColor = .white
         tf.setLeftPaddingPoints(12)
         tf.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        tf.returnKeyType = .next
+        tf.delegate = self
         return tf
     }()
 
-    private let passwordTextField: UITextField = {
+    private lazy var  passwordTextField: UITextField = {
         let tf = UITextField()
         tf.placeholder = "Пароль"
         tf.isSecureTextEntry = true
@@ -43,8 +48,19 @@ final class LoginViewController: UIViewController {
         tf.textColor = .white
         tf.setLeftPaddingPoints(12)
         tf.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        tf.returnKeyType = .next
+        tf.delegate = self
         return tf
     }()
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if textField === emailTextField {
+            passwordTextField.becomeFirstResponder()
+        } else {
+            textField.resignFirstResponder()
+        }
+        return true
+    }
 
     private let rememberSwitch = UISwitch()
 
@@ -165,10 +181,61 @@ final class LoginViewController: UIViewController {
         s.distribution = .fillProportionally
         return s
     }
+    
+    private func errorMessage(for error: NSError) -> String {
+        switch error.code {
+            case AuthErrorCode.wrongPassword.rawValue: return "Неверный пароль."
+            case AuthErrorCode.invalidEmail.rawValue: return "Неверный формат email."
+            case AuthErrorCode.userNotFound.rawValue: return "Пользователь не найден."
+            case AuthErrorCode.networkError.rawValue: return "Ошибка сети. Проверьте интернет."
+            default: return error.localizedDescription
+        }
+    }
+
+    private func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
 
     // MARK: - Actions
     @objc private func loginTapped() {
-        // логика входа через email/пароль
+        let email = emailTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let password = passwordTextField.text ?? ""
+        
+        guard !email.isEmpty, !password.isEmpty else {
+            showAlert(title: "Ошибка", message: "Введите почту и пароль")
+            return
+        }
+        
+        Task {
+            do {
+                _ = try await authentification.signInUser(email: email, password: password)
+                
+                if let sceneDelegate = UIApplication.shared.connectedScenes
+                    .compactMap({$0 as? UIWindowScene})
+                    .first?.delegate as? SceneDelegate,
+                   let window = sceneDelegate.window {
+                    let root = RootTabBarController()
+                    UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve) {
+                        window.rootViewController = root
+                    }
+                    window.makeKeyAndVisible()
+                }
+                    
+            } catch {
+                let nsError = error as NSError
+                let message: String
+                switch nsError.code {
+                case AuthErrorCode.wrongPassword.rawValue: message = "Неверный пароль."
+                case AuthErrorCode.invalidEmail.rawValue:  message = "Неверный формат email."
+                case AuthErrorCode.userNotFound.rawValue:  message = "Пользователь не найден."
+                case AuthErrorCode.networkError.rawValue:  message = "Ошибка сети. Проверьте интернет."
+                default: message = nsError.localizedDescription
+                }
+                showAlert(title: "Ошибка входа", message: message)
+            }
+        }
     }
 
     @objc private func signUpTapped() {
