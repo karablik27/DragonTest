@@ -125,6 +125,14 @@ final class SignUpViewController: UIViewController, UITextFieldDelegate {
             languageControl,
             signUpButton
         ])
+        passwordTextField.isSecureTextEntry = true
+        passwordTextField.textContentType = .oneTimeCode    
+        passwordTextField.autocorrectionType = .no
+        passwordTextField.spellCheckingType = .no
+        passwordTextField.smartQuotesType = .no
+        passwordTextField.smartDashesType = .no
+        passwordTextField.smartInsertDeleteType = .no
+        
         stack.axis = .vertical
         stack.spacing = 12
 
@@ -168,6 +176,17 @@ final class SignUpViewController: UIViewController, UITextFieldDelegate {
                 try await userService.saveUser(newUser)
                 
                 print("Успешная регистрация: \(newUser)")
+                
+                if let sceneDelegate = UIApplication.shared.connectedScenes
+                    .compactMap({$0 as? UIWindowScene})
+                    .first?.delegate as? SceneDelegate,
+                   let window = sceneDelegate.window {
+                    let root = RootTabBarController()
+                    UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve) {
+                        window.rootViewController = root
+                    }
+                    window.makeKeyAndVisible()
+                }
             } catch {
                 print("Ошибка регистрации: \(error.localizedDescription)")
             }

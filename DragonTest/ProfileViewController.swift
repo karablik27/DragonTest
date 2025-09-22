@@ -146,7 +146,7 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
         NSLayoutConstraint.activate([
             mainStack.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 16),
             mainStack.trailingAnchor.constraint(equalTo: headerView.trailingAnchor, constant: -16),
-            mainStack.topAnchor.constraint(equalTo: headerView.safeAreaLayoutGuide.topAnchor, constant: 8),
+            mainStack.topAnchor.constraint(equalTo: headerView.safeAreaLayoutGuide.topAnchor, constant: -40),
             mainStack.bottomAnchor.constraint(equalTo: headerView.bottomAnchor, constant: -16)
         ])
     }
@@ -194,9 +194,14 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
             container.layer.shadowOffset = CGSize(width: 0, height: 2)
             container.layer.shadowRadius = 4
             
-            let iconLabel = UILabel()
-            iconLabel.text = icon
-            iconLabel.font = .systemFont(ofSize: 26)
+            let avatar = UIImageView(image: UIImage(named: icon))
+            avatar.contentMode = .scaleAspectFill
+            avatar.clipsToBounds = true
+            avatar.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                avatar.widthAnchor.constraint(equalToConstant: 25),
+                avatar.heightAnchor.constraint(equalToConstant: 25)
+            ])
             
             let valueLabel = UILabel()
             valueLabel.text = value
@@ -207,7 +212,7 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
             titleLabel.font = .systemFont(ofSize: 14)
             titleLabel.textColor = .secondaryLabel
             
-            let stack = UIStackView(arrangedSubviews: [iconLabel, valueLabel, titleLabel])
+            let stack = UIStackView(arrangedSubviews: [avatar, valueLabel, titleLabel])
             stack.axis = .vertical
             stack.alignment = .center
             stack.spacing = 4
@@ -223,7 +228,7 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
             return container
         }
         
-        let dragons = makeStat(icon: "🐉", value: "5", title: "Драконов")
+        let dragons = makeStat(icon: "dragon.icon", value: "5", title: "Драконов")
         let tests = makeStat(icon: "📚", value: "12", title: "Тестов")
         let teachers = makeStat(icon: "👑", value: "3", title: "Учителя")
         let score = makeStat(icon: "⭐️", value: "87%", title: "Средний балл")
