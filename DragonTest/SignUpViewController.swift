@@ -172,8 +172,8 @@ final class SignUpViewController: UIViewController, UITextFieldDelegate {
                 newUser.telegramId = telegramId
                 newUser.role = .student
                 newUser.language = language
-                
-                try await userService.saveUser(newUser)
+                CurrentUserManager.shared.userId = newUser.id
+                CurrentUserManager.shared.role = newUser.role
                 
                 print("Успешная регистрация: \(newUser)")
                 
