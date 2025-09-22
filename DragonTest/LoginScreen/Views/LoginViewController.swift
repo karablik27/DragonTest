@@ -9,8 +9,9 @@ import UIKit
 import FirebaseAuth
 
 final class LoginViewController: UIViewController, UITextFieldDelegate {
-    private let userService = UserService()
-    private let authentification = Authentication()
+    private let userService = DependencyInjection.shared.userService
+    private let authentification = DependencyInjection.shared.authentication
+    private var currentUser = DependencyInjection.shared.currentUser
 
     // MARK: - UI
     private let titleLabel: UILabel = {
@@ -212,8 +213,8 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
             do {
                 _ = try await authentification.signInUser(email: email, password: password)
                 let user = try await userService.fetchUser(uid: Auth.auth().currentUser!.uid)
-                CurrentUserManager.shared.userId = user.id
-                CurrentUserManager.shared.role = user.role
+                currentUser.userId = user.id
+                currentUser.role = user.role
 
                 
                 if let sceneDelegate = UIApplication.shared.connectedScenes
