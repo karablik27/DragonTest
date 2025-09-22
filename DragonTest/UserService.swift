@@ -18,4 +18,14 @@ final class UserService {
         
         try await db.collection("users").document(uid).setData(from: user)
     }
+    
+    func fetchUser(uid: String) async throws -> User {
+        let snapshot = try await db.collection("users").document(uid).getDocument()
+        guard let data = snapshot.data() else {
+            throw NSError(domain: "UserService",
+                          code: 1,
+                          userInfo: [NSLocalizedDescriptionKey: "Пользователь не найден в Firestore"])
+        }
+        return try Firestore.Decoder().decode(User.self, from: data)
+    }
 }
