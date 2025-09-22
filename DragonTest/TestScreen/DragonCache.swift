@@ -28,8 +28,6 @@ final class DragonCache {
         }
         preloaded = true
     }
-
-    /// Клон сущности для отображения (можно безопасно добавлять в сцену)
     func clone(for kind: DragonKind, scale: SIMD3<Float>) -> Entity? {
         guard let base = storage[kind] else { return nil }
         let copy = base.clone(recursive: true)

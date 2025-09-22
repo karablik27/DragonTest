@@ -7,7 +7,7 @@
 
 import UIKit
 
-enum DragonKind: CaseIterable {
+enum DragonKind: CaseIterable, Codable {
     case red, green, blue
 
     var fileName: String {
