@@ -8,6 +8,7 @@
 // TODO: Переделать под дизайн
 
 import UIKit
+import FirebaseAuth
 
 final class SettingsViewController: UIViewController {
     
@@ -142,6 +143,7 @@ final class SettingsViewController: UIViewController {
         logoutButton.backgroundColor = .systemRed
         logoutButton.layer.cornerRadius = 22
         logoutButton.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        logoutButton.addTarget(self, action: #selector(logoutTapped), for: .touchUpInside)
         
         contentStack.addArrangedSubview(nameField)
         contentStack.addArrangedSubview(tgField)
@@ -152,5 +154,27 @@ final class SettingsViewController: UIViewController {
         contentStack.addArrangedSubview(themeStack)
         contentStack.addArrangedSubview(notifStack)
         contentStack.addArrangedSubview(logoutButton)
+    }
+    
+    @objc private func logoutTapped() {
+        do {
+            try Auth.auth().signOut()
+        } catch {
+            print("SignOut error:", error)
+        }
+
+        if let sceneDelegate = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first?.delegate as? SceneDelegate {
+
+            let login = LoginViewController()
+            let nav = UINavigationController(rootViewController: login)
+
+            if let window = sceneDelegate.window {
+                UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve) {
+                    window.rootViewController = nav
+                }
+            }
+        }
     }
 }
