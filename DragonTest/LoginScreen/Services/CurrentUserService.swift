@@ -1,5 +1,5 @@
 //
-//  CurrentUserManager.swift
+//  CurrentUserService.swift
 //  DragonTest
 //
 //  Created by Верховный Маг on 22.09.2025.
@@ -7,14 +7,10 @@
 
 import Foundation
 
-final class CurrentUserManager {
-    static let shared = CurrentUserManager()
-
+final class CurrentUserService: CurrentUserServiceProtocol {
     private let defaults = UserDefaults.standard
     private let userIdKey = "currentUserId"
     private let userRoleKey = "currentUserRole"
-
-    private init() {}
 
     var userId: String? {
         get { defaults.string(forKey: userIdKey) }

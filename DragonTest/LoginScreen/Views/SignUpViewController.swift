@@ -8,11 +8,10 @@
 import UIKit
 
 final class SignUpViewController: UIViewController, UITextFieldDelegate {
+    private let authentification = DependencyInjection.shared.authentication
+    private let userService = DependencyInjection.shared.userService
+    private var currentUser = DependencyInjection.shared.currentUser
     
-    private let authentification = Authentication()
-    private let userService = UserService()
-    
-
     // MARK: - UI
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -172,8 +171,8 @@ final class SignUpViewController: UIViewController, UITextFieldDelegate {
                 newUser.telegramId = telegramId
                 newUser.role = .student
                 newUser.language = language
-                CurrentUserManager.shared.userId = newUser.id
-                CurrentUserManager.shared.role = newUser.role
+                currentUser.userId = newUser.id
+                currentUser.role = newUser.role
                 
                 print("Успешная регистрация: \(newUser)")
                 

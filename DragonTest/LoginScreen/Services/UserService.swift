@@ -8,7 +8,7 @@
 import FirebaseFirestore
 import FirebaseAuth
 
-final class UserService {
+final class UserService: UserServiceProtocol {
     private let db = Firestore.firestore()
     
     func saveUser(_ user: User) async throws {
