@@ -8,20 +8,25 @@
 import Foundation
 
 struct StudentAnswer: Codable, Identifiable {
-    var id: String             // id документа ответа (или совпадает с questionId+studentId)
-    var questionId: String     // к какому вопросу относится
-    var studentId: String      // id студента из Firestore
-    var testId: String         // к какому тесту относится
+    var id: String               // уникальный id (например, questionId+studentId)
+    var questionId: String       // id вопроса
+    var studentId: String        // id студента
+    var testId: String           // id теста
     
-    // ответы
-    var textAnswer: String?    // для open
-    var selectedIndex: Int?    // индекс варианта для select
+    // --- Ответ ученика ---
+    var textAnswer: String?      // ответ для open-вопросов
+    var selectedIndex: Int?      // индекс выбранного варианта для select
     
-    // проверки
-    var isCorrectByLLM: Bool?   // проверка ИИ
-    var isCorrectByTeacher: Bool? // проверка учителем
+    // --- Проверка учителем ---
+    var teacherScore: Int?       // балл (0–10)
+    var teacherComment: String?  // комментарий учителя
     
-    // очки
-    var score: Int?             // начисленные баллы
+    // --- Проверка LLM ---
+    var llmScore: Int?           // балл от модели (0–10)
+    var llmComment: String?      // комментарий модели
+    
+    // --- Итог по этому вопросу ---
+    var finalScore: Int?         // итоговый балл за вопрос
 }
+
 

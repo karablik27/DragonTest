@@ -34,4 +34,30 @@ final class UserService: UserServiceProtocol {
         }
         return try Firestore.Decoder().decode(User.self, from: data)
     }
+    
+    func fetchStudentsForTests(for test: Test) async throws -> [User] {
+            guard !test.studentIds.isEmpty else { return [] }
+            let chunked = test.studentIds.chunked(into: 10)
+            var result: [User] = []
+
+            for ids in chunked {
+                let snapshot = try await dataBase.collection("users")
+                    .whereField(FieldPath.documentID(), in: ids)
+                    .getDocuments()
+                
+                let users = try snapshot.documents.compactMap { doc -> User? in
+                    try? doc.data(as: User.self)
+                }
+                result.append(contentsOf: users)
+            }
+            return result
+        }
+}
+
+extension Array {
+    func chunked(into size: Int) -> [[Element]] {
+        stride(from: 0, to: count, by: size).map {
+            Array(self[$0..<Swift.min($0 + size, count)])
+        }
+    }
 }

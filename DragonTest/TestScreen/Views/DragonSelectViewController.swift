@@ -33,6 +33,7 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
     // MARK: - Data
     private var currentIndex = 0
     private var testVC: DragonTestViewController?
+    private var teacherVC: TeacherReviewViewController?
     private var isTestVisible = false
     
     // Hold
@@ -106,19 +107,29 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
     func openTest(_ test: Test) {
         guard !isTestVisible else { return }
         
-        let vc = DragonTestViewController(
-            test: test,
-            colors: test.dragonKind.gradientColors
-        ) { [weak self] completed in
-            self?.presenter.didFinishTest(completed: completed)
-            self?.closeTest()
+        if DependencyInjection.shared.currentUser.role == .student {
+            let vc = DragonTestViewController(
+                test: test,
+                colors: test.dragonKind.gradientColors
+            ) { [weak self] completed in
+                self?.presenter.didFinishTest(completed: completed)
+                self?.closeTest()
+            }
+            
+            addChild(vc)
+            testContainer.addSubview(vc.view)
+            vc.view.frame = testContainer.bounds
+            vc.didMove(toParent: self)
+            testVC = vc
+        } else {
+            let vc = TeacherReviewViewController(test: test)
+            
+            addChild(vc)
+            testContainer.addSubview(vc.view)
+            vc.view.frame = testContainer.bounds
+            vc.didMove(toParent: self)
+            teacherVC = vc
         }
-        
-        addChild(vc)
-        testContainer.addSubview(vc.view)
-        vc.view.frame = testContainer.bounds
-        vc.didMove(toParent: self)
-        testVC = vc
         
         UIView.animate(withDuration: 0.6,
                        delay: 0,
@@ -131,6 +142,9 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
             self.isTestVisible = true
         })
     }
+
+
+
     
     func animateCarousel(direction: Int, newIndex: Int, items: [CarouselItem]) {
         let width = view.bounds.width
@@ -257,10 +271,18 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
                        animations: {
             self.dragonsContainer.transform = .identity
         }, completion: { _ in
-            self.testVC?.willMove(toParent: nil)
-            self.testVC?.view.removeFromSuperview()
-            self.testVC?.removeFromParent()
-            self.testVC = nil
+            if let vc = self.testVC {
+                vc.willMove(toParent: nil)
+                vc.view.removeFromSuperview()
+                vc.removeFromParent()
+                self.testVC = nil
+            }
+            if let vc = self.teacherVC {
+                vc.willMove(toParent: nil)
+                vc.view.removeFromSuperview()
+                vc.removeFromParent()
+                self.teacherVC = nil
+            }
             self.isTestVisible = false
         })
     }

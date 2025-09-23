@@ -16,6 +16,7 @@ final class DependencyInjection {
     let userService: UserServiceProtocol
     let authentication: AuthenticationServiceProtocol
     let testService: TestServiceProtocol
+    let answerService: AnswerServiceProtocol
     
     
     private init() {
@@ -26,5 +27,6 @@ final class DependencyInjection {
         self.userService = UserService(dataBase: self.dataBase) 
         self.authentication = AuthenticationService()
         self.testService = TestService(dataBase: self.dataBase, currentUser: self.currentUser)
+        self.answerService = AnswerService(dataBase: Firestore.firestore())
     }
 }
