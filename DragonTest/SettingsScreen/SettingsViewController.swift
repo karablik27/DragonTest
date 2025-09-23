@@ -9,11 +9,26 @@
 
 import UIKit
 import FirebaseAuth
+import FirebaseFirestore
 
 final class SettingsViewController: UIViewController {
     
     private let scrollView = UIScrollView()
     private let contentStack = UIStackView()
+    
+    private let userService: UserServiceProtocol = UserService(dataBase: Firestore.firestore())
+
+    private var userDataTask: Task<User?, Never> = Task { nil }
+
+    override init(nibName: String? = nil, bundle: Bundle? = nil) {
+        super.init(nibName: nibName, bundle: bundle)
+        userDataTask = loadUserData()
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        userDataTask = loadUserData()
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,6 +37,25 @@ final class SettingsViewController: UIViewController {
         setupBackground()
         setupLayout()
         addProfileSettings()
+        fillFields()
+    }
+    
+    // MARK: - Data Loading
+    private func loadUserData() -> Task<User?, Never> {
+        guard let uid = Auth.auth().currentUser?.uid else { 
+            return Task { nil }
+        }
+        
+        return Task { [weak self] in
+            do {
+                return try await self?.userService.fetchUser(uid: uid)
+            } catch {
+                await MainActor.run {
+                    self?.showAlert(title: "Ошибка", message: "Не удалось загрузить данные профиля")
+                }
+                return nil
+            }
+        }
     }
     
     // MARK: - Layout
@@ -103,7 +137,7 @@ final class SettingsViewController: UIViewController {
         let roleLabel = UILabel()
         roleLabel.text = "Роль"
         roleLabel.font = .systemFont(ofSize: 14, weight: .medium)
-        let roleSegment = UISegmentedControl(items: ["Ученик", "Учитель"])
+        let roleSegment = UISegmentedControl(items: ["Студент", "Преподаватель"])
         roleSegment.selectedSegmentIndex = 0
         let roleStack = UIStackView(arrangedSubviews: [roleLabel, roleSegment])
         roleStack.axis = .vertical
@@ -144,6 +178,13 @@ final class SettingsViewController: UIViewController {
         logoutButton.layer.cornerRadius = 22
         logoutButton.heightAnchor.constraint(equalToConstant: 44).isActive = true
         logoutButton.addTarget(self, action: #selector(logoutTapped), for: .touchUpInside)
+
+        nameField.tag = 1
+        tgField.tag = 2
+        loginField.tag = 3
+        roleStack.tag = 4
+        langStack.tag = 5
+        notifStack.tag = 6
         
         contentStack.addArrangedSubview(nameField)
         contentStack.addArrangedSubview(tgField)
@@ -154,6 +195,50 @@ final class SettingsViewController: UIViewController {
         contentStack.addArrangedSubview(themeStack)
         contentStack.addArrangedSubview(notifStack)
         contentStack.addArrangedSubview(logoutButton)
+    }
+    
+
+    
+    private func fillFields() {
+        Task {
+            if let user = await userDataTask.value {
+                await MainActor.run {
+                    applyUserData(user)
+                }
+            }
+        }
+    }
+    
+    private func applyUserData(_ user: User) {
+        if let nameStack = contentStack.arrangedSubviews.first(where: { $0.tag == 1 }) as? UIStackView,
+           let nameField = nameStack.arrangedSubviews.last as? UITextField {
+            nameField.text = user.name
+        }
+        
+        if let tgStack = contentStack.arrangedSubviews.first(where: { $0.tag == 2 }) as? UIStackView,
+           let tgField = tgStack.arrangedSubviews.last as? UITextField {
+            tgField.text = user.telegramId
+        }
+        
+        if let loginStack = contentStack.arrangedSubviews.first(where: { $0.tag == 3 }) as? UIStackView,
+           let loginField = loginStack.arrangedSubviews.last as? UITextField {
+            loginField.text = user.email
+        }
+        
+        if let roleStack = contentStack.arrangedSubviews.first(where: { $0.tag == 4 }) as? UIStackView,
+           let roleSegment = roleStack.arrangedSubviews.first(where: { $0 is UISegmentedControl }) as? UISegmentedControl {
+            roleSegment.selectedSegmentIndex = user.role == .student ? 0 : 1
+        }
+        
+        if let langStack = contentStack.arrangedSubviews.first(where: { $0.tag == 5 }) as? UIStackView,
+           let langSegment = langStack.arrangedSubviews.first(where: { $0 is UISegmentedControl }) as? UISegmentedControl {
+            langSegment.selectedSegmentIndex = user.language == .russian ? 0 : 1
+        }
+        
+        if let notifStack = contentStack.arrangedSubviews.first(where: { $0.tag == 6 }) as? UIStackView,
+           let notifSwitch = notifStack.arrangedSubviews.first(where: { $0 is UISwitch }) as? UISwitch {
+            notifSwitch.isOn = user.isNotificationEnabled
+        }
     }
     
     @objc private func logoutTapped() {
@@ -176,5 +261,11 @@ final class SettingsViewController: UIViewController {
                 }
             }
         }
+    }
+    
+    private func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 }
