@@ -53,6 +53,8 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
     private lazy var nextButton = makeArrowButton("▶︎", action: #selector(nextTap))
     private let hintView = SwipeUpHintView()
     
+    private let emptyStateView = EmptyStateView(message: "Нет доступных тестов")
+    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -67,6 +69,9 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
     
     // MARK: - DragonSelectViewProtocol
     func updateUI(items: [CarouselItem], currentIndex: Int) {
+        emptyStateView.isHidden = true
+        dragonsContainer.isHidden = false
+        
         self.currentIndex = currentIndex
         let item = items[currentIndex]
         
@@ -91,6 +96,11 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
             progressLabel.isHidden = true
             hintView.isHidden = true
         }
+    }
+    
+    func showEmptyState() {
+        dragonsContainer.isHidden = true
+        emptyStateView.isHidden = false
     }
     
     func openTest(_ test: Test) {
@@ -165,17 +175,13 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
     
     func openAddTest() {
         let addVC = AddTestViewController(
-            testService: TestService(
-                dataBase: DependencyInjection.shared.dataBase,
-                currentUser: DependencyInjection.shared.currentUser
-            )
+            testService: DependencyInjection.shared.testService
         )
         addVC.delegate = self
         addVC.modalPresentationStyle = .formSheet
         present(addVC, animated: true)
     }
 
-    
     // MARK: - Actions
     @objc private func prevTap() { presenter.didSelectPrev() }
     @objc private func nextTap() { presenter.didSelectNext() }
@@ -263,12 +269,13 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
     private func setupUI() {
         [testContainer, dragonsContainer,
          centerPreviewContainer, leftPreviewContainer, rightPreviewContainer,
-         titleLabel, prevButton, nextButton, progressView, progressLabel, hintView].forEach {
+         titleLabel, prevButton, nextButton, progressView, progressLabel, hintView, emptyStateView].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
         }
         
         view.addSubview(testContainer)
         view.addSubview(dragonsContainer)
+        view.addSubview(emptyStateView)
         
         dragonsContainer.addSubview(centerPreviewContainer)
         dragonsContainer.addSubview(leftPreviewContainer)
@@ -326,7 +333,12 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
             hintView.centerXAnchor.constraint(equalTo: dragonsContainer.centerXAnchor),
             hintView.bottomAnchor.constraint(equalTo: dragonsContainer.safeAreaLayoutGuide.bottomAnchor, constant: -30),
             hintView.widthAnchor.constraint(equalToConstant: 80),
-            hintView.heightAnchor.constraint(equalToConstant: 120)
+            hintView.heightAnchor.constraint(equalToConstant: 120),
+            
+            emptyStateView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            emptyStateView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            emptyStateView.topAnchor.constraint(equalTo: view.topAnchor),
+            emptyStateView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
         
         // Стили
@@ -338,7 +350,15 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
         
         progressLabel.font = .systemFont(ofSize: 14)
         progressLabel.textColor = .white
+    
+        prevButton.isHidden = true
+        nextButton.isHidden = true
+        progressView.isHidden = true
+        progressLabel.isHidden = true
+        hintView.isHidden = true
+        emptyStateView.isHidden = true
     }
+
     
     private func configure(container: UIView, item: CarouselItem?, scale: SIMD3<Float>) {
         container.subviews.forEach { $0.removeFromSuperview() }
