@@ -52,6 +52,8 @@ final class SignUpPresenter: SignUpViewOutput {
                     self.view?.showSuccess()
                     self.view?.openMain()
                 }
+                DependencyInjection.shared.currentUser.userId = user.id
+                DependencyInjection.shared.currentUser.role = .student
             } catch {
                 await MainActor.run {
                     self.view?.setLoading(false)
