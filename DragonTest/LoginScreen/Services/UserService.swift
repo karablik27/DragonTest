@@ -9,18 +9,24 @@ import FirebaseFirestore
 import FirebaseAuth
 
 final class UserService: UserServiceProtocol {
-    private let db = Firestore.firestore()
-    
+    private let dataBase: Firestore
+
+    init(dataBase: Firestore) {
+        self.dataBase = dataBase
+    }
+
     func saveUser(_ user: User) async throws {
         guard let uid = Auth.auth().currentUser?.uid else {
-            throw NSError(domain: "UserService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Нет текущего пользователя"])
+            throw NSError(domain: "UserService",
+                          code: 0,
+                          userInfo: [NSLocalizedDescriptionKey: "Нет текущего пользователя"])
         }
-        
-        try await db.collection("users").document(uid).setData(from: user)
+
+        try dataBase.collection("users").document(uid).setData(from: user)
     }
-    
+
     func fetchUser(uid: String) async throws -> User {
-        let snapshot = try await db.collection("users").document(uid).getDocument()
+        let snapshot = try await dataBase.collection("users").document(uid).getDocument()
         guard let data = snapshot.data() else {
             throw NSError(domain: "UserService",
                           code: 1,

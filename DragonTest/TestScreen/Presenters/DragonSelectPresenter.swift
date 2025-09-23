@@ -2,17 +2,7 @@
 //  DragonSelectPresenter.swift
 //  DragonTest
 //
-//  Created by Верховный Маг on 22.09.2025.
-//
-
-//
-//  DragonSelectPresenter.swift
-//  DragonTest
-//
-
-//
-//  DragonSelectPresenter.swift
-//  DragonTest
+//  Created by Карабельников Степан on 22.09.2025.
 //
 
 // DragonSelectPresenter.swift
@@ -27,33 +17,38 @@ final class DragonSelectPresenter: DragonSelectPresenterProtocol {
     private(set) var currentIndex: Int = 0
 
     init(view: DragonSelectViewProtocol,
-         testService: TestServiceProtocol = TestService()) {
+         testService: TestServiceProtocol = TestService(
+            dataBase: DependencyInjection.shared.dataBase,
+            currentUser: DependencyInjection.shared.currentUser
+         )) {
         self.view = view
         self.testService = testService
     }
 
+
     func viewDidLoad() {
         Task { @MainActor in
-            await DragonCache.shared.preload()
+            await DependencyInjection.shared.dragonCache.preload()
             loadTests()
         }
     }
 
     private func loadTests() {
-        testService.fetchTests { [weak self] result in
-            DispatchQueue.main.async {
-                guard let self else { return }
-                switch result {
-                case .success(let tests):
-                    self.items = [.addButton] + tests.map { .test($0) }
-                    self.currentIndex = min(self.currentIndex, self.items.count - 1)
+        Task { [weak self] in
+            guard let self else { return }
+            do {
+                let tests = try await testService.fetchTests()
+                self.items = [.addButton] + tests.map { .test($0) }
+                self.currentIndex = min(self.currentIndex, self.items.count - 1)
+                await MainActor.run {
                     self.view?.updateUI(items: self.items, currentIndex: self.currentIndex)
-                case .failure(let error):
-                    print("Ошибка загрузки тестов: \(error)")
                 }
+            } catch {
+                print("Ошибка загрузки тестов: \(error)")
             }
         }
     }
+
 
     func didSelectNext() {
         guard currentIndex < items.count - 1 else { return }

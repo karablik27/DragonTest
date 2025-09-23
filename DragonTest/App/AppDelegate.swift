@@ -18,7 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Предзагрузка всех .usdz в память (один раз на старте)
         Task { @MainActor in
-            await DragonCache.shared.preload()
+            await DependencyInjection.shared.dragonCache.preload()
         }
         
         // Firebase

@@ -164,11 +164,17 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
     }
     
     func openAddTest() {
-        let addVC = AddTestViewController(testService: TestService())
+        let addVC = AddTestViewController(
+            testService: TestService(
+                dataBase: DependencyInjection.shared.dataBase,
+                currentUser: DependencyInjection.shared.currentUser
+            )
+        )
         addVC.delegate = self
         addVC.modalPresentationStyle = .formSheet
         present(addVC, animated: true)
     }
+
     
     // MARK: - Actions
     @objc private func prevTap() { presenter.didSelectPrev() }
@@ -361,7 +367,7 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
                 preview.topAnchor.constraint(equalTo: container.topAnchor),
                 preview.bottomAnchor.constraint(equalTo: container.bottomAnchor)
             ])
-            if let entity = DragonCache.shared.clone(for: test.dragonKind, scale: scale) {
+            if let entity = DependencyInjection.shared.dragonCache.clone(for: test.dragonKind, scale: scale) {
                 preview.displayEntity(entity)
             }
         }
