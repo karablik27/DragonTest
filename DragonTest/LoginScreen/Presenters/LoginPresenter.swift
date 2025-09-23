@@ -31,7 +31,12 @@ final class LoginPresenter: LoginViewOutput {
         Task { [weak self] in
             guard let self else { return }
             do {
-                _ = try await self.authService.signInUser(email: email, password: password)
+                let firebaseUser = try await self.authService.signInUser(email: email, password: password)
+                
+                let fullUser = try await DependencyInjection.shared.userService.fetchUser(uid: firebaseUser.id)
+                
+                DependencyInjection.shared.currentUser.userId = fullUser.id
+                DependencyInjection.shared.currentUser.role = fullUser.role
                 
                 await MainActor.run {
                     self.view?.setLoading(false)
