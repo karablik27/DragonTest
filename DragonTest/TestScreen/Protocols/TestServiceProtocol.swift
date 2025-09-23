@@ -7,7 +7,7 @@
 
 protocol TestServiceProtocol {
     /// Получить тесты, созданные текущим преподавателем
-    func fetchTests(completion: @escaping (Result<[Test], Error>) -> Void)
+    func fetchTests() async throws -> [Test]
 
     /// Создать тест и сохранить в Firestore
     func createTest(title: String,

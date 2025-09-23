@@ -10,15 +10,21 @@ import FirebaseFirestore
 final class DependencyInjection {
     static let shared = DependencyInjection()
     
+    var currentUser: CurrentUserServiceProtocol
+    let dragonCache: DragonCache
     let dataBase: Firestore
     let userService: UserServiceProtocol
     let authentication: AuthenticationServiceProtocol
-    var currentUser: CurrentUserServiceProtocol
+    let testService: TestServiceProtocol
+    
     
     private init() {
-        self.dataBase = Firestore.firestore()
-        self.userService = UserService()
-        self.authentication = AuthenticationService()
         self.currentUser = CurrentUserService()
+        
+        self.dragonCache = DragonCache()
+        self.dataBase = Firestore.firestore()
+        self.userService = UserService(dataBase: self.dataBase) 
+        self.authentication = AuthenticationService()
+        self.testService = TestService(dataBase: self.dataBase, currentUser: self.currentUser)
     }
 }

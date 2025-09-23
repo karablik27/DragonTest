@@ -58,7 +58,7 @@ final class DragonPreviewView: UIView {
         anchor.addChild(entity)
         arView.scene.addAnchor(anchor)
         modelAnchor = anchor
-        DragonCache.shared.loopFirstAnimation(on: entity, in: arView.scene)
+        DependencyInjection.shared.dragonCache.loopFirstAnimation(on: entity, in: arView.scene)
     }
 
     func celebrateBounce() {

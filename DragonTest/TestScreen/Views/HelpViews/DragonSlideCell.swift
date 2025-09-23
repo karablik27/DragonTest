@@ -53,7 +53,7 @@ final class DragonSlideCell: UICollectionViewCell {
         GradientBackground.attach(to: contentView, colors: test.dragonKind.gradientColors)
         
         // дракон через кэш (без лагов)
-        if let entity = DragonCache.shared.clone(for: test.dragonKind, scale: [0.8,0.8,0.8]) {
+        if let entity = DependencyInjection.shared.dragonCache.clone(for: test.dragonKind, scale: [0.8,0.8,0.8]) {
             preview.displayEntity(entity)
         }
         

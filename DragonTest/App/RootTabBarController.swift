@@ -29,6 +29,11 @@ final class RootTabBarController: UITabBarController {
         viewControllers = [profile, test, settings]
         
         setupTabBarAppearance()
+        
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (vc: RootTabBarController, previous: UITraitCollection) in
+            vc.setupTabBarAppearance()
+        }
+
     }
     
     private func setupTabBarAppearance() {
@@ -51,14 +56,6 @@ final class RootTabBarController: UITabBarController {
         appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: normalColor]
         
         tabBar.standardAppearance = appearance
-    }
-    
-    // Чтобы обновлять цвета при смене темы
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        if previousTraitCollection?.userInterfaceStyle != traitCollection.userInterfaceStyle {
-            setupTabBarAppearance()
-        }
     }
 }
 

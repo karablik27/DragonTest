@@ -2,32 +2,35 @@
 //  DragonCache.swift
 //  DragonTest
 //
-//  Created by Верховный Маг on 17.09.2025.
+//  Created by Карабельников Степан on 17.09.2025.
 //
 
 import Foundation
 import RealityKit
 
 final class DragonCache {
-    static let shared = DragonCache()
-
     private var storage: [DragonKind: Entity] = [:]
     private var preloaded = false
+    
+    init() {}
 
-    private init() {}
-
+    
     @MainActor
     func preload() async {
         guard !preloaded else { return }
         for kind in DragonKind.allCases {
             if storage[kind] == nil {
-                if let entity = try? await Entity.load(named: kind.fileName) {
+                do {
+                    let entity = try await Entity(named: kind.fileName)
                     storage[kind] = entity
+                } catch {
+                    print("Не удалось загрузить \(kind.fileName): \(error)")
                 }
             }
         }
         preloaded = true
     }
+
     func clone(for kind: DragonKind, scale: SIMD3<Float>) -> Entity? {
         guard let base = storage[kind] else { return nil }
         let copy = base.clone(recursive: true)
@@ -36,7 +39,6 @@ final class DragonCache {
         return copy
     }
 
-    /// Зациклить первую доступную анимацию (если есть)
     func loopFirstAnimation(on entity: Entity, in scene: Scene) {
         if let anim = entity.availableAnimations.first {
             entity.playAnimation(anim, transitionDuration: 0.2, startsPaused: false)
