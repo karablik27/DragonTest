@@ -35,7 +35,14 @@ final class SignUpViewController: UIViewController, UITextFieldDelegate {
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
+        switch textField {
+        case nameTextField: surnameTextField.becomeFirstResponder()
+        case surnameTextField: lastnameTextField.becomeFirstResponder()
+        case lastnameTextField: emailTextField.becomeFirstResponder()
+        case emailTextField: passwordTextField.becomeFirstResponder()
+        case passwordTextField: telegramIdTextField.becomeFirstResponder()
+        default: textField.resignFirstResponder()
+        }
         return true
     }
 
@@ -72,6 +79,8 @@ final class SignUpViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        setupNavigation()
+        addTapToDismissKeyboard()
         presenter = SignUpPresenter(
             view: self,
             authService: DependencyInjection.shared.authentication,
@@ -114,6 +123,13 @@ final class SignUpViewController: UIViewController, UITextFieldDelegate {
         blur.alpha = 0.5
         view.addSubview(blur)
         view.sendSubviewToBack(blur)
+        
+        nameTextField.returnKeyType       = .next
+        surnameTextField.returnKeyType    = .next
+        lastnameTextField.returnKeyType   = .next
+        emailTextField.returnKeyType      = .next
+        passwordTextField.returnKeyType   = .next
+        telegramIdTextField.returnKeyType = .done
 
         // === Stack ===
         let stack = UIStackView(arrangedSubviews: [
@@ -147,6 +163,36 @@ final class SignUpViewController: UIViewController, UITextFieldDelegate {
             stack.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
+    
+    private func setupNavigation() {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithTransparentBackground()
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        navigationController?.navigationBar.compactAppearance = appearance
+        navigationController?.navigationBar.tintColor = .white
+
+        navigationItem.leftBarButtonItem = UIBarButtonItem(
+            image: UIImage(systemName: "chevron.backward"),
+            style: .plain,
+            target: self,
+            action: #selector(backTapped)
+        )
+    }
+    
+    private func addTapToDismissKeyboard() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(handleTapToDismiss))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
+    
+    private func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
 
     // MARK: - Actions
     @objc private func signUpTapped() {
@@ -176,10 +222,12 @@ final class SignUpViewController: UIViewController, UITextFieldDelegate {
         )
     }
     
-    private func showAlert(title: String, message: String) {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: true)
+    @objc private func backTapped() {
+        presenter.didTapBack()
+    }
+    
+    @objc private func handleTapToDismiss() {
+        view.endEditing(true)
     }
 }
 

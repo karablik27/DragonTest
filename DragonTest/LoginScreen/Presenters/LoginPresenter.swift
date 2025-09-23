@@ -53,10 +53,12 @@ final class LoginPresenter: LoginViewOutput {
     private func map(_ error: Error) -> String {
         let ns = error as NSError
         switch ns.code {
-        case 17009: return "Неверный пароль."
+        case 17004: return "Неверный пароль."
+        case 17007: return "Пользователь с таким e-mail уже зарегистрирован."
         case 17008: return "Неверный формат email."
-        case 17011: return "Пользователь не найден."
-        case 17020: return "Ошибка сети. Проверьте интернет."
+        case 17009: return "Некорректные учетные данные."
+        case 17011: return "Пользователь с такие e-mail не найден."
+        case 17020: return "Ошибка сети (нет интернета)."
         default: return ns.localizedDescription
         }
     }
