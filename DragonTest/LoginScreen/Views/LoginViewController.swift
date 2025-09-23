@@ -6,12 +6,9 @@
 //
 
 import UIKit
-import FirebaseAuth
 
 final class LoginViewController: UIViewController, UITextFieldDelegate {
-    private let userService = DependencyInjection.shared.userService
-    private let authentification = DependencyInjection.shared.authentication
-    private var currentUser = DependencyInjection.shared.currentUser
+    private var presenter: LoginViewOutput!
 
     // MARK: - UI
     private let titleLabel: UILabel = {
@@ -23,7 +20,7 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
         return label
     }()
 
-    private lazy var  emailTextField: UITextField = {
+    private lazy var emailTextField: UITextField = {
         let tf = UITextField()
         tf.placeholder = "Почта"
         tf.autocapitalizationType = .none
@@ -39,7 +36,7 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
         return tf
     }()
 
-    private lazy var  passwordTextField: UITextField = {
+    private lazy var passwordTextField: UITextField = {
         let tf = UITextField()
         tf.placeholder = "Пароль"
         tf.isSecureTextEntry = true
@@ -100,6 +97,10 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        presenter = LoginPresenter(
+            view: self,
+            authService: DependencyInjection.shared.authentication,
+        )
     }
 
     override func viewDidLayoutSubviews() {
@@ -182,16 +183,6 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
         s.distribution = .fillProportionally
         return s
     }
-    
-    private func errorMessage(for error: NSError) -> String {
-        switch error.code {
-            case AuthErrorCode.wrongPassword.rawValue: return "Неверный пароль."
-            case AuthErrorCode.invalidEmail.rawValue: return "Неверный формат email."
-            case AuthErrorCode.userNotFound.rawValue: return "Пользователь не найден."
-            case AuthErrorCode.networkError.rawValue: return "Ошибка сети. Проверьте интернет."
-            default: return error.localizedDescription
-        }
-    }
 
     private func showAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
@@ -201,52 +192,14 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
 
     // MARK: - Actions
     @objc private func loginTapped() {
-        let email = emailTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        let password = passwordTextField.text ?? ""
-        
-        guard !email.isEmpty, !password.isEmpty else {
-            showAlert(title: "Ошибка", message: "Введите почту и пароль")
-            return
-        }
-        
-        Task {
-            do {
-                _ = try await authentification.signInUser(email: email, password: password)
-                let user = try await userService.fetchUser(uid: Auth.auth().currentUser!.uid)
-                currentUser.userId = user.id
-                currentUser.role = user.role
-
-                
-                if let sceneDelegate = UIApplication.shared.connectedScenes
-                    .compactMap({$0 as? UIWindowScene})
-                    .first?.delegate as? SceneDelegate,
-                   let window = sceneDelegate.window {
-                    let root = RootTabBarController()
-                    UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve) {
-                        window.rootViewController = root
-                    }
-                    window.makeKeyAndVisible()
-                }
-                    
-            } catch {
-                let nsError = error as NSError
-                let message: String
-                switch nsError.code {
-                case AuthErrorCode.wrongPassword.rawValue: message = "Неверный пароль."
-                case AuthErrorCode.invalidEmail.rawValue:  message = "Неверный формат email."
-                case AuthErrorCode.userNotFound.rawValue:  message = "Пользователь не найден."
-                case AuthErrorCode.networkError.rawValue:  message = "Ошибка сети. Проверьте интернет."
-                default: message = nsError.localizedDescription
-                }
-                showAlert(title: "Ошибка входа", message: message)
-            }
-        }
+        presenter.didTapLogin(
+            email: emailTextField.text ?? "",
+            password: passwordTextField.text ?? ""
+        )
     }
 
     @objc private func signUpTapped() {
-        let vc = SignUpViewController()
-        vc.modalPresentationStyle = .fullScreen
-        present(vc, animated: true)
+        presenter.didTapSignUp()
     }
 }
 
@@ -256,5 +209,41 @@ private extension UITextField {
         let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: amount, height: self.frame.size.height))
         self.leftView = paddingView
         self.leftViewMode = .always
+    }
+}
+
+extension LoginViewController: LoginViewInput {
+    func setLoading(_ isLoading: Bool) {
+        loginButton.isEnabled = !isLoading
+        signUpButton.isEnabled = !isLoading
+        view.isUserInteractionEnabled = !isLoading
+        // Добавить индикатор
+    }
+    
+    func showError(_ message: String) {
+        showAlert(title: "Ошибка", message: message)
+    }
+    
+    func closeKeyboard() {
+        view.endEditing(true)
+    }
+    
+    func openMain() {
+        if let sceneDelegate = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first?.delegate as? SceneDelegate,
+           let window = sceneDelegate.window {
+            let root = RootTabBarController()
+            UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve) {
+                window.rootViewController = root
+            }
+            window.makeKeyAndVisible()
+        }
+    }
+    
+    func openSignUp() {
+        let vc = SignUpViewController()
+        vc.modalPresentationStyle = .fullScreen
+        present(vc, animated: true)
     }
 }
