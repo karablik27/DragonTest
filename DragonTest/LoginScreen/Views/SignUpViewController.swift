@@ -8,9 +8,7 @@
 import UIKit
 
 final class SignUpViewController: UIViewController, UITextFieldDelegate {
-    private let authentification = DependencyInjection.shared.authentication
-    private let userService = DependencyInjection.shared.userService
-    private var currentUser = DependencyInjection.shared.currentUser
+    private var presenter: SignUpViewOutput!
     
     // MARK: - UI
     private let titleLabel: UILabel = {
@@ -74,6 +72,11 @@ final class SignUpViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        presenter = SignUpPresenter(
+            view: self,
+            authService: DependencyInjection.shared.authentication,
+            userService: DependencyInjection.shared.userService
+        )
     }
 
     override func viewDidLayoutSubviews() {
@@ -155,41 +158,28 @@ final class SignUpViewController: UIViewController, UITextFieldDelegate {
             let password = passwordTextField.text, !password.isEmpty,
             let telegramId = telegramIdTextField.text
         else {
-            print("Заполните все поля!")
+            showAlert(title: "Ошибка", message: "Заполните все поля")
             return
         }
         
         let language: Language = languageControl.selectedSegmentIndex == 0 ? .russian : .english
         
-        Task {
-            do {
-                var newUser = try await authentification.createUser(email: email, password: password)
-                
-                newUser.name = name
-                newUser.surname = surname
-                newUser.lastname = lastname
-                newUser.telegramId = telegramId
-                newUser.role = .student
-                newUser.language = language
-                currentUser.userId = newUser.id
-                currentUser.role = newUser.role
-                
-                print("Успешная регистрация: \(newUser)")
-                
-                if let sceneDelegate = UIApplication.shared.connectedScenes
-                    .compactMap({$0 as? UIWindowScene})
-                    .first?.delegate as? SceneDelegate,
-                   let window = sceneDelegate.window {
-                    let root = RootTabBarController()
-                    UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve) {
-                        window.rootViewController = root
-                    }
-                    window.makeKeyAndVisible()
-                }
-            } catch {
-                print("Ошибка регистрации: \(error.localizedDescription)")
-            }
-        }
+        presenter.didTapSignUp(
+            name: name,
+            surname: surname,
+            lastname: lastname,
+            email: email,
+            password: password,
+            telegramId: telegramId,
+            role: .student,
+            language: language
+        )
+    }
+    
+    private func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 }
 
@@ -199,5 +189,38 @@ private extension UITextField {
         let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: amount, height: self.frame.size.height))
         self.leftView = paddingView
         self.leftViewMode = .always
+    }
+}
+
+extension SignUpViewController: SignUpViewInput {
+    func setLoading(_ isLoading: Bool) {
+        signUpButton.isEnabled = !isLoading
+        view.isUserInteractionEnabled = !isLoading
+        // Индикатор загрузки
+    }
+
+    func showError(_ message: String) {
+        showAlert(title: "Ошибка регистрации", message: message)
+    }
+
+    func showSuccess() {
+        // тост/алерт об успехе
+    }
+
+    func openMain() {
+        if let sceneDelegate = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first?.delegate as? SceneDelegate,
+           let window = sceneDelegate.window {
+            let root = RootTabBarController()
+            UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve) {
+                window.rootViewController = root
+            }
+            window.makeKeyAndVisible()
+        }
+    }
+
+    func backToLogin() {
+        dismiss(animated: true)
     }
 }
