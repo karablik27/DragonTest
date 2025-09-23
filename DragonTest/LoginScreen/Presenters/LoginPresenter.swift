@@ -32,6 +32,21 @@ final class LoginPresenter: LoginViewOutput {
             guard let self else { return }
             do {
                 let firebaseUser = try await self.authService.signInUser(email: email, password: password)
+
+                let deviceId = DeviceIdProvider.shared.deviceId
+                do {
+                    _ = try await DependencyInjection.shared.sessionService.startSession(
+                        uid: firebaseUser.id,
+                        deviceId: deviceId,
+                        force: false
+                    )
+                } catch {
+                    await MainActor.run {
+                        self.view?.setLoading(false)
+                        self.view?.showError("Аккаунт используется на другом устройстве. Пожалуйста, выйдите из прошлой сессии.")
+                    }
+                    return
+                }
                 
                 let fullUser = try await DependencyInjection.shared.userService.fetchUser(uid: firebaseUser.id)
                 

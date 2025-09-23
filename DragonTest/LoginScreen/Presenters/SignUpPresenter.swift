@@ -12,13 +12,16 @@ final class SignUpPresenter: SignUpViewOutput {
     
     private let authService: AuthenticationServiceProtocol
     private let userService: UserServiceProtocol
+    private let sessionService: SessionServiceProtocol
     
     init(view: SignUpViewInput,
          authService: AuthenticationServiceProtocol,
-         userService: UserServiceProtocol) {
+         userService: UserServiceProtocol,
+         sessionService: SessionServiceProtocol = DependencyInjection.shared.sessionService) {
         self.view = view
         self.authService = authService
         self.userService = userService
+        self.sessionService = sessionService
     }
     
     func viewDidLoad() {}
@@ -46,7 +49,25 @@ final class SignUpPresenter: SignUpViewOutput {
                 user.language = language
 
                 try await self.userService.saveUser(user)
-
+                
+                let deviceId = DeviceIdProvider.shared.deviceId
+                do {
+                    _ = try await self.sessionService.startSession(
+                        uid: user.id,
+                        deviceId: deviceId,
+                        force: false
+                    )
+                } catch {
+                    await MainActor.run {
+                        self.view?.setLoading(false)
+                        self.view?.showError("Аккаунт уже активен на другом устройстве. Пожалуйста, завершите сессию на другом устройстве.")
+                    }
+                    return
+                }
+                
+                DependencyInjection.shared.currentUser.userId = user.id
+                DependencyInjection.shared.currentUser.role = .student
+                
                 await MainActor.run {
                     self.view?.setLoading(false)
                     self.view?.showSuccess()

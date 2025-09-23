@@ -157,23 +157,28 @@ final class SettingsViewController: UIViewController {
     }
     
     @objc private func logoutTapped() {
-        do {
-            try Auth.auth().signOut()
-        } catch {
-            print("SignOut error:", error)
-        }
+        Task { [weak self] in
+            let deviceId = DeviceIdProvider.shared.deviceId
+            if let uid = Auth.auth().currentUser?.uid {
+                await DependencyInjection.shared.sessionService.endSession(
+                    uid: uid,
+                    deviceId: deviceId
+                )
+            }
 
-        if let sceneDelegate = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .first?.delegate as? SceneDelegate {
+            do {
+                try Auth.auth().signOut()
+            } catch {
+                return
+            }
 
-            let login = LoginViewController()
-            let nav = UINavigationController(rootViewController: login)
+            DependencyInjection.shared.currentUser.clear()
 
-            if let window = sceneDelegate.window {
-                UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve) {
-                    window.rootViewController = nav
-                }
+            await MainActor.run {
+                // верни пользователя на экран логина
+                let vc = LoginViewController()
+                vc.modalPresentationStyle = .fullScreen
+                self?.present(vc, animated: true)
             }
         }
     }
