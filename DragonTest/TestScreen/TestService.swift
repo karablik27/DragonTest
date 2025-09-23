@@ -9,7 +9,6 @@
 import Foundation
 import FirebaseFirestore
 
-
 final class TestService: TestServiceProtocol {
     private let dataBase: Firestore
     private let currentUser: CurrentUserServiceProtocol
@@ -20,21 +19,32 @@ final class TestService: TestServiceProtocol {
     }
 
     func fetchTests() async throws -> [Test] {
-        let snapshot = try await DependencyInjection.shared.dataBase.collection("tests")
-            .whereField("teacherId", isEqualTo: currentUser.userId ?? "")
-            .getDocuments()
+        guard let uid = currentUser.userId else { return [] }
+        
+        let query: Query
+        if currentUser.role == .teacher {
+            // Преподаватель видит свои тесты
+            query = dataBase.collection("tests").whereField("teacherId", isEqualTo: uid)
+        } else {
+            // Ученик видит только тесты, куда он добавлен
+            query = dataBase.collection("tests").whereField("studentIds", arrayContains: uid)
+        }
+        
+        let snapshot = try await query.getDocuments()
         return try snapshot.documents.compactMap { try $0.data(as: Test.self) }
     }
 
-
-    func createTest(title: String, dragon: DragonKind, questions: [Questions],
+    func createTest(title: String,
+                    dragon: DragonKind,
+                    questions: [Questions],
                     studentIds: [String] = [],
-                    completion: @escaping (Result<Test, Error>
-                    ) -> Void) {
+                    completion: @escaping (Result<Test, Error>) -> Void) {
         guard let teacherId = currentUser.userId else {
-            completion(.failure(NSError(domain: "TestService",
-                                        code: 0,
-                                        userInfo: [NSLocalizedDescriptionKey: "Нет userId у текущего пользователя"])))
+            completion(.failure(NSError(
+                domain: "TestService",
+                code: 0,
+                userInfo: [NSLocalizedDescriptionKey: "Нет userId у текущего пользователя"]
+            )))
             return
         }
 
@@ -55,14 +65,16 @@ final class TestService: TestServiceProtocol {
         }
     }
 
-
     func saveTest(_ test: Test, completion: @escaping (Result<Void, Error>) -> Void) {
         do {
             try dataBase.collection("tests")
                 .document(test.id)
                 .setData(from: test) { error in
-                    if let error = error { completion(.failure(error)) }
-                    else { completion(.success(())) }
+                    if let error = error {
+                        completion(.failure(error))
+                    } else {
+                        completion(.success(()))
+                    }
                 }
         } catch {
             completion(.failure(error))

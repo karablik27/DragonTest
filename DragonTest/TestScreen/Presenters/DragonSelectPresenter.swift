@@ -11,24 +11,18 @@ import Foundation
 final class DragonSelectPresenter: DragonSelectPresenterProtocol {
 
     private weak var view: DragonSelectViewProtocol?
-    private let testService: TestServiceProtocol
+    private let di = DependencyInjection.shared
 
-    private(set) var items: [CarouselItem] = [.addButton]
+    private(set) var items: [CarouselItem] = []
     private(set) var currentIndex: Int = 0
 
-    init(view: DragonSelectViewProtocol,
-         testService: TestServiceProtocol = TestService(
-            dataBase: DependencyInjection.shared.dataBase,
-            currentUser: DependencyInjection.shared.currentUser
-         )) {
+    init(view: DragonSelectViewProtocol) {
         self.view = view
-        self.testService = testService
     }
-
 
     func viewDidLoad() {
         Task { @MainActor in
-            await DependencyInjection.shared.dragonCache.preload()
+            await di.dragonCache.preload()
             loadTests()
         }
     }
@@ -37,8 +31,23 @@ final class DragonSelectPresenter: DragonSelectPresenterProtocol {
         Task { [weak self] in
             guard let self else { return }
             do {
-                let tests = try await testService.fetchTests()
-                self.items = [.addButton] + tests.map { .test($0) }
+                let tests = try await di.testService.fetchTests()
+                
+                if di.currentUser.role == .teacher {
+                    self.items = [.addButton] + tests.map { .test($0) }
+                } else {
+                    let studentId = di.currentUser.userId ?? ""
+                    let studentTests = tests.filter { $0.studentIds.contains(studentId) }
+                    if studentTests.isEmpty {
+                        await MainActor.run {
+                            self.view?.showEmptyState()
+                        }
+                        return
+                    } else {
+                        self.items = studentTests.map { .test($0) }
+                    }
+                }
+                
                 self.currentIndex = min(self.currentIndex, self.items.count - 1)
                 await MainActor.run {
                     self.view?.updateUI(items: self.items, currentIndex: self.currentIndex)
@@ -48,7 +57,6 @@ final class DragonSelectPresenter: DragonSelectPresenterProtocol {
             }
         }
     }
-
 
     func didSelectNext() {
         guard currentIndex < items.count - 1 else { return }
@@ -63,7 +71,9 @@ final class DragonSelectPresenter: DragonSelectPresenterProtocol {
     }
 
     func didTapAdd() {
-        view?.openAddTest()
+        if di.currentUser.role == .teacher {
+            view?.openAddTest()
+        }
     }
 
     func didHoldStartTest() {
@@ -78,7 +88,6 @@ final class DragonSelectPresenter: DragonSelectPresenterProtocol {
     }
 
     func didCreateTest(_ test: Test) {
-        // уже сохранён в сервисе, просто добавим в ленту
         items.append(.test(test))
         currentIndex = items.count - 1
         view?.updateUI(items: items, currentIndex: currentIndex)
