@@ -97,6 +97,7 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        addTapToDismissKeyboard()
         presenter = LoginPresenter(
             view: self,
             authService: DependencyInjection.shared.authentication,
@@ -183,6 +184,12 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
         s.distribution = .fillProportionally
         return s
     }
+    
+    private func addTapToDismissKeyboard() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(handleTapToDismiss))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
 
     private func showAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
@@ -200,6 +207,10 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
 
     @objc private func signUpTapped() {
         presenter.didTapSignUp()
+    }
+    
+    @objc private func handleTapToDismiss() {
+        view.endEditing(true)
     }
 }
 
@@ -243,7 +254,8 @@ extension LoginViewController: LoginViewInput {
     
     func openSignUp() {
         let vc = SignUpViewController()
-        vc.modalPresentationStyle = .fullScreen
-        present(vc, animated: true)
+        let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
     }
 }
