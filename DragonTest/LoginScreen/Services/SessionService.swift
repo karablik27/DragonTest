@@ -3,7 +3,11 @@ import FirebaseFirestore
 import FirebaseAuth
 
 final class SessionService: SessionServiceProtocol {
-    private let db = Firestore.firestore()
+    private let db: Firestore
+    
+    init(dataBase: Firestore) {
+        self.db = dataBase
+    }
 
     func startSession(uid: String, deviceId: String, force: Bool) async throws -> String {
         let ref = db.collection("sessions").document(uid)
