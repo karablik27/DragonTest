@@ -9,11 +9,26 @@
 
 import UIKit
 import FirebaseAuth
+import FirebaseFirestore
 
 final class SettingsViewController: UIViewController {
     
     private let scrollView = UIScrollView()
     private let contentStack = UIStackView()
+    
+    private let userService: UserServiceProtocol = UserService(dataBase: Firestore.firestore())
+
+    private var userDataTask: Task<User?, Never> = Task { nil }
+
+    override init(nibName: String? = nil, bundle: Bundle? = nil) {
+        super.init(nibName: nibName, bundle: bundle)
+        userDataTask = loadUserData()
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        userDataTask = loadUserData()
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,6 +37,25 @@ final class SettingsViewController: UIViewController {
         setupBackground()
         setupLayout()
         addProfileSettings()
+        fillFields()
+    }
+    
+    // MARK: - Data Loading
+    private func loadUserData() -> Task<User?, Never> {
+        guard let uid = Auth.auth().currentUser?.uid else { 
+            return Task { nil }
+        }
+        
+        return Task { [weak self] in
+            do {
+                return try await self?.userService.fetchUser(uid: uid)
+            } catch {
+                await MainActor.run {
+                    self?.showAlert(title: "Ошибка", message: "Не удалось загрузить данные профиля")
+                }
+                return nil
+            }
+        }
     }
     
     // MARK: - Layout
@@ -79,7 +113,7 @@ final class SettingsViewController: UIViewController {
     // MARK: - Profile Settings
     private func addProfileSettings() {
         
-        func makeField(title: String, placeholder: String, isSecure: Bool = false) -> UIStackView {
+        func makeField(title: String, placeholder: String, isSecure: Bool = false, action: Selector) -> UIStackView {
             let label = UILabel()
             label.text = title
             label.font = .systemFont(ofSize: 14, weight: .medium)
@@ -88,6 +122,7 @@ final class SettingsViewController: UIViewController {
             textField.placeholder = placeholder
             textField.borderStyle = .roundedRect
             textField.isSecureTextEntry = isSecure
+            textField.addTarget(self, action: action, for: .editingDidEnd)
             
             let stack = UIStackView(arrangedSubviews: [label, textField])
             stack.axis = .vertical
@@ -95,16 +130,17 @@ final class SettingsViewController: UIViewController {
             return stack
         }
     
-        let nameField = makeField(title: "Имя пользователя", placeholder: "Введите имя")
-        let tgField = makeField(title: "Телеграмм", placeholder: "Введите телеграмм")
-        let loginField = makeField(title: "Логин", placeholder: "example@mail.com")
-        let passwordField = makeField(title: "Пароль", placeholder: "Введите пароль", isSecure: true)
+        let nameField = makeField(title: "Имя пользователя", placeholder: "Введите имя", action: #selector(nameChanged(_:)))
+        let tgField = makeField(title: "Телеграмм", placeholder: "Введите телеграмм", action: #selector(telegramChanged(_:)))
+        let loginField = makeField(title: "Логин", placeholder: "example@mail.com", action: #selector(emailChanged(_:)))
+        let passwordField = makeField(title: "Пароль", placeholder: "Введите новый пароль", isSecure: true, action: #selector(passwordChanged(_:)))
         
         let roleLabel = UILabel()
         roleLabel.text = "Роль"
         roleLabel.font = .systemFont(ofSize: 14, weight: .medium)
-        let roleSegment = UISegmentedControl(items: ["Ученик", "Учитель"])
+        let roleSegment = UISegmentedControl(items: ["Студент", "Преподаватель"])
         roleSegment.selectedSegmentIndex = 0
+        roleSegment.addTarget(self, action: #selector(roleChanged(_:)), for: .valueChanged)
         let roleStack = UIStackView(arrangedSubviews: [roleLabel, roleSegment])
         roleStack.axis = .vertical
         roleStack.spacing = 6
@@ -114,6 +150,7 @@ final class SettingsViewController: UIViewController {
         langLabel.font = .systemFont(ofSize: 14, weight: .medium)
         let langSegment = UISegmentedControl(items: ["Русский", "English"])
         langSegment.selectedSegmentIndex = 0
+        langSegment.addTarget(self, action: #selector(languageChanged(_:)), for: .valueChanged)
         let langStack = UIStackView(arrangedSubviews: [langLabel, langSegment])
         langStack.axis = .vertical
         langStack.spacing = 6
@@ -132,6 +169,7 @@ final class SettingsViewController: UIViewController {
         notifLabel.font = .systemFont(ofSize: 14, weight: .medium)
         let notifSwitch = UISwitch()
         notifSwitch.isOn = true
+        notifSwitch.addTarget(self, action: #selector(notificationChanged(_:)), for: .valueChanged)
         let notifStack = UIStackView(arrangedSubviews: [notifLabel, notifSwitch])
         notifStack.axis = .horizontal
         notifStack.alignment = .center
@@ -144,6 +182,13 @@ final class SettingsViewController: UIViewController {
         logoutButton.layer.cornerRadius = 22
         logoutButton.heightAnchor.constraint(equalToConstant: 44).isActive = true
         logoutButton.addTarget(self, action: #selector(logoutTapped), for: .touchUpInside)
+
+        nameField.tag = 1
+        tgField.tag = 2
+        loginField.tag = 3
+        roleStack.tag = 4
+        langStack.tag = 5
+        notifStack.tag = 6
         
         contentStack.addArrangedSubview(nameField)
         contentStack.addArrangedSubview(tgField)
@@ -154,6 +199,50 @@ final class SettingsViewController: UIViewController {
         contentStack.addArrangedSubview(themeStack)
         contentStack.addArrangedSubview(notifStack)
         contentStack.addArrangedSubview(logoutButton)
+    }
+    
+
+    
+    private func fillFields() {
+        Task {
+            if let user = await userDataTask.value {
+                await MainActor.run {
+                    applyUserData(user)
+                }
+            }
+        }
+    }
+    
+    private func applyUserData(_ user: User) {
+        if let nameStack = contentStack.arrangedSubviews.first(where: { $0.tag == 1 }) as? UIStackView,
+           let nameField = nameStack.arrangedSubviews.last as? UITextField {
+            nameField.text = user.name
+        }
+        
+        if let tgStack = contentStack.arrangedSubviews.first(where: { $0.tag == 2 }) as? UIStackView,
+           let tgField = tgStack.arrangedSubviews.last as? UITextField {
+            tgField.text = user.telegramId
+        }
+        
+        if let loginStack = contentStack.arrangedSubviews.first(where: { $0.tag == 3 }) as? UIStackView,
+           let loginField = loginStack.arrangedSubviews.last as? UITextField {
+            loginField.text = user.email
+        }
+        
+        if let roleStack = contentStack.arrangedSubviews.first(where: { $0.tag == 4 }) as? UIStackView,
+           let roleSegment = roleStack.arrangedSubviews.first(where: { $0 is UISegmentedControl }) as? UISegmentedControl {
+            roleSegment.selectedSegmentIndex = user.role == .student ? 0 : 1
+        }
+        
+        if let langStack = contentStack.arrangedSubviews.first(where: { $0.tag == 5 }) as? UIStackView,
+           let langSegment = langStack.arrangedSubviews.first(where: { $0 is UISegmentedControl }) as? UISegmentedControl {
+            langSegment.selectedSegmentIndex = user.language == .russian ? 0 : 1
+        }
+        
+        if let notifStack = contentStack.arrangedSubviews.first(where: { $0.tag == 6 }) as? UIStackView,
+           let notifSwitch = notifStack.arrangedSubviews.first(where: { $0 is UISwitch }) as? UISwitch {
+            notifSwitch.isOn = user.isNotificationEnabled
+        }
     }
     
     @objc private func logoutTapped() {
@@ -181,5 +270,108 @@ final class SettingsViewController: UIViewController {
                 self?.present(vc, animated: true)
             }
         }
+    }
+    
+    // MARK: - Edition handlers
+    
+    @objc private func nameChanged(_ sender: UITextField) {
+        guard let text = sender.text, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              let uid = Auth.auth().currentUser?.uid else { return }
+        
+        let update = UserUpdate(id: uid, name: text.trimmingCharacters(in: .whitespacesAndNewlines))
+        updateUser(with: update)
+    }
+    
+    @objc private func telegramChanged(_ sender: UITextField) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let text = sender.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        
+        let update = UserUpdate(id: uid, telegramId: text)
+        updateUser(with: update)
+    }
+    
+    @objc private func emailChanged(_ sender: UITextField) {
+        guard let text = sender.text, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        
+        let newEmail = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        updateEmail(newEmail)
+    }
+    
+    @objc private func passwordChanged(_ sender: UITextField) {
+        guard let text = sender.text, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        
+        let newPassword = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        updatePassword(newPassword)
+    }
+    
+    @objc private func roleChanged(_ sender: UISegmentedControl) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let newRole: Role = sender.selectedSegmentIndex == 0 ? .student : .teacher
+        
+        let update = UserUpdate(id: uid, role: newRole)
+        updateUser(with: update)
+    }
+    
+    @objc private func languageChanged(_ sender: UISegmentedControl) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let newLanguage: Language = sender.selectedSegmentIndex == 0 ? .russian : .english
+        
+        let update = UserUpdate(id: uid, language: newLanguage)
+        updateUser(with: update)
+    }
+    
+    @objc private func notificationChanged(_ sender: UISwitch) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        
+        let update = UserUpdate(id: uid, isNotificationEnabled: sender.isOn)
+        updateUser(with: update)
+    }
+    
+    private func updateUser(with update: UserUpdate) {
+        Task {
+            do {
+                try await userService.updateUser(update)
+            } catch {
+                await MainActor.run {
+                    showAlert(title: "Ошибка", message: "Не удалось сохранить изменения")
+                }
+            }
+        }
+    }
+    
+    private func updateEmail(_ newEmail: String) {
+        Task {
+            do {
+                try await userService.updateEmail(newEmail)
+                await MainActor.run {
+                    showAlert(title: "Успешно", message: "Email обновлен")
+                }
+            } catch {
+                await MainActor.run {
+                    showAlert(title: "Ошибка", message: "Не удалось обновить email: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    private func updatePassword(_ newPassword: String) {
+        Task {
+            do {
+                try await userService.updatePassword(newPassword)
+                await MainActor.run {
+                    showAlert(title: "Успешно", message: "Пароль обновлен")
+                }
+            } catch {
+                await MainActor.run {
+                    showAlert(title: "Ошибка", message: "Не удалось обновить пароль: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    private func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 }
