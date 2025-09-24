@@ -116,7 +116,7 @@ final class SettingsViewController: UIViewController {
         func makeField(title: String, placeholder: String, isSecure: Bool = false, action: Selector) -> UIStackView {
             let label = UILabel()
             label.text = title
-            label.font = .systemFont(ofSize: 14, weight: .medium)
+            label.font = .systemFont(ofSize: 16, weight: .semibold)
             
             let textField = UITextField()
             textField.placeholder = placeholder
