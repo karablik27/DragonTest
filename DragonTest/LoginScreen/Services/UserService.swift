@@ -24,6 +24,34 @@ final class UserService: UserServiceProtocol {
 
         try dataBase.collection("users").document(uid).setData(from: user)
     }
+    
+    func updateUser(_ userUpdate: UserUpdate) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            throw NSError(domain: "UserService",
+                          code: 0,
+                          userInfo: [NSLocalizedDescriptionKey: "Нет текущего пользователя"])
+        }
+        try await dataBase.collection("users").document(uid).setData(from: userUpdate, merge: true)
+    }
+    
+    func updateEmail(_ newEmail: String) async throws {
+        guard let currentUser = Auth.auth().currentUser else {
+            throw NSError(domain: "UserService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Нет текущего пользователя"])
+        }
+        
+        try await currentUser.updateEmail(to: newEmail)
+        
+        let update = UserUpdate(id: currentUser.uid, email: newEmail)
+        try await updateUser(update)
+    }
+    
+    func updatePassword(_ newPassword: String) async throws {
+        guard let currentUser = Auth.auth().currentUser else {
+            throw NSError(domain: "UserService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Нет текущего пользователя"])
+        }
+        
+        try await currentUser.updatePassword(to: newPassword)
+    }
 
     func fetchUser(uid: String) async throws -> User {
         let snapshot = try await dataBase.collection("users").document(uid).getDocument()
