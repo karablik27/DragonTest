@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Firebase
 
 final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDelegate {
     func numberOfComponents(in pickerView: UIPickerView) -> Int { 1 }
@@ -45,6 +46,9 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
     private var panelIsVisible = false
     private var panelPanStartX: CGFloat = 0
     
+    // MARK: - Notifications
+    private var notifications: [String] = []
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -56,6 +60,8 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
         addSudentsResultsSection()
         
         setupRightPanel()
+        
+        fetchNotifications()
     }
     
     override func viewDidLayoutSubviews() {
@@ -446,7 +452,79 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
         
         contentStack.addArrangedSubview(container)
     }
+    
+    private func fetchNotifications() {
+        guard let userId = DependencyInjection.shared.currentUser.userId else { return }
 
+        let db = Firestore.firestore()
+        db.collection("tests")
+            .whereField("studentIds", arrayContains: userId)
+            .addSnapshotListener { [weak self] snapshot, error in
+                guard let self = self else { return }
+                guard let documents = snapshot?.documents else { return }
+
+                self.notifications = documents.map { doc in
+                    let testTitle = doc.data()["title"] as? String ?? "Тест"
+                    return "Вы приглашены в тест: \n\(testTitle)"
+                }
+
+                DispatchQueue.main.async {
+                    self.updateNotificationList()
+                    NotificationCenter.default.post(name: .newTestNotification, object: nil)
+                }
+            }
+    }
+    
+    private func updateNotificationList() {
+        // Обновить UI списка уведомлений в правой панели
+        let list = UIStackView()
+        list.axis = .vertical
+        list.spacing = 12
+
+        notifications.forEach { notification in
+            let container = UIView()
+            container.backgroundColor = UIColor(white: 0.95, alpha: 1)
+            container.layer.cornerRadius = 12
+            container.layer.shadowColor = UIColor.black.cgColor
+            container.layer.shadowOpacity = 0.5
+            container.layer.shadowOffset = CGSize(width: 0, height: 3)
+            container.layer.shadowRadius = 6
+            
+            let icon = UIImageView(image: UIImage(systemName: "book.fill"))
+            icon.tintColor = .systemBlue
+            icon.contentMode = .scaleAspectFit
+            icon.translatesAutoresizingMaskIntoConstraints = false
+            icon.heightAnchor.constraint(equalToConstant: 40).isActive = true
+            icon.widthAnchor.constraint(equalToConstant: 40).isActive = true
+            
+            let label = UILabel()
+            label.text = notification
+            label.font = .systemFont(ofSize: 16, weight: .semibold)
+            label.textColor = .label
+            label.numberOfLines = 0
+            
+            let stack = UIStackView(arrangedSubviews: [icon, label])
+            stack.axis = .horizontal
+            stack.spacing = 10
+            stack.alignment = .center
+            stack.translatesAutoresizingMaskIntoConstraints = false
+            container.addSubview(stack)
+            
+            NSLayoutConstraint.activate([
+                stack.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
+                stack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
+                stack.topAnchor.constraint(equalTo: container.topAnchor, constant: 8),
+                stack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -8)
+            ])
+            
+            list.addArrangedSubview(container)
+        }
+
+        if let panelStack = panelView.subviews.first(where: { $0 is UIStackView }) as? UIStackView {
+            panelStack.arrangedSubviews.last?.removeFromSuperview()
+            panelStack.addArrangedSubview(list)
+        }
+    }
 }
 
 // MARK: - Правая панель уведомлений
@@ -563,4 +641,8 @@ private extension ProfileViewController {
         default: break
         }
     }
+}
+
+extension Notification.Name {
+    static let newTestNotification = Notification.Name("newTestNotification")
 }
