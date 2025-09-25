@@ -82,8 +82,10 @@ final class DragonSelectPresenter: DragonSelectPresenterProtocol {
     }
 
     func didFinishTest(completed: Int) {
-        if case .test(let test) = items[currentIndex] {
-            print("✅ Тест \(test.title) завершён. Ответов: \(completed)")
+        if case let .test(test) = items[currentIndex] {
+            Task { @MainActor in
+                self.view?.updateUI(items: self.items, currentIndex: self.currentIndex)
+            }
         }
     }
 
