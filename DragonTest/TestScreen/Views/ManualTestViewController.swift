@@ -1,14 +1,8 @@
-//
 //  ManualTestViewController.swift
 //  DragonTest
 //
 //  Created by Верховный Маг on 22.09.2025.
 //
-
-// Добавить счетчик выбранных вопросов
-
-// Добавить добавления названия теста
-// Добавить участников по нику
 
 import UIKit
 import FirebaseFirestore
@@ -19,16 +13,43 @@ final class ManualTestViewController: UIViewController {
     private let testService: TestServiceProtocol
 
     private var topics: [Topic] = []
-    private var selectedQuestions: [Questions] = []
+    private var testTitle: String = ""
+    private var participants: [String] = []
+
+    private var selectedQuestions: [Questions] = [] {
+        didSet { updateCounter() }
+    }
 
     private let tableView = UITableView(frame: .zero, style: .insetGrouped)
 
+    private lazy var counterItem: UIBarButtonItem = {
+        let item = UIBarButtonItem(title: "0/40", style: .plain, target: nil, action: nil)
+        item.isEnabled = false
+        return item
+    }()
+
+    private lazy var doneItem: UIBarButtonItem = {
+        UIBarButtonItem(title: "Готово", style: .done, target: self, action: #selector(finishSelection))
+    }()
+
+    // MARK: - Init
     init(testService: TestServiceProtocol) {
         self.testService = testService
         super.init(nibName: nil, bundle: nil)
     }
     required init?(coder: NSCoder) { fatalError() }
 
+    // MARK: - Config
+    func setPreselectedQuestions(_ questions: [Questions]) {
+        selectedQuestions = questions
+    }
+
+    func configure(title: String, participants: [String]) {
+        self.testTitle = title
+        self.participants = participants
+    }
+
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Выбор вопросов"
@@ -48,18 +69,19 @@ final class ManualTestViewController: UIViewController {
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            title: "Готово",
-            style: .done,
-            target: self,
-            action: #selector(finishSelection)
-        )
+        navigationItem.rightBarButtonItems = [counterItem, doneItem]
+        updateCounter()
 
         loadTopicsAndQuestions()
     }
 
+    private func updateCounter() {
+        counterItem.title = "\(selectedQuestions.count)/40"
+    }
+
+    // MARK: - Firestore
     private func loadTopicsAndQuestions() {
-        Firestore.firestore().collection("questionBank").getDocuments { snapshot, error in
+        Firestore.firestore().collection("questionBank").getDocuments { snapshot, _ in
             guard let docs = snapshot?.documents else { return }
             self.topics = docs.compactMap { doc in
                 let data = doc.data()
@@ -97,36 +119,42 @@ final class ManualTestViewController: UIViewController {
         }
     }
 
+    // MARK: - Finish
     @objc private func finishSelection() {
         guard selectedQuestions.count == 40 else {
-            let alert = UIAlertController(
-                title: "Ошибка",
-                message: "Нужно выбрать ровно 40 вопросов!",
-                preferredStyle: .alert
-            )
-            alert.addAction(UIAlertAction(title: "Ок", style: .default))
-            present(alert, animated: true)
+            showAlert(title: "Ошибка", message: "Нужно выбрать ровно 40 вопросов!")
             return
         }
-
         let dragon = DragonKind.allCases.randomElement()!
         delegate?.didFinishManualSelection(
-            title: "Тест (ручной выбор)",
+            title: testTitle,
             dragon: dragon,
-            questions: selectedQuestions
+            questions: selectedQuestions,
+            participants: participants
         )
         dismiss(animated: true)
     }
+
+    // MARK: - Helpers
+    private func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Ок", style: .default))
+        present(alert, animated: true)
+    }
 }
 
+// MARK: - Table delegates
 extension ManualTestViewController: UITableViewDataSource, UITableViewDelegate {
     func numberOfSections(in tableView: UITableView) -> Int { topics.count }
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         topics[section].questions?.count ?? 0
     }
+
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         topics[section].title
     }
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
         if let q = topics[indexPath.section].questions?[indexPath.row] {
@@ -134,11 +162,13 @@ extension ManualTestViewController: UITableViewDataSource, UITableViewDelegate {
         }
         return cell
     }
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let q = topics[indexPath.section].questions?[indexPath.row] {
             selectedQuestions.append(q)
         }
     }
+
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
         if let q = topics[indexPath.section].questions?[indexPath.row] {
             selectedQuestions.removeAll { $0.id == q.id }
