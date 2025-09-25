@@ -7,6 +7,7 @@
 
 // DragonSelectPresenter.swift
 import Foundation
+import UIKit
 
 final class DragonSelectPresenter: DragonSelectPresenterProtocol {
 
@@ -78,8 +79,28 @@ final class DragonSelectPresenter: DragonSelectPresenterProtocol {
 
     func didHoldStartTest() {
         guard case let .test(test) = items[currentIndex] else { return }
-        view?.openTest(test)
+
+        let studentId = di.currentUser.userId ?? ""
+        Task { @MainActor in
+            do {
+                if let attempt = try await di.resultService.fetchAttempt(testId: test.id, studentId: studentId) {
+                    let vc = StudentResultViewController(
+                        test: test,
+                        attempt: attempt,
+                        resultService: di.resultService
+                    )
+                    (view as? UIViewController)?
+                        .navigationController?
+                        .pushViewController(vc, animated: true)
+                } else {
+                    view?.openTest(test)
+                }
+            } catch {
+                print("Ошибка проверки попытки: \(error)")
+            }
+        }
     }
+
 
     func didFinishTest(completed: Int) {
         if case let .test(test) = items[currentIndex] {
