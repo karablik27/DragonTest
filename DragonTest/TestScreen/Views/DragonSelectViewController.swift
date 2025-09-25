@@ -440,6 +440,25 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
 }
 
 extension DragonSelectViewController: AddTestDelegate {
+    func didFinishManualSelection(
+            title: String,
+            dragon: DragonKind,
+            questions: [Questions],
+            participants: [String]
+        ) {
+            let newTest = Test(
+                id: UUID().uuidString,
+                title: title,
+                dragonKind: dragon,
+                questions: questions,
+                teacherId: CurrentUserService().userId ?? "unknown",
+                studentIds: participants
+            )
+            if let presenter = presenter as? DragonSelectPresenter {
+                presenter.didCreateTest(newTest)
+            }
+        }
+    
     func didCreateTest(_ test: Test) {
         if let presenter = presenter as? DragonSelectPresenter {
             presenter.didCreateTest(test)

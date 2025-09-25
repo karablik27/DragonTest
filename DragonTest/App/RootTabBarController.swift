@@ -41,6 +41,7 @@ final class RootTabBarController: UITabBarController {
         appearance.configureWithOpaqueBackground()
         
         let selectedColor = UIColor(red: 2.05, green: 1.65, blue: 0.72, alpha: 1.0)
+        
         let normalColor: UIColor = {
             if traitCollection.userInterfaceStyle == .dark {
                 return .white
@@ -54,6 +55,12 @@ final class RootTabBarController: UITabBarController {
         
         appearance.stackedLayoutAppearance.normal.iconColor = normalColor
         appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: normalColor]
+        
+        if #available(iOS 15.0, *) {
+            appearance.backgroundEffect = UIBlurEffect(style: .regular)
+            appearance.backgroundColor = UIColor.clear
+            tabBar.scrollEdgeAppearance = appearance
+        }
         
         tabBar.standardAppearance = appearance
     }

@@ -6,5 +6,5 @@
 //
 
 protocol ManualTestDelegate: AnyObject {
-    func didFinishManualSelection(title: String, dragon: DragonKind, questions: [Questions])
+    func didFinishManualSelection(title: String, dragon: DragonKind, questions: [Questions], participants: [String])
 }
