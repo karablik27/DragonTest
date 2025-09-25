@@ -5,7 +5,6 @@
 //  Created by Верховный Маг on 23.09.2025.
 //
 
-
 import UIKit
 
 final class TeacherReviewViewController: UIViewController, TeacherReviewViewProtocol {
@@ -76,12 +75,21 @@ extension TeacherReviewViewController: UITableViewDataSource, UITableViewDelegat
         (attempt == nil ? "❌ Не прошёл" :
          attempt?.reviewed == true ? "✅ Проверен" : "⏳ На проверке")
         
-        cell.accessoryType = .disclosureIndicator
+        cell.accessoryType = attempt == nil ? .none : .disclosureIndicator
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        // TODO: переход к деталям StudentAttempt
+        let row = rows[indexPath.row]
         tableView.deselectRow(at: indexPath, animated: true)
+        
+        guard let attempt = row.attempt else { return }
+        
+        let vc = TeacherReviewDetailViewController(
+            attempt: attempt,
+            questions: test.questions,
+            answerService: DependencyInjection.shared.answerService
+        )
+        navigationController?.pushViewController(vc, animated: true)
     }
 }
