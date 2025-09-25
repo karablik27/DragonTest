@@ -48,6 +48,9 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
     
     // MARK: - Notifications
     private var notifications: [String] = []
+    private var processedResultIds = Set<String>()
+    private var didEmitInitialTests = false
+    private var didEmitInitialResults = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -62,6 +65,7 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
         setupRightPanel()
         
         fetchNotifications()
+        fetchResultNotifications()
     }
     
     override func viewDidLayoutSubviews() {
@@ -461,16 +465,139 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
             .whereField("studentIds", arrayContains: userId)
             .addSnapshotListener { [weak self] snapshot, error in
                 guard let self = self else { return }
-                guard let documents = snapshot?.documents else { return }
+                guard let snapshot = snapshot else { return }
 
-                self.notifications = documents.map { doc in
-                    let testTitle = doc.data()["title"] as? String ?? "Тест"
-                    return "Вы приглашены в тест: \n\(testTitle)"
+                // Первый снимок: заполняем UI, но не шлём пуш
+                if !self.didEmitInitialTests {
+                    self.didEmitInitialTests = true
+                    let docs = snapshot.documents
+                    guard !docs.isEmpty else { return }
+
+                    let items = docs.map { doc -> String in
+                        let data = doc.data()
+                        let testTitle = data["title"] as? String ?? "Тест"
+                        return "Вы приглашены в тест:\n\(testTitle)"
+                    }
+                    self.notifications.append(contentsOf: items)
+                    DispatchQueue.main.async { self.updateNotificationList() }
+                    return
                 }
 
+                // Дальше — только реальные добавления
+                let added = snapshot.documentChanges.filter { $0.type == .added }
+                guard !added.isEmpty else { return }
+
+                let newItems = added.map { change -> String in
+                    let data = change.document.data()
+                    let testTitle = data["title"] as? String ?? "Тест"
+                    return "Вы приглашены в тест:\n\(testTitle)"
+                }
+
+                self.notifications.append(contentsOf: newItems)
                 DispatchQueue.main.async {
                     self.updateNotificationList()
                     NotificationCenter.default.post(name: .newTestNotification, object: nil)
+                }
+            }
+    }
+    
+    private func fetchTestNameByTestId(testId: String, completion: @escaping (String?) -> Void) {
+        let db = Firestore.firestore()
+        guard !testId.isEmpty else { completion(nil); return }
+
+        // Сначала попробуем как documentId
+        db.collection("tests").document(testId).getDocument { doc, _ in
+            if let doc = doc, doc.exists {
+                let title = doc.data()?["title"] as? String
+                completion(title)
+            } else {
+                // Fallback: поле testId в документе
+                db.collection("tests")
+                    .whereField("testId", isEqualTo: testId)
+                    .getDocuments { snapshot, _ in
+                        let title = snapshot?.documents.first?.data()["title"] as? String
+                        completion(title)
+                    }
+            }
+        }
+    }
+    
+    private func fetchResultNotifications() {
+        guard let userId = DependencyInjection.shared.currentUser.userId else { return }
+        
+        let db = Firestore.firestore()
+        db.collection("results")
+            .whereField("studentId", isEqualTo: userId)
+            .addSnapshotListener { [weak self] snapshot, error in
+                guard let self = self else { return }
+                guard let snapshot = snapshot else { return }
+
+                // Первый снимок: только в UI, без пуша
+                if !self.didEmitInitialResults {
+                    self.didEmitInitialResults = true
+
+                    let docs = snapshot.documents
+                    guard !docs.isEmpty else { return }
+
+                    let group = DispatchGroup()
+                    var built: [String] = []
+
+                    for doc in docs {
+                        let resultId = doc.documentID
+                        if self.processedResultIds.contains(resultId) { continue }
+                        self.processedResultIds.insert(resultId)
+
+                        let data = doc.data()
+                        let testScore = data["totalScore"] as? Int ?? 0
+                        let testId = data["testId"] as? String ?? ""
+
+                        group.enter()
+                        self.fetchTestNameByTestId(testId: testId) { testTitle in
+                            let title = testTitle ?? "Не найдено!"
+                            let text = "Ваш тест проверили!\nНазвание теста:\n\(title)\nВаш балл: \(testScore)"
+                            built.append(text)
+                            group.leave()
+                        }
+                    }
+
+                    group.notify(queue: .main) {
+                        guard !built.isEmpty else { return }
+                        self.notifications.append(contentsOf: built)
+                        self.updateNotificationList()
+                    }
+                    return
+                }
+                
+                let changes = snapshot.documentChanges.filter { $0.type == .added }
+                guard !changes.isEmpty else { return }
+                
+                let group = DispatchGroup()
+                var built: [String] = []
+                
+                for change in changes {
+                    let doc = change.document
+                    let resultId = doc.documentID
+                    if self.processedResultIds.contains(resultId) { continue }
+                    self.processedResultIds.insert(resultId)
+                    
+                    let data = doc.data()
+                    let testScore = data["totalScore"] as? Int ?? 0
+                    let testId = data["testId"] as? String ?? ""
+                    
+                    group.enter()
+                    self.fetchTestNameByTestId(testId: testId) { testTitle in
+                        let title = testTitle ?? "Не найдено!"
+                        let text = "Ваш тест проверили!\nНазвание теста:\n\(title)\nВаш балл: \(testScore)"
+                        built.append(text)
+                        group.leave()
+                    }
+                }
+                
+                group.notify(queue: .main) {
+                    guard !built.isEmpty else { return }
+                    self.notifications.append(contentsOf: built)
+                    self.updateNotificationList()
+                    NotificationCenter.default.post(name: .newResultNotification, object: nil)
                 }
             }
     }
@@ -483,7 +610,9 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
 
         notifications.forEach { notification in
             let container = UIView()
-            container.backgroundColor = UIColor(white: 0.95, alpha: 1)
+            // Цвет фона зависит от балла: <160 — красный, 160..300 — жёлтый, 300..400 — зелёный
+            let score = scoreFromNotification(notification)
+            container.backgroundColor = backgroundColor(for: score)
             container.layer.cornerRadius = 12
             container.layer.shadowColor = UIColor.black.cgColor
             container.layer.shadowOpacity = 0.5
@@ -523,6 +652,37 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
         if let panelStack = panelView.subviews.first(where: { $0 is UIStackView }) as? UIStackView {
             panelStack.arrangedSubviews.last?.removeFromSuperview()
             panelStack.addArrangedSubview(list)
+        }
+    }
+
+    // Извлекает балл из строки уведомления вида "Ваш балл: N"
+    private func scoreFromNotification(_ text: String) -> Int? {
+        let pattern = #"Ваш балл:\s*(\d+)"#
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { return nil }
+        let range = NSRange(location: 0, length: (text as NSString).length)
+        guard let match = regex.firstMatch(in: text, options: [], range: range), match.numberOfRanges >= 2 else { return nil }
+        let nsText = text as NSString
+        let valueString = nsText.substring(with: match.range(at: 1))
+        return Int(valueString)
+    }
+
+    // Возвращает мягкие цвета в зависимости от диапазона баллов
+    private func backgroundColor(for score: Int?) -> UIColor {
+        guard let score = score else {
+            return UIColor(white: 0.95, alpha: 1)
+        }
+        if score < 160 {
+            // лёгкий красный
+            return UIColor(red: 1.0, green: 0.90, blue: 0.90, alpha: 1.0)
+        } else if score < 300 {
+            // лёгкий жёлтый
+            return UIColor(red: 1.0, green: 0.97, blue: 0.85, alpha: 1.0)
+        } else if score <= 400 {
+            // лёгкий зелёный
+            return UIColor(red: 0.90, green: 1.0, blue: 0.90, alpha: 1.0)
+        } else {
+            // на всякий случай — нейтральный
+            return UIColor(white: 0.95, alpha: 1)
         }
     }
 }
@@ -645,4 +805,5 @@ private extension ProfileViewController {
 
 extension Notification.Name {
     static let newTestNotification = Notification.Name("newTestNotification")
+    static let newResultNotification = Notification.Name("newResultNotification")
 }

@@ -38,21 +38,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
         
         UNUserNotificationCenter.current().delegate = self
-        
+
         NotificationCenter.default.addObserver(self, selector: #selector(handleNewTestNotification), name: .newTestNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleNewResultNotification), name: .newResultNotification, object: nil)
 
         return true
     }
     
-    private func scheduleLocalNotification() {
+    private func scheduleLocalNotification(title: String, body: String) {
+        guard let userRole = DependencyInjection.shared.currentUser.role else { return }
+        if (userRole == .teacher) { return }
+
         let content = UNMutableNotificationContent()
-        content.title = "Ios зовет ботать..."
-        content.body = "Вас добавили в новый тест!"
+        content.title = title
+        content.body = body
         content.sound = UNNotificationSound.default
 
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
-
-        let request = UNNotificationRequest(identifier: "notifictaions", content: content, trigger: trigger)
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
 
         UNUserNotificationCenter.current().add(request) { error in
             if let error = error {
@@ -64,8 +67,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
     
     @objc func handleNewTestNotification() {
-        // Отправляем уведомление
-        scheduleLocalNotification()
+        scheduleLocalNotification(title: "Ios зовет ботать...", body: "Вас добавили в новый тест!")
+    }
+
+    @objc func handleNewResultNotification() { // + добавить
+        scheduleLocalNotification(title: "Результаты", body: "Ваш тест проверен!")
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
