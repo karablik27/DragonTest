@@ -21,5 +21,9 @@ struct TestResult: Codable, Identifiable {
     // --- Общие комментарии ---
     var teacherComment: String?   // общий комментарий от учителя
     var llmComment: String?       // общий комментарий от LLM
+    
+    // --- Время проверки ---
+    var llmReviewedAt: Date?      // когда проверил ИИ
+    var teacherReviewedAt: Date?  // когда проверил учитель
 }
 
