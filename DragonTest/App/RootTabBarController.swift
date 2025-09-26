@@ -16,7 +16,8 @@ final class RootTabBarController: UITabBarController {
                                           image: UIImage(systemName: "person.crop.circle"),
                                           tag: 0)
         
-        let test = UINavigationController(rootViewController: DragonSelectViewController())
+        let dragonSelectVC = DragonSelectViewController()
+        let test = UINavigationController(rootViewController: dragonSelectVC)
         test.tabBarItem = UITabBarItem(title: "Тесты",
                                        image: UIImage(named: "dragon.icon"),
                                        tag: 1)
@@ -34,6 +35,8 @@ final class RootTabBarController: UITabBarController {
             vc.setupTabBarAppearance()
         }
 
+        _ = dragonSelectVC.view
+        dragonSelectVC.view.layoutIfNeeded()
     }
     
     private func setupTabBarAppearance() {
@@ -65,4 +68,3 @@ final class RootTabBarController: UITabBarController {
         tabBar.standardAppearance = appearance
     }
 }
-

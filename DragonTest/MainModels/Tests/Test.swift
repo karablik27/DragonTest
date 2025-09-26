@@ -14,7 +14,7 @@ struct Test: Codable, Identifiable {
     var questions: [Questions]   // ровно 40 вопросов
     var teacherId: String       // id преподавателя
     var studentIds: [String]    // список id студентов, приглашённых к тесту
-    var time: Date
+    var time: Date?
 }
 
 
