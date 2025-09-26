@@ -28,6 +28,20 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         self.window = window
         window.makeKeyAndVisible()
+        
+        DispatchQueue.main.async {
+            let preloadView = DragonPreviewView(frame: .zero)
+            window.addSubview(preloadView)
+            preloadView.isHidden = true
+
+            for kind in [DragonKind.red, .green, .blue] {
+                if let entity = DependencyInjection.shared.dragonCache.clone(for: kind, scale: [0.1,0.1,0.1]) {
+                    preloadView.displayEntity(entity)
+                }
+            }
+
+            preloadView.removeFromSuperview()
+        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) { }

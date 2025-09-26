@@ -42,6 +42,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         NotificationCenter.default.addObserver(self, selector: #selector(handleNewTestNotification), name: .newTestNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleNewResultNotification), name: .newResultNotification, object: nil)
 
+        let hiddenTextField = UITextField(frame: .zero)
+
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            window.addSubview(hiddenTextField)
+            hiddenTextField.becomeFirstResponder()
+            hiddenTextField.resignFirstResponder()
+            hiddenTextField.removeFromSuperview()
+        }
+        
+        DispatchQueue.main.async {
+            let tf = UITextField(frame: .zero)
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let window = windowScene.windows.first {
+                window.addSubview(tf)
+                tf.becomeFirstResponder()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    tf.resignFirstResponder()
+                    tf.removeFromSuperview()
+                }
+            }
+        }
+
+
         return true
     }
     

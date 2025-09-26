@@ -5,11 +5,6 @@
 //  Created by Верховный Маг on 17.09.2025.
 //
 
-//
-//  DragonSelectViewController.swift
-//  DragonTest
-//
-
 import UIKit
 import RealityKit
 
@@ -31,6 +26,7 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
     private var presenter: DragonSelectPresenterProtocol!
     
     // MARK: - Data
+    private var items: [CarouselItem] = []        // <–– теперь тут хранится массив
     private var currentIndex = 0
     private var testVC: DragonTestViewController?
     private var teacherVC: TeacherReviewViewController?
@@ -70,10 +66,12 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
     
     // MARK: - DragonSelectViewProtocol
     func updateUI(items: [CarouselItem], currentIndex: Int) {
+        self.items = items                   // <–– сохраняем массив
+        self.currentIndex = currentIndex
+        
         emptyStateView.isHidden = true
         dragonsContainer.isHidden = false
         
-        self.currentIndex = currentIndex
         let item = items[currentIndex]
         
         configure(container: centerPreviewContainer, item: item, scale: [0.8,0.8,0.8])
@@ -108,22 +106,26 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
         guard !isTestVisible else { return }
         
         if DependencyInjection.shared.currentUser.role == .student {
-            let vc = DragonTestViewController(
-                test: test,
-                colors: test.dragonKind.gradientColors
-            ) { [weak self] completed in
-                self?.presenter.didFinishTest(completed: completed)
-                self?.closeTest()
+            if testVC == nil {
+                testVC = DragonTestViewController(
+                    test: test,
+                    colors: test.dragonKind.gradientColors
+                ) { [weak self] completed in
+                    self?.presenter.didFinishTest(completed: completed)
+                    self?.closeTest()
+                }
+                _ = testVC?.view
+                testVC?.view.layoutIfNeeded()
             }
             
-            addChild(vc)
-            testContainer.addSubview(vc.view)
-            vc.view.frame = testContainer.bounds
-            vc.didMove(toParent: self)
-            testVC = vc
+            if let vc = testVC {
+                addChild(vc)
+                testContainer.addSubview(vc.view)
+                vc.view.frame = testContainer.bounds
+                vc.didMove(toParent: self)
+            }
         } else {
             let vc = TeacherReviewViewController(test: test)
-            
             addChild(vc)
             testContainer.addSubview(vc.view)
             vc.view.frame = testContainer.bounds
@@ -143,9 +145,6 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
         })
     }
 
-
-
-    
     func animateCarousel(direction: Int, newIndex: Int, items: [CarouselItem]) {
         let width = view.bounds.width
         let shiftCenter = width * 0.20
@@ -238,6 +237,7 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
         }
     }
     
+    // MARK: - Hold Timer
     private func startHoldTimer() {
         cancelHoldTimer()
         holdTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] t in
@@ -245,6 +245,20 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
             self.holdProgress += 0.1
             let percent = min(self.holdProgress / self.holdDuration, 1.0)
             self.hintView.updateProgress(percent)
+            
+            // preload
+            if percent >= 0.3, self.testVC == nil,
+               case let .test(test) = self.items[self.currentIndex] {
+                self.testVC = DragonTestViewController(
+                    test: test,
+                    colors: test.dragonKind.gradientColors
+                ) { [weak self] completed in
+                    self?.presenter.didFinishTest(completed: completed)
+                    self?.closeTest()
+                }
+                _ = self.testVC?.view
+                self.testVC?.view.layoutIfNeeded()
+            }
             
             if percent >= 1.0 {
                 t.invalidate()
