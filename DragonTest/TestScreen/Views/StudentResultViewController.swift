@@ -14,6 +14,7 @@ final class StudentResultViewController: UIViewController {
 
     private let statusLabel = UILabel()
     private let teacherLabel = UILabel()
+    private let llmSummaryLabel = UILabel()
     private let tableView = UITableView(frame: .zero, style: .insetGrouped)
 
     private var result: TestResult?
@@ -46,12 +47,20 @@ final class StudentResultViewController: UIViewController {
         teacherLabel.numberOfLines = 0
         teacherLabel.isHidden = true
 
+        llmSummaryLabel.font = .systemFont(ofSize: 15, weight: .regular)
+        llmSummaryLabel.textAlignment = .center
+        llmSummaryLabel.textColor = .systemOrange
+        llmSummaryLabel.numberOfLines = 0
+        llmSummaryLabel.isHidden = true
+
         view.addSubview(statusLabel)
         view.addSubview(teacherLabel)
+        view.addSubview(llmSummaryLabel)
         view.addSubview(tableView)
 
         statusLabel.translatesAutoresizingMaskIntoConstraints = false
         teacherLabel.translatesAutoresizingMaskIntoConstraints = false
+        llmSummaryLabel.translatesAutoresizingMaskIntoConstraints = false
         tableView.translatesAutoresizingMaskIntoConstraints = false
 
         tableView.dataSource = self
@@ -66,7 +75,11 @@ final class StudentResultViewController: UIViewController {
             teacherLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             teacherLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
 
-            tableView.topAnchor.constraint(equalTo: teacherLabel.bottomAnchor, constant: 20),
+            llmSummaryLabel.topAnchor.constraint(equalTo: teacherLabel.bottomAnchor, constant: 8),
+            llmSummaryLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            llmSummaryLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+
+            tableView.topAnchor.constraint(equalTo: llmSummaryLabel.bottomAnchor, constant: 20),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
@@ -83,6 +96,10 @@ final class StudentResultViewController: UIViewController {
                         if let teacherComment = result.teacherComment {
                             self.teacherLabel.isHidden = false
                             self.teacherLabel.text = "Комментарий учителя: \(teacherComment)"
+                        }
+                        if let llmComment = result.llmComment {
+                            self.llmSummaryLabel.isHidden = false
+                            self.llmSummaryLabel.text = "ИИ: \(llmComment)"
                         }
                         self.tableView.reloadData()
                     }
@@ -109,7 +126,6 @@ extension StudentResultViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ResultAnswerCell", for: indexPath) as! ResultAnswerCell
         if let answer = result?.answers[indexPath.row] {
-            // находим текст вопроса по id
             let questionText = test.questions.first(where: { $0.id == answer.questionId })?.text ?? "Неизвестный вопрос"
             cell.configure(answer: answer, questionText: questionText)
         }
@@ -121,9 +137,10 @@ extension StudentResultViewController: UITableViewDataSource {
 private final class ResultAnswerCell: UITableViewCell {
     private let questionLabel = UILabel()
     private let studentAnswerLabel = UILabel()
-    private let scoreLabel = UILabel()
-    private let teacherCommentLabel = UILabel()
+    private let llmScoreLabel = UILabel()
     private let llmCommentLabel = UILabel()
+    private let teacherScoreLabel = UILabel()
+    private let teacherCommentLabel = UILabel()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -134,18 +151,28 @@ private final class ResultAnswerCell: UITableViewCell {
         studentAnswerLabel.font = .systemFont(ofSize: 15)
         studentAnswerLabel.numberOfLines = 0
 
-        scoreLabel.font = .systemFont(ofSize: 15, weight: .semibold)
-        scoreLabel.textColor = .systemBlue
-
-        teacherCommentLabel.font = .systemFont(ofSize: 14)
-        teacherCommentLabel.textColor = .systemGreen
-        teacherCommentLabel.numberOfLines = 0
+        llmScoreLabel.font = .systemFont(ofSize: 15, weight: .semibold)
+        llmScoreLabel.textColor = .systemOrange
 
         llmCommentLabel.font = .systemFont(ofSize: 14)
         llmCommentLabel.textColor = .systemOrange
         llmCommentLabel.numberOfLines = 0
 
-        let stack = UIStackView(arrangedSubviews: [questionLabel, studentAnswerLabel, scoreLabel, teacherCommentLabel, llmCommentLabel])
+        teacherScoreLabel.font = .systemFont(ofSize: 15, weight: .semibold)
+        teacherScoreLabel.textColor = .systemBlue
+
+        teacherCommentLabel.font = .systemFont(ofSize: 14)
+        teacherCommentLabel.textColor = .systemGreen
+        teacherCommentLabel.numberOfLines = 0
+
+        let stack = UIStackView(arrangedSubviews: [
+            questionLabel,
+            studentAnswerLabel,
+            llmScoreLabel,
+            llmCommentLabel,
+            teacherScoreLabel,
+            teacherCommentLabel
+        ])
         stack.axis = .vertical
         stack.spacing = 6
 
@@ -163,8 +190,21 @@ private final class ResultAnswerCell: UITableViewCell {
     func configure(answer: StudentAnswer, questionText: String) {
         questionLabel.text = "Вопрос: \(questionText)"
         studentAnswerLabel.text = "Ваш ответ: " + (answer.textAnswer ?? (answer.selectedIndex.map { "Вариант №\($0+1)" } ?? "—"))
-        scoreLabel.text = "Балл: \(answer.teacherScore ?? 0)"
+
+        // ⚡️ ИИ-оценка
+        if let llmScore = answer.llmScore {
+            llmScoreLabel.text = "ИИ → Балл: \(llmScore)"
+        } else {
+            llmScoreLabel.text = "ИИ → ещё не проверял"
+        }
+        llmCommentLabel.text = answer.llmComment != nil ? "ИИ-комментарий: \(answer.llmComment!)" : nil
+
+        // ⚡️ Учительская оценка
+        if let teacherScore = answer.teacherScore {
+            teacherScoreLabel.text = "Учитель → Балл: \(teacherScore)"
+        } else {
+            teacherScoreLabel.text = "Учитель → ещё не оценил"
+        }
         teacherCommentLabel.text = answer.teacherComment != nil ? "Учитель: \(answer.teacherComment!)" : nil
-        llmCommentLabel.text = answer.llmComment != nil ? "ИИ: \(answer.llmComment!)" : nil
     }
 }

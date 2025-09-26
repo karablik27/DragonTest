@@ -7,7 +7,7 @@
 
 import UIKit
 
-// MARK: - Custom UITextField (запрещаем вставку/выделение + добавляем Done)
+// MARK: - Custom UITextField
 final class NoPasteTextField: UITextField {
     override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
         if action == #selector(paste(_:)) ||
@@ -21,11 +21,9 @@ final class NoPasteTextField: UITextField {
     func addDoneButtonOnKeyboard() {
         let toolbar = UIToolbar()
         toolbar.sizeToFit()
-
         let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         let doneButton = UIBarButtonItem(title: "Готово", style: .done, target: self, action: #selector(doneButtonTapped))
         toolbar.setItems([flexSpace, doneButton], animated: false)
-
         self.inputAccessoryView = toolbar
     }
 
@@ -46,7 +44,7 @@ final class DragonTestViewController: UIViewController {
     private var timeRemaining: TimeInterval = 3600 // 1 час
     private let timerLabel = UILabel()
 
-    // MARK: - UI (secure root)
+    // MARK: - UI
     private let colors: [CGColor]
     private let questionLabel = UILabel()
     private var answerButtons: [UIButton] = []
@@ -93,7 +91,7 @@ final class DragonTestViewController: UIViewController {
     }
     required init?(coder: NSCoder) { fatalError() }
 
-    // MARK: - Secure root view (как в твоём рабочем примере)
+    // MARK: - Secure root view
     override func loadView() {
         let secureTextField = UITextField()
         secureTextField.isSecureTextEntry = true
@@ -117,7 +115,6 @@ final class DragonTestViewController: UIViewController {
         showQuestion()
         startTimer()
 
-        // Жест для скрытия клавиатуры
         let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tap.cancelsTouchesInView = false
         view.addGestureRecognizer(tap)
@@ -150,7 +147,6 @@ final class DragonTestViewController: UIViewController {
     // MARK: - Timer
     private func startTimer() {
         updateTimerLabel()
-
         timer?.invalidate()
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] t in
             guard let self else { return }
@@ -188,7 +184,6 @@ final class DragonTestViewController: UIViewController {
     }
 
     private func setupUI() {
-        // таймер над вопросом
         timerLabel.font = .monospacedDigitSystemFont(ofSize: 18, weight: .semibold)
         timerLabel.textColor = .white
         timerLabel.textAlignment = .center
@@ -199,7 +194,6 @@ final class DragonTestViewController: UIViewController {
             timerLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
 
-        // вопрос
         questionLabel.font = .systemFont(ofSize: 22, weight: .bold)
         questionLabel.textColor = .white
         questionLabel.textAlignment = .center
@@ -213,7 +207,6 @@ final class DragonTestViewController: UIViewController {
             questionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])
 
-        // кнопки select (макс 3)
         var last: UIView = questionLabel
         for i in 0..<3 {
             let b = UIButton(type: .system)
@@ -237,7 +230,6 @@ final class DragonTestViewController: UIViewController {
             answerButtons.append(b)
         }
 
-        // текстовый ответ
         textField.borderStyle = .roundedRect
         textField.backgroundColor = .white
         textField.textColor = .black
@@ -253,7 +245,6 @@ final class DragonTestViewController: UIViewController {
             textField.heightAnchor.constraint(equalToConstant: 44)
         ])
 
-        // кнопка "Продолжить"
         view.addSubview(nextButton)
         nextButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -347,18 +338,52 @@ final class DragonTestViewController: UIViewController {
 
         Task {
             do {
+                // 1. Сохраняем попытку (без result)
                 try await DependencyInjection.shared.answerService.submitAttempt(attempt)
+
+                // 2. Сразу показываем, что тест завершён
                 await MainActor.run {
                     let alert = UIAlertController(
                         title: "Тест завершён",
-                        message: "Ответы отправлены учителю ✅",
+                        message: "Молодец! 🎉 Ответы отправлены.\nОжидай проверку ИИ, результат придёт уведомлением.",
                         preferredStyle: .alert
                     )
-                    alert.addAction(UIAlertAction(title: "Ок", style: .default, handler: { _ in
+                    alert.addAction(UIAlertAction(title: "Ок", style: .default) { _ in
                         self.onFinish(self.attempt.answers.count)
-                    }))
+                    })
                     self.present(alert, animated: true)
                 }
+
+                // 3. ⚡ Проверка ИИ уходит в фоне
+                Task.detached {
+                    do {
+                        let aiService = DependencyInjection.shared.aiReviewService
+                        let reviewedAnswers = try await aiService.reviewAnswers(
+                            self.attempt.answers,
+                            questions: self.test.questions
+                        )
+
+                        let totalScore = reviewedAnswers.compactMap { $0.llmScore }.reduce(0, +)
+                        let completed = reviewedAnswers.filter { ($0.llmScore ?? 0) >= 4 }.count
+
+                        let result = TestResult(
+                            id: UUID().uuidString,
+                            testId: self.attempt.testId,
+                            studentId: self.attempt.studentId,
+                            answers: reviewedAnswers,
+                            totalScore: totalScore,
+                            completed: completed,
+                            capturedDragon: totalScore >= 320,
+                            teacherComment: nil,
+                            llmComment: "ИИ проверил автоматически"
+                        )
+
+                        try await DependencyInjection.shared.answerService.reviewAttempt(self.attempt.id, result: result)
+                    } catch {
+                        print("❌ Ошибка фоновой проверки ИИ: \(error)")
+                    }
+                }
+
             } catch {
                 await MainActor.run {
                     let alert = UIAlertController(
@@ -372,6 +397,7 @@ final class DragonTestViewController: UIViewController {
             }
         }
     }
+
 
     private func forceFinishTest() {
         let studentId = attempt.studentId
@@ -420,7 +446,6 @@ extension DragonTestViewController: UICollectionViewDelegate, UICollectionViewDa
 // MARK: - NumberCell
 private final class NumberCell: UICollectionViewCell {
     private let label = UILabel()
-
     override init(frame: CGRect) {
         super.init(frame: frame)
         contentView.layer.cornerRadius = 6
@@ -439,9 +464,7 @@ private final class NumberCell: UICollectionViewCell {
             label.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
         ])
     }
-
     required init?(coder: NSCoder) { fatalError() }
-
     func configure(number: Int, isCurrent: Bool) {
         label.text = "\(number)"
         contentView.backgroundColor = isCurrent ? UIColor.systemBlue : UIColor.clear

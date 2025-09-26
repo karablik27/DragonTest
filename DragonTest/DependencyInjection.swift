@@ -19,6 +19,7 @@ final class DependencyInjection {
     let answerService: AnswerServiceProtocol
     let sessionService: SessionServiceProtocol
     let resultService: ResultServiceProtocol
+    let aiReviewService: AIReviewServiceProtocol
     
     private init() {
         self.currentUser = CurrentUserService()
@@ -30,5 +31,6 @@ final class DependencyInjection {
         self.answerService = AnswerService(dataBase: Firestore.firestore())
         self.sessionService = SessionService(dataBase: self.dataBase)
         self.resultService = ResultService(dataBase: self.dataBase)
+        self.aiReviewService = AIReviewService()
     }
 }
