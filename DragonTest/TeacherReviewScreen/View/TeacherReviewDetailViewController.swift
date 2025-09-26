@@ -12,7 +12,7 @@ final class TeacherReviewDetailViewController: UIViewController {
     private let attempt: StudentAttempt
     private let answerService: AnswerServiceProtocol
     private var answers: [StudentAnswer]
-    private let questions: [Questions]   // ✅ список вопросов теста
+    private let questions: [Questions]
     
     private let tableView = UITableView(frame: .zero, style: .insetGrouped)
     private let saveButton = UIButton(type: .system)
@@ -21,14 +21,14 @@ final class TeacherReviewDetailViewController: UIViewController {
         self.attempt = attempt
         self.questions = questions
         self.answerService = answerService
-        self.answers = attempt.answers
+        self.answers = attempt.result?.answers ?? attempt.answers
         super.init(nibName: nil, bundle: nil)
     }
     required init?(coder: NSCoder) { fatalError() }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Проверка ответа"
+        title = "Проверка ответов"
         view.backgroundColor = .systemBackground
         setupTable()
         setupSaveButton()
@@ -98,15 +98,15 @@ final class TeacherReviewDetailViewController: UIViewController {
         let completed = answers.filter { ($0.teacherScore ?? 0) >= 4 }.count
 
         let result = TestResult(
-            id: UUID().uuidString,
+            id: attempt.result?.id ?? UUID().uuidString,
             testId: attempt.testId,
             studentId: attempt.studentId,
             answers: answers,
             totalScore: totalScore,
             completed: completed,
-            capturedDragon: totalScore >= 8,
-            teacherComment: nil,
-            llmComment: nil
+            capturedDragon: totalScore >= 320,
+            teacherComment: "Оценка учителя сохранена",
+            llmComment: attempt.result?.llmComment
         )
 
         Task {
@@ -155,11 +155,14 @@ extension TeacherReviewDetailViewController: UITableViewDataSource, UITableViewD
     }
 }
 
+
 // MARK: - Custom Cell
 private final class ReviewAnswerCell: UITableViewCell, UITextFieldDelegate {
     
     private let questionLabel = UILabel()
     private let answerLabel = UILabel()
+    private let llmLabel = UILabel()
+    private let teacherLabel = UILabel()
     private let scoreField = UITextField()
     private let commentField = UITextField()
     
@@ -173,25 +176,33 @@ private final class ReviewAnswerCell: UITableViewCell, UITextFieldDelegate {
         questionLabel.numberOfLines = 0
         
         answerLabel.font = .systemFont(ofSize: 14)
-        answerLabel.textColor = .secondaryLabel
+        answerLabel.textColor = .label
         answerLabel.numberOfLines = 0
         
-        scoreField.placeholder = "Балл (0–10)"
+        llmLabel.font = .systemFont(ofSize: 13)
+        llmLabel.textColor = .systemGreen
+        llmLabel.numberOfLines = 0
+        
+        teacherLabel.font = .systemFont(ofSize: 13)
+        teacherLabel.textColor = .systemBlue
+        teacherLabel.numberOfLines = 0
+        
+        scoreField.placeholder = "Балл учителя (0–10)"
         scoreField.borderStyle = .roundedRect
         scoreField.keyboardType = .numberPad
-        scoreField.widthAnchor.constraint(equalToConstant: 80).isActive = true
+        scoreField.widthAnchor.constraint(equalToConstant: 120).isActive = true
         scoreField.addTarget(self, action: #selector(scoreChanged), for: .editingChanged)
         scoreField.delegate = self
         scoreField.inputAccessoryView = makeDoneToolbar()
         
-        commentField.placeholder = "Комментарий"
+        commentField.placeholder = "Комментарий учителя"
         commentField.borderStyle = .roundedRect
         commentField.addTarget(self, action: #selector(commentChanged), for: .editingChanged)
         commentField.delegate = self
         commentField.returnKeyType = .done
         commentField.inputAccessoryView = makeDoneToolbar()
         
-        let vStack = UIStackView(arrangedSubviews: [questionLabel, answerLabel, scoreField, commentField])
+        let vStack = UIStackView(arrangedSubviews: [questionLabel, answerLabel, llmLabel, teacherLabel, scoreField, commentField])
         vStack.axis = .vertical
         vStack.spacing = 6
         
@@ -209,13 +220,28 @@ private final class ReviewAnswerCell: UITableViewCell, UITextFieldDelegate {
     func configure(answer: StudentAnswer, questionText: String, onUpdate: @escaping (StudentAnswer) -> Void) {
         self.currentAnswer = answer
         self.onUpdate = onUpdate
+        
         questionLabel.text = "Вопрос: \(questionText)"
-        answerLabel.text = "Ответ: " + (answer.textAnswer ?? (answer.selectedIndex.map { "Вариант №\($0+1)" } ?? "—"))
+        answerLabel.text = "Ответ ученика: " + (answer.textAnswer ?? (answer.selectedIndex.map { "Вариант №\($0+1)" } ?? "—"))
+        
+        // ⚡️ ИИ
+        if let score = answer.llmScore, let comment = answer.llmComment {
+            llmLabel.text = "ИИ → Балл: \(score)\nКомментарий: \(comment)"
+        } else {
+            llmLabel.text = "ИИ ещё не проверял"
+        }
+        
+        // ⚡️ Учитель
+        if let score = answer.teacherScore {
+            teacherLabel.text = "Учитель → Балл: \(score)"
+        } else {
+            teacherLabel.text = "Учитель ещё не оценил"
+        }
+        
         scoreField.text = answer.teacherScore.map { "\($0)" }
         commentField.text = answer.teacherComment
     }
     
-    // MARK: - Actions
     @objc private func scoreChanged() {
         guard var ans = currentAnswer else { return }
         if let v = Int(scoreField.text ?? "") {
@@ -235,7 +261,6 @@ private final class ReviewAnswerCell: UITableViewCell, UITextFieldDelegate {
         onUpdate?(ans)
     }
     
-    // MARK: - Keyboard helpers
     private func makeDoneToolbar() -> UIToolbar {
         let tb = UIToolbar()
         tb.sizeToFit()

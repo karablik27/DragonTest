@@ -17,5 +17,6 @@ struct StudentAttempt: Codable, Identifiable {
     var reviewed: Bool           // проверено ли учителем
 
     // --- Результаты ---
-    var result: TestResult?      // ссылка на итоговую оценку (если проверено)
+    var resultId: String?     // ссылка на документ в results
+    var result: TestResult?   // подгружается отдельно при fetch
 }

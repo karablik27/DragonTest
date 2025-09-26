@@ -71,13 +71,23 @@ extension TeacherReviewViewController: UITableViewDataSource, UITableViewDelegat
         let user = row.user
         let attempt = row.attempt
         
-        cell.textLabel?.text = "\(user.surname) \(user.name) – " +
-        (attempt == nil ? "❌ Не прошёл" :
-         attempt?.reviewed == true ? "✅ Проверен" : "⏳ На проверке")
+        if let attempt = attempt {
+            if attempt.reviewed {
+                cell.textLabel?.text = "\(user.surname) \(user.name) – ✅ Проверен (учитель)"
+            } else if attempt.resultId != nil {
+                cell.textLabel?.text = "\(user.surname) \(user.name) – 🤖 Проверен ИИ, ждёт учителя"
+            } else {
+                cell.textLabel?.text = "\(user.surname) \(user.name) – ⏳ На проверке (ИИ)"
+            }
+            cell.accessoryType = .disclosureIndicator
+        } else {
+            cell.textLabel?.text = "\(user.surname) \(user.name) – ❌ Не прошёл"
+            cell.accessoryType = .none
+        }
         
-        cell.accessoryType = attempt == nil ? .none : .disclosureIndicator
         return cell
     }
+
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let row = rows[indexPath.row]
