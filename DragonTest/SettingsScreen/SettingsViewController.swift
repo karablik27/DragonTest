@@ -6,18 +6,21 @@
 //
 
 // TODO: Переделать под дизайн
-
+import Photos
 import UIKit
+import Firebase
 import FirebaseAuth
 import FirebaseFirestore
 
-final class SettingsViewController: UIViewController {
+final class SettingsViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     private let scrollView = UIScrollView()
     private let contentStack = UIStackView()
     
     private let userService: UserServiceProtocol = UserService(dataBase: Firestore.firestore())
-
+    private let avatarImageView = UIImageView()
+    private let profilePhotosCollection = "profilePhoto"
+    
     private var userDataTask: Task<User?, Never> = Task { nil }
 
     override init(nibName: String? = nil, bundle: Bundle? = nil) {
@@ -38,6 +41,7 @@ final class SettingsViewController: UIViewController {
         setupLayout()
         addProfileSettings()
         fillFields()
+        loadOrCreateProfilePhoto()
     }
     
     // MARK: - Data Loading
@@ -63,7 +67,6 @@ final class SettingsViewController: UIViewController {
         view.addSubview(scrollView)
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
@@ -80,6 +83,24 @@ final class SettingsViewController: UIViewController {
             contentStack.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -16),
             contentStack.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -32)
         ])
+        
+        avatarImageView.image = UIImage(named: "avatar")
+        avatarImageView.contentMode = .scaleAspectFill
+        avatarImageView.layer.cornerRadius = 60
+        avatarImageView.clipsToBounds = true
+        avatarImageView.translatesAutoresizingMaskIntoConstraints = false
+        avatarImageView.isUserInteractionEnabled = true
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(avatarTapped))
+        avatarImageView.addGestureRecognizer(tapGesture)
+        view.addSubview(avatarImageView)
+        NSLayoutConstraint.activate([
+            avatarImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            avatarImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            avatarImageView.widthAnchor.constraint(equalToConstant: 120),
+            avatarImageView.heightAnchor.constraint(equalToConstant: 120)
+        ])
+        scrollView.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: 20).isActive = true
     }
     
     override func viewDidLayoutSubviews() {
@@ -327,6 +348,53 @@ final class SettingsViewController: UIViewController {
         updateUser(with: update)
     }
     
+    @objc private func avatarTapped() {
+        let actionSheet = UIAlertController(title: "Выберите иконку", message: nil, preferredStyle: .actionSheet)
+        
+        let takePhotoAction = UIAlertAction(title: "Снять фото", style: .default) { [weak self] _ in
+            self?.openCamera()
+        }
+        
+        let chooseFromGalleryAction = UIAlertAction(title: "Выбрать из галереи", style: .default) { [weak self] _ in
+            self?.openPhotoLibrary()
+        }
+        
+        let cancelAction = UIAlertAction(title: "Отмена", style: .cancel)
+        
+        actionSheet.addAction(takePhotoAction)
+        actionSheet.addAction(chooseFromGalleryAction)
+        actionSheet.addAction(cancelAction)
+        
+        // Для iPad
+        if let popover = actionSheet.popoverPresentationController {
+            popover.sourceView = avatarImageView
+            popover.sourceRect = avatarImageView.bounds
+        }
+        
+        present(actionSheet, animated: true)
+    }
+    
+    private func openCamera() {
+        guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
+            showAlert(title: "Ошибка", message: "Камера недоступна")
+            return
+        }
+        
+        let picker = UIImagePickerController()
+        picker.delegate = self
+        picker.sourceType = .camera
+        picker.allowsEditing = true
+        present(picker, animated: true)
+    }
+
+    private func openPhotoLibrary() {
+        let picker = UIImagePickerController()
+        picker.delegate = self
+        picker.sourceType = .photoLibrary
+        picker.allowsEditing = true
+        present(picker, animated: true)
+    }
+    
     private func updateUser(with update: UserUpdate) {
         Task {
             do {
@@ -367,6 +435,92 @@ final class SettingsViewController: UIViewController {
                 }
             }
         }
+    }
+    
+    private func downloadImage(from urlString: String, completion: @escaping (UIImage?) -> Void) {
+        guard let url = URL(string: urlString) else { completion(nil); return }
+        URLSession.shared.dataTask(with: url) { data, _, _ in
+            let image = data.flatMap { UIImage(data: $0) }
+            DispatchQueue.main.async { completion(image) }
+        }.resume()
+    }
+    
+    private func loadOrCreateProfilePhoto() {
+        guard let userId = Auth.auth().currentUser?.uid else { return }
+        let db = Firestore.firestore()
+        let docRef = db.collection(profilePhotosCollection).document(userId)
+
+        docRef.getDocument { [weak self] snapshot, _ in
+            if let data = snapshot?.data(),
+               let base64 = data["photoBase64"] as? String,
+               !base64.isEmpty,
+               let image = self?.decodeBase64ToImage(base64) {
+                self?.avatarImageView.image = image
+                return
+            }
+
+            // нет фото — показываем дефолт и гарантированно создаём документ
+            if let defaultImage = UIImage(named: "avatar") {
+                self?.avatarImageView.image = defaultImage
+            }
+            docRef.setData([
+                "id": userId,
+                "photoBase64": ""
+            ], merge: true)
+        }
+    }
+    
+    // MARK: - UIImagePickerControllerDelegate
+
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        picker.dismiss(animated: true)
+        
+        guard let image = info[.editedImage] as? UIImage ?? info[.originalImage] as? UIImage else { return }
+        
+        // Устанавливаем изображение сразу в UIImageView
+        avatarImageView.image = image
+        
+        // Сохраняем в Firebase (но НЕ загружаем снова)
+        saveAvatarToFirestoreBase64(image)
+    }
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true)
+    }
+    
+    private func saveAvatarToFirestoreBase64(_ image: UIImage) {
+        guard let userId = Auth.auth().currentUser?.uid else { return }
+        guard let base64 = encodeImageToBase64(image) else {
+            showAlert(title: "Ошибка", message: "Слишком большой файл: не удалось сжать до 1 МБ")
+            return
+        }
+        let db = Firestore.firestore()
+        db.collection(profilePhotosCollection).document(userId).setData([
+            "id": userId,
+            "photoBase64": base64
+        ], merge: true) { [weak self] error in
+            if let error = error {
+                self?.showAlert(title: "Ошибка", message: "Не удалось сохранить фото профиля: \(error.localizedDescription)")
+            } else {
+                print("Аватар сохранён в Firestore как base64")
+            }
+        }
+    }
+    
+    private func encodeImageToBase64(_ image: UIImage, maxBytes: Int = 900 * 1024) -> String? {
+        var quality: CGFloat = 0.9
+        var data = image.jpegData(compressionQuality: quality)
+        while let d = data, d.count > maxBytes, quality > 0.1 {
+            quality -= 0.1
+            data = image.jpegData(compressionQuality: quality)
+        }
+        guard let finalData = data, finalData.count <= maxBytes else { return nil }
+        return finalData.base64EncodedString()
+    }
+
+    private func decodeBase64ToImage(_ base64: String) -> UIImage? {
+        guard let data = Data(base64Encoded: base64) else { return nil }
+        return UIImage(data: data)
     }
     
     private func showAlert(title: String, message: String) {

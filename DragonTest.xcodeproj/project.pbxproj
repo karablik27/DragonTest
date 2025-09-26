@@ -13,6 +13,7 @@
 		A57257362E7EDB02002FAE55 /* FirebaseAnalyticsIdentitySupport in Frameworks */ = {isa = PBXBuildFile; productRef = A57257352E7EDB02002FAE55 /* FirebaseAnalyticsIdentitySupport */; };
 		A57257382E7EDB02002FAE55 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = A57257372E7EDB02002FAE55 /* FirebaseAppCheck */; };
 		A572573D2E7EE04E002FAE55 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = A572573C2E7EE04E002FAE55 /* FirebaseAuth */; };
+		A59837CE2E85FFC100E370E9 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = A59837CD2E85FFC100E370E9 /* FirebaseStorage */; };
 		A5EBD0A72E805857000976E1 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = A5EBD0A62E805857000976E1 /* FirebaseFirestore */; };
 		A5F4D5892E8305D000D4C4EE /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = A5F4D5882E8305D000D4C4EE /* FirebaseFunctions */; };
 /* End PBXBuildFile section */
@@ -49,6 +50,7 @@
 			files = (
 				A5038B4C2E8409A700A246D3 /* FirebaseMessaging in Frameworks */,
 				A57257382E7EDB02002FAE55 /* FirebaseAppCheck in Frameworks */,
+				A59837CE2E85FFC100E370E9 /* FirebaseStorage in Frameworks */,
 				A5F4D5892E8305D000D4C4EE /* FirebaseFunctions in Frameworks */,
 				A572573D2E7EE04E002FAE55 /* FirebaseAuth in Frameworks */,
 				A57257322E7EDB02002FAE55 /* FirebaseAnalytics in Frameworks */,
@@ -113,6 +115,7 @@
 				A5EBD0A62E805857000976E1 /* FirebaseFirestore */,
 				A5F4D5882E8305D000D4C4EE /* FirebaseFunctions */,
 				A5038B4B2E8409A700A246D3 /* FirebaseMessaging */,
+				A59837CD2E85FFC100E370E9 /* FirebaseStorage */,
 			);
 			productName = DragonTest;
 			productReference = 903123D62E79FC1D006EF57B /* DragonTest.app */;
@@ -184,7 +187,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = JW4W97J58G;
+				DEVELOPMENT_TEAM = 95JWV3FJJ7;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = DragonTest/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -196,7 +199,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = DragonTest.de3fdeof11;
+				PRODUCT_BUNDLE_IDENTIFIER = DragonTest.de3fdeof1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -213,7 +216,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = JW4W97J58G;
+				DEVELOPMENT_TEAM = 95JWV3FJJ7;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = DragonTest/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -225,7 +228,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = DragonTest.de3fdeof11;
+				PRODUCT_BUNDLE_IDENTIFIER = DragonTest.de3fdeof1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -417,6 +420,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = A57257302E7EDB02002FAE55 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAuth;
+		};
+		A59837CD2E85FFC100E370E9 /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A57257302E7EDB02002FAE55 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
 		};
 		A5EBD0A62E805857000976E1 /* FirebaseFirestore */ = {
 			isa = XCSwiftPackageProductDependency;
