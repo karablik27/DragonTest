@@ -106,7 +106,9 @@ final class TeacherReviewDetailViewController: UIViewController {
             completed: completed,
             capturedDragon: totalScore >= 320,
             teacherComment: "Оценка учителя сохранена",
-            llmComment: attempt.result?.llmComment
+            llmComment: attempt.result?.llmComment,
+            llmReviewedAt: attempt.result?.llmReviewedAt,
+            teacherReviewedAt: Date()
         )
 
         Task {

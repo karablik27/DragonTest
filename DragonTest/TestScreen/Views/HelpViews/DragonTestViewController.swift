@@ -375,7 +375,9 @@ final class DragonTestViewController: UIViewController {
                             completed: completed,
                             capturedDragon: totalScore >= 320,
                             teacherComment: nil,
-                            llmComment: "ИИ проверил автоматически"
+                            llmComment: "ИИ проверил автоматически",
+                            llmReviewedAt: Date(),
+                            teacherReviewedAt: nil
                         )
 
                         try await DependencyInjection.shared.answerService.reviewAttempt(self.attempt.id, result: result)
