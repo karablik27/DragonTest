@@ -98,29 +98,51 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
     
     // MARK: - Header
     private func setupHeader() {
-        headerView.backgroundColor = .white
+        // Убираем старый фон
+        headerView.backgroundColor = .clear
         headerView.layer.cornerRadius = 32
         headerView.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        headerView.layer.masksToBounds = false
+
+        // Glass-эффект
+        let blurEffect = UIBlurEffect(style: .regular)
+        let blurView = UIVisualEffectView(effect: blurEffect)
+        blurView.translatesAutoresizingMaskIntoConstraints = false
+        blurView.layer.cornerRadius = 32
+        blurView.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        blurView.clipsToBounds = true
+
+        headerView.insertSubview(blurView, at: 0)
+        NSLayoutConstraint.activate([
+            blurView.leadingAnchor.constraint(equalTo: headerView.leadingAnchor),
+            blurView.trailingAnchor.constraint(equalTo: headerView.trailingAnchor),
+            blurView.topAnchor.constraint(equalTo: headerView.topAnchor),
+            blurView.bottomAnchor.constraint(equalTo: headerView.bottomAnchor)
+        ])
+
+        // Тень
         headerView.layer.shadowColor = UIColor.black.cgColor
-        headerView.layer.shadowOpacity = 0.20
+        headerView.layer.shadowOpacity = 0.2
         headerView.layer.shadowOffset = CGSize(width: 0, height: 4)
         headerView.layer.shadowRadius = 12
 
+        // Лейблы
         let welcomeLabel = UILabel()
         welcomeLabel.text = "Welcome,"
         welcomeLabel.font = .systemFont(ofSize: 14, weight: .regular)
         welcomeLabel.textColor = .secondaryLabel
-        
+
         let nameLabel = UILabel()
         nameLabel.text = "Username"
         nameLabel.font = .systemFont(ofSize: 20, weight: .semibold)
         nameLabel.textColor = .label
-        
+
         nameStack.axis = .vertical
         nameStack.spacing = 2
         nameStack.addArrangedSubview(welcomeLabel)
         nameStack.addArrangedSubview(nameLabel)
-        
+
+        // Кнопка-колокол
         let bellImage = UIImage(systemName: "bell")
         bellButton.setImage(bellImage, for: .normal)
         bellButton.tintColor = .label
@@ -130,7 +152,8 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
             bellButton.heightAnchor.constraint(equalToConstant: 28)
         ])
         bellButton.addTarget(self, action: #selector(didTapBell), for: .touchUpInside)
-        
+
+        // Аватар
         avatarImageView.image = UIImage(named: "avatar")
         avatarImageView.contentMode = .scaleAspectFill
         avatarImageView.layer.cornerRadius = 20
@@ -140,18 +163,18 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
             avatarImageView.widthAnchor.constraint(equalToConstant: 40),
             avatarImageView.heightAnchor.constraint(equalToConstant: 40)
         ])
-        
+
         let rightStack = UIStackView(arrangedSubviews: [bellButton, avatarImageView])
         rightStack.axis = .horizontal
         rightStack.spacing = 12
         rightStack.alignment = .center
-        
+
         let mainStack = UIStackView(arrangedSubviews: [nameStack, rightStack])
         mainStack.axis = .horizontal
         mainStack.alignment = .center
         mainStack.distribution = .equalSpacing
         mainStack.translatesAutoresizingMaskIntoConstraints = false
-        
+
         headerView.addSubview(mainStack)
         NSLayoutConstraint.activate([
             mainStack.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 16),
@@ -160,6 +183,7 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
             mainStack.bottomAnchor.constraint(equalTo: headerView.bottomAnchor, constant: -16)
         ])
     }
+
     
     // MARK: - Layout
     private func setupLayout() {
@@ -195,123 +219,107 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
     
     // MARK: - Stats Section
     private func addStatsSection() {
-        func makeStat(icon: String, value: String, title: String) -> UIView {
-            let container = UIView()
-            container.backgroundColor = .white
-            container.layer.cornerRadius = 12
-            container.layer.shadowColor = UIColor.black.cgColor
-            container.layer.shadowOpacity = 0.05
-            container.layer.shadowOffset = CGSize(width: 0, height: 2)
-            container.layer.shadowRadius = 4
+            func makeStat(icon: String, value: String, title: String) -> UIView {
+                let container = SettingsGlassCard(radius: 12)   // ✅ используем стеклянный card
+                
+                let avatar = UIImageView(image: UIImage(named: icon))
+                avatar.contentMode = .scaleAspectFit
+                avatar.translatesAutoresizingMaskIntoConstraints = false
+                NSLayoutConstraint.activate([
+                    avatar.widthAnchor.constraint(equalToConstant: 25),
+                    avatar.heightAnchor.constraint(equalToConstant: 25)
+                ])
+                
+                let valueLabel = UILabel()
+                valueLabel.text = value
+                valueLabel.font = .systemFont(ofSize: 20, weight: .bold)
+                valueLabel.textColor = .label
+                
+                let titleLabel = UILabel()
+                titleLabel.text = title
+                titleLabel.font = .systemFont(ofSize: 14)
+                titleLabel.textColor = .secondaryLabel
+                
+                let stack = UIStackView(arrangedSubviews: [avatar, valueLabel, titleLabel])
+                stack.axis = .vertical
+                stack.alignment = .center
+                stack.spacing = 4
+                stack.translatesAutoresizingMaskIntoConstraints = false
+                
+                container.addSubview(stack)
+                NSLayoutConstraint.activate([
+                    stack.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+                    stack.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+                    container.heightAnchor.constraint(equalToConstant: 100)
+                ])
+                
+                return container
+            }
             
-            let avatar = UIImageView(image: UIImage(named: icon))
-            avatar.contentMode = .scaleAspectFill
-            avatar.clipsToBounds = true
-            avatar.translatesAutoresizingMaskIntoConstraints = false
-            NSLayoutConstraint.activate([
-                avatar.widthAnchor.constraint(equalToConstant: 25),
-                avatar.heightAnchor.constraint(equalToConstant: 25)
-            ])
+            let dragons = makeStat(icon: "dragon.icon", value: "5", title: "Драконов")
+            let tests = makeStat(icon: "📚", value: "12", title: "Тестов")
+            let teachers = makeStat(icon: "👑", value: "3", title: "Учителя")
+            let score = makeStat(icon: "⭐️", value: "87%", title: "Средний балл")
             
-            let valueLabel = UILabel()
-            valueLabel.text = value
-            valueLabel.font = .systemFont(ofSize: 20, weight: .bold)
+            let row1 = UIStackView(arrangedSubviews: [dragons, tests])
+            row1.axis = .horizontal
+            row1.spacing = 12
+            row1.distribution = .fillEqually
             
-            let titleLabel = UILabel()
-            titleLabel.text = title
-            titleLabel.font = .systemFont(ofSize: 14)
-            titleLabel.textColor = .secondaryLabel
+            let row2 = UIStackView(arrangedSubviews: [teachers, score])
+            row2.axis = .horizontal
+            row2.spacing = 12
+            row2.distribution = .fillEqually
             
-            let stack = UIStackView(arrangedSubviews: [avatar, valueLabel, titleLabel])
+            let grid = UIStackView(arrangedSubviews: [row1, row2])
+            grid.axis = .vertical
+            grid.spacing = 12
+            
+            contentStack.addArrangedSubview(grid)
+        }
+    
+    // MARK: - Calendar Section
+    private func addCalendarSection() {
+            let container = SettingsGlassCard(radius: 12) // ✅ стеклянный card
+            container.translatesAutoresizingMaskIntoConstraints = false
+            container.heightAnchor.constraint(equalToConstant: 260).isActive = true
+            
+            let segment = UISegmentedControl(items: ["Неделя", "Месяц"])
+            segment.selectedSegmentIndex = 1
+            
+            let calendarLabel = UILabel()
+            calendarLabel.text = "Календарь активности"
+            calendarLabel.font = .systemFont(ofSize: 16, weight: .medium)
+            calendarLabel.textAlignment = .center
+            calendarLabel.textColor = .secondaryLabel
+            
+            let stack = UIStackView(arrangedSubviews: [segment, calendarLabel])
             stack.axis = .vertical
-            stack.alignment = .center
-            stack.spacing = 4
+            stack.spacing = 12
             stack.translatesAutoresizingMaskIntoConstraints = false
             
             container.addSubview(stack)
             NSLayoutConstraint.activate([
-                stack.centerXAnchor.constraint(equalTo: container.centerXAnchor),
-                stack.centerYAnchor.constraint(equalTo: container.centerYAnchor),
-                container.heightAnchor.constraint(equalToConstant: 100)
+                stack.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
+                stack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
+                stack.topAnchor.constraint(equalTo: container.topAnchor, constant: 16),
+                stack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -16)
             ])
             
-            return container
+            contentStack.addArrangedSubview(container)
         }
-        
-        let dragons = makeStat(icon: "dragon.icon", value: "5", title: "Драконов")
-        let tests = makeStat(icon: "📚", value: "12", title: "Тестов")
-        let teachers = makeStat(icon: "👑", value: "3", title: "Учителя")
-        let score = makeStat(icon: "⭐️", value: "87%", title: "Средний балл")
-        
-        let row1 = UIStackView(arrangedSubviews: [dragons, tests])
-        row1.axis = .horizontal
-        row1.spacing = 12
-        row1.distribution = .fillEqually
-        
-        let row2 = UIStackView(arrangedSubviews: [teachers, score])
-        row2.axis = .horizontal
-        row2.spacing = 12
-        row2.distribution = .fillEqually
-        
-        let grid = UIStackView(arrangedSubviews: [row1, row2])
-        grid.axis = .vertical
-        grid.spacing = 12
-        
-        contentStack.addArrangedSubview(grid)
-    }
-    
-    // MARK: - Calendar Section
-    private func addCalendarSection() {
-        let container = UIView()
-        container.backgroundColor = .white
-        container.layer.cornerRadius = 12
-        container.layer.shadowColor = UIColor.black.cgColor
-        container.layer.shadowOpacity = 0.05
-        container.layer.shadowOffset = CGSize(width: 0, height: 2)
-        container.layer.shadowRadius = 4
-        container.translatesAutoresizingMaskIntoConstraints = false
-        container.heightAnchor.constraint(equalToConstant: 260).isActive = true
-        
-        let segment = UISegmentedControl(items: ["Неделя", "Месяц"])
-        segment.selectedSegmentIndex = 1
-        
-        let calendarLabel = UILabel()
-        calendarLabel.text = "Календарь активности"
-        calendarLabel.font = .systemFont(ofSize: 16, weight: .medium)
-        calendarLabel.textAlignment = .center
-        calendarLabel.textColor = .secondaryLabel
-        
-        let stack = UIStackView(arrangedSubviews: [segment, calendarLabel])
-        stack.axis = .vertical
-        stack.spacing = 12
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        
-        container.addSubview(stack)
-        NSLayoutConstraint.activate([
-            stack.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
-            stack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
-            stack.topAnchor.constraint(equalTo: container.topAnchor, constant: 16),
-            stack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -16)
-        ])
-        
-        contentStack.addArrangedSubview(container)
-    }
     
     // MARK: - Students Results Section (подиум)
     private func addSudentsResultsSection() {
-        let container = UIView()
-        container.backgroundColor = .white
-        container.layer.cornerRadius = 12
-        container.layer.shadowColor = UIColor.black.cgColor
-        container.layer.shadowOffset = CGSize(width: 0, height: 2)
-        container.layer.shadowRadius = 4
+        let container = SettingsGlassCard(radius: 16)
         container.translatesAutoresizingMaskIntoConstraints = false
         container.heightAnchor.constraint(equalToConstant: 450).isActive = true
-     
+
         let titleLabel = UILabel()
         titleLabel.text = "Рейтинг прохождения тестов"
         titleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
-        
+        titleLabel.textColor = .label
+
         testNames = ["Коллоквиум №1", "Коллоквиум №2", "Итоговый тест", "Практика iOS"]
 
         let picker = UIPickerView()
@@ -319,18 +327,32 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
         picker.delegate = self
         self.pickerView = picker
 
-        let textField = UITextField()
-        textField.placeholder = "Выберите тест"
-        textField.borderStyle = .roundedRect
-        textField.inputView = picker
-      
-        let search = UISearchBar()
-        search.placeholder = "Поиск по названию"
-        
-        let filterStack = UIStackView(arrangedSubviews: [titleLabel, textField, search])
+        // Поле выбора теста (glass)
+        let testField = SettingsGlassTextField(placeholder: "Выберите тест")
+        testField.textField.inputView = picker
+        self.testTextField = testField.textField
+
+        // Поле поиска (glass)
+        let searchField = SettingsGlassTextField(placeholder: "Поиск по названию")
+        let searchIcon = UIImageView(image: UIImage(systemName: "magnifyingglass"))
+        searchIcon.tintColor = .secondaryLabel
+        searchIcon.contentMode = .scaleAspectFit
+        searchIcon.translatesAutoresizingMaskIntoConstraints = false
+        searchIcon.widthAnchor.constraint(equalToConstant: 20).isActive = true
+        searchIcon.heightAnchor.constraint(equalToConstant: 20).isActive = true
+
+        // Встраиваем иконку внутрь textField
+        let iconContainer = UIView(frame: CGRect(x: 0, y: 0, width: 28, height: 20))
+        iconContainer.addSubview(searchIcon)
+        searchIcon.centerYAnchor.constraint(equalTo: iconContainer.centerYAnchor).isActive = true
+        searchIcon.centerXAnchor.constraint(equalTo: iconContainer.centerXAnchor).isActive = true
+        searchField.textField.leftView = iconContainer
+        searchField.textField.leftViewMode = .always
+
+        let filterStack = UIStackView(arrangedSubviews: [titleLabel, testField, searchField])
         filterStack.axis = .vertical
-        filterStack.spacing = 20
-        
+        filterStack.spacing = 16
+
         func makeStudentView(place: Int, name: String, score: String, imageName: String) -> UIView {
             let column = UIView()
 
@@ -440,11 +462,11 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
         podiumStack.alignment = .bottom
         podiumStack.distribution = .equalSpacing
         podiumStack.spacing = 12
-        
+
         let mainStack = UIStackView(arrangedSubviews: [filterStack, podiumStack])
         mainStack.axis = .vertical
-        mainStack.spacing = 40
-        
+        mainStack.spacing = 32
+
         container.addSubview(mainStack)
         mainStack.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -453,9 +475,11 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
             mainStack.topAnchor.constraint(equalTo: container.topAnchor, constant: 24),
             mainStack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -16)
         ])
-        
+
         contentStack.addArrangedSubview(container)
     }
+
+
     
     private func fetchNotifications() {
         guard let userId = DependencyInjection.shared.currentUser.userId else { return }
