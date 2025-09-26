@@ -2,81 +2,10 @@
 //  DragonTestViewController.swift
 //  DragonTest
 //
-//  Created by Верховный Маг on 18.09.2025.
+//  Created by Карабельников Степан on 18.09.2025.
 //
 
 import UIKit
-
-// MARK: - Glass Card
-private final class TestGlassCard: UIView {
-    private let blur = UIVisualEffectView(effect: UIBlurEffect(style: .systemMaterialDark))
-    private let border = CAShapeLayer()
-    private let radius: CGFloat
-
-    init(radius: CGFloat = 20) {
-        self.radius = radius
-        super.init(frame: .zero)
-        backgroundColor = .clear
-        isOpaque = false
-        layer.cornerRadius = radius
-        if #available(iOS 13.0, *) { layer.cornerCurve = .continuous }
-        clipsToBounds = true
-
-        blur.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(blur)
-        NSLayoutConstraint.activate([
-            blur.topAnchor.constraint(equalTo: topAnchor),
-            blur.leadingAnchor.constraint(equalTo: leadingAnchor),
-            blur.trailingAnchor.constraint(equalTo: trailingAnchor),
-            blur.bottomAnchor.constraint(equalTo: bottomAnchor)
-        ])
-
-        border.strokeColor = UIColor.white.withAlphaComponent(0.25).cgColor
-        border.fillColor = UIColor.clear.cgColor
-        border.lineWidth = 1.0 / UIScreen.main.scale
-        layer.addSublayer(border)
-
-        layer.shadowColor = UIColor.black.cgColor
-        layer.shadowOpacity = 0.2
-        layer.shadowRadius = 10
-        layer.shadowOffset = CGSize(width: 0, height: 6)
-    }
-
-    required init?(coder: NSCoder) { fatalError() }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        border.path = UIBezierPath(roundedRect: bounds, cornerRadius: radius).cgPath
-        border.frame = bounds
-    }
-}
-
-// MARK: - Chip Label
-private final class ChipLabel: UILabel {
-    private let insets = UIEdgeInsets(top: 6, left: 14, bottom: 6, right: 14)
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        font = .systemFont(ofSize: 16, weight: .semibold)
-        textColor = .black
-        backgroundColor = .white
-        layer.cornerRadius = 16
-        layer.masksToBounds = true
-        textAlignment = .center
-    }
-
-    required init?(coder: NSCoder) { fatalError() }
-
-    override func drawText(in rect: CGRect) {
-        super.drawText(in: rect.inset(by: insets))
-    }
-
-    override var intrinsicContentSize: CGSize {
-        let size = super.intrinsicContentSize
-        return CGSize(width: size.width + insets.left + insets.right,
-                      height: size.height + insets.top + insets.bottom)
-    }
-}
 
 // MARK: - ViewController
 final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
@@ -94,6 +23,7 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
     private let timerIcon = UIImageView(image: UIImage(systemName: "timer"))
     private let progressBar = UIProgressView(progressViewStyle: .default)
     private let questionNumbersCollection: UICollectionView
+    private let onFinish: (Int) -> Void
     
     private let questionLabel = UILabel()
     private var answerButtons: [UIButton] = []
@@ -112,7 +42,6 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
     
     private let nextButton = UIButton(type: .system)
     
-    // 👇 скрытое поле для прогрева клавиатуры
     private let hiddenTextField = UITextField(frame: .zero)
     
     // MARK: - Init
@@ -125,6 +54,7 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
         layout.itemSize = CGSize(width: 40, height: 40)
         self.questionNumbersCollection = UICollectionView(frame: .zero, collectionViewLayout: layout)
         self.questionNumbersCollection.showsHorizontalScrollIndicator = false
+        self.onFinish = onFinish
         
         super.init(nibName: nil, bundle: nil)
         self.presenter = DragonTestPresenter(view: self, test: test)
@@ -150,11 +80,7 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
-        // предрасчёт layout
         view.layoutIfNeeded()
-        
-        // разогрев клавиатуры
         view.addSubview(hiddenTextField)
         hiddenTextField.becomeFirstResponder()
         hiddenTextField.resignFirstResponder()
@@ -176,17 +102,14 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
             object: nil
         )
         
-        // Тап по экрану закрывает клавиатуру
         let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tap.cancelsTouchesInView = false
         view.addGestureRecognizer(tap)
         
-        // Свайп вниз закрывает клавиатуру
         let swipeDown = UISwipeGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         swipeDown.direction = .down
         view.addGestureRecognizer(swipeDown)
         
-        // Делегат для отслеживания изменений
         answerTextView.delegate = self
     }
 
@@ -213,7 +136,6 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
     
     // MARK: - Layout
     private func setupLayout() {
-        // scrollView
         view.addSubview(scrollView)
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.alwaysBounceVertical = true
@@ -237,7 +159,6 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
             contentStack.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -32)
         ])
         
-        // --- Карточка таймера ---
         let timerCard = TestGlassCard(radius: 20)
         
         timerIcon.tintColor = .white
@@ -408,6 +329,12 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
         progressLabel.text = "\(presenter.currentIndex + 1) / \(presenter.questionsCount)"
         progressBar.setProgress(Float(presenter.currentIndex + 1) / Float(presenter.questionsCount), animated: true)
         
+        if presenter.currentIndex == presenter.questionsCount - 1 {
+            nextButton.setTitle("Завершить тест", for: .normal)
+        } else {
+            nextButton.setTitle("Продолжить", for: .normal)
+        }
+
         questionNumbersCollection.reloadData()
         questionNumbersCollection.scrollToItem(
             at: IndexPath(item: presenter.currentIndex, section: 0),
@@ -415,6 +342,7 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
             animated: true
         )
     }
+
     
     
     func updateTimerLabel(text: String) {
@@ -423,10 +351,12 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
     func showFinishAlert(answerCount: Int) {
         let alert = UIAlertController(
             title: "Тест завершён",
-            message: "Молодец! 🎉 Ответы отправлены.\nКоличество ответов: \(answerCount)",
+            message: "Молодец! 🎉 Ответы отправлены. Дожидайтесь автоматической проверки, она может занять несколько минут.\nКоличество ответов: \(answerCount)",
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: "Ок", style: .default))
+        alert.addAction(UIAlertAction(title: "Ок", style: .default) { [weak self] _ in
+                self?.onFinish(answerCount)
+            })
         present(alert, animated: true)
     }
     
@@ -448,7 +378,6 @@ extension DragonTestViewController: UITextViewDelegate {
         let size = textView.sizeThatFits(fittingSize)
         answerTextViewHeight.constant = max(120, size.height)
 
-        // плавное обновление без фризов
         UIView.animate(withDuration: 0.15) {
             self.view.layoutIfNeeded()
         }
