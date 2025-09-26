@@ -45,10 +45,13 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
     private let panelWidth: CGFloat = 320
     private var panelIsVisible = false
     private var panelPanStartX: CGFloat = 0
+    private let panelScrollView = UIScrollView()
+    private let panelListStack = UIStackView()
     
     // MARK: - Notifications
     private var notifications: [String] = []
     private var processedResultIds = Set<String>()
+    private var teacherNotifiedResultIds = Set<String>()
     private var didEmitInitialTests = false
     private var didEmitInitialResults = false
     
@@ -502,7 +505,7 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
                         let testTitle = data["title"] as? String ?? "Тест"
                         return "Вы приглашены в тест:\n\(testTitle)"
                     }
-                    self.notifications.append(contentsOf: items)
+                    self.prependNotifications(items)
                     DispatchQueue.main.async { self.updateNotificationList() }
                     return
                 }
@@ -517,7 +520,7 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
                     return "Вы приглашены в тест:\n\(testTitle)"
                 }
 
-                self.notifications.append(contentsOf: newItems)
+                self.prependNotifications(newItems)
                 DispatchQueue.main.async {
                     self.updateNotificationList()
                     NotificationCenter.default.post(name: .newTestNotification, object: nil)
@@ -546,6 +549,63 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
         }
     }
     
+    // ФИО → "Фамилия И.О."
+    private func shortTeacherName(name: String?, surname: String?, lastname: String?) -> String {
+        let s = (surname ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let n = (name ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let l = (lastname ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        var initials: [String] = []
+        if let first = n.first { initials.append("\(first).") }
+        if let first = l.first { initials.append("\(first).") }
+        if s.isEmpty, initials.isEmpty { return "Преподаватель" }
+        if s.isEmpty { return initials.joined(separator: " ") }
+        if initials.isEmpty { return s }
+        return "\(s) \(initials.joined(separator: " "))"
+    }
+    
+    // По testId → tests.teacherId → users.{name,surname,lastname} → "Фамилия И.О."
+    private func fetchTeacherShortNameByTestId(testId: String, completion: @escaping (String?) -> Void) {
+        let db = Firestore.firestore()
+        guard !testId.isEmpty else { completion(nil); return }
+        
+        func build(from teacherId: String) {
+            db.collection("users").document(teacherId).getDocument { doc, _ in
+                guard let doc = doc, doc.exists, let data = doc.data() else {
+                    completion(nil); return
+                }
+                let name = data["name"] as? String
+                let surname = data["surname"] as? String
+                let lastname = data["lastname"] as? String
+                completion(self.shortTeacherName(name: name, surname: surname, lastname: lastname))
+            }
+        }
+        
+        // tests может быть как documentId == testId, так и с полем testId
+        db.collection("tests").document(testId).getDocument { doc, _ in
+            if let doc = doc, doc.exists, let data = doc.data(), let teacherId = data["teacherId"] as? String {
+                build(from: teacherId)
+            } else {
+                db.collection("tests")
+                    .whereField("testId", isEqualTo: testId)
+                    .limit(to: 1)
+                    .getDocuments { snap, _ in
+                        guard let testData = snap?.documents.first?.data(),
+                              let teacherId = testData["teacherId"] as? String else {
+                            completion(nil); return
+                        }
+                        build(from: teacherId)
+                    }
+            }
+        }
+    }
+    
+    private func prependNotifications(_ items: [String]) {
+        guard !items.isEmpty else { return }
+        for item in items.reversed() {
+            notifications.insert(item, at: 0)
+        }
+    }
+    
     private func fetchResultNotifications() {
         guard let userId = DependencyInjection.shared.currentUser.userId else { return }
         
@@ -555,86 +615,151 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
             .addSnapshotListener { [weak self] snapshot, error in
                 guard let self = self else { return }
                 guard let snapshot = snapshot else { return }
-
+                
                 // Первый снимок: только в UI, без пуша
                 if !self.didEmitInitialResults {
                     self.didEmitInitialResults = true
-
+                    
                     let docs = snapshot.documents
                     guard !docs.isEmpty else { return }
-
+                    
                     let group = DispatchGroup()
                     var built: [String] = []
-
+                    
                     for doc in docs {
                         let resultId = doc.documentID
                         if self.processedResultIds.contains(resultId) { continue }
                         self.processedResultIds.insert(resultId)
-
+                        
                         let data = doc.data()
                         let testScore = data["totalScore"] as? Int ?? 0
                         let testId = data["testId"] as? String ?? ""
-
+                        let teacherComment = data["teacherComment"] as? String
+                        let hasTeacher = (teacherComment?.isEmpty == false)
+                        
                         group.enter()
                         self.fetchTestNameByTestId(testId: testId) { testTitle in
                             let title = testTitle ?? "Не найдено!"
-                            let text = "Ваш тест проверили!\nНазвание теста:\n\(title)\nВаш балл: \(testScore)"
-                            built.append(text)
-                            group.leave()
+                            if hasTeacher {
+                                // Нужна фамилия и инициалы
+                                self.fetchTeacherShortNameByTestId(testId: testId) { teacherShort in
+                                    let teacher = teacherShort ?? "Преподаватель"
+                                    let text = "Итоговая оценка\nТест: \(title)\nПроверено: \(teacher)\nВаш балл: \(testScore)"
+                                    built.append(text)
+                                    self.teacherNotifiedResultIds.insert(resultId)
+                                    group.leave()
+                                }
+                            } else {
+                                // Предварительные + название теста
+                                let text = "Предварительная оценка\nТест: \(title)\nПроверено: Автоматическая проверка\nВаш балл: \(testScore)"
+                                built.append(text)
+                                group.leave()
+                            }
                         }
                     }
-
+                    
                     group.notify(queue: .main) {
                         guard !built.isEmpty else { return }
-                        self.notifications.append(contentsOf: built)
+                        self.prependNotifications(built)
                         self.updateNotificationList()
                     }
                     return
                 }
                 
-                let changes = snapshot.documentChanges.filter { $0.type == .added }
-                guard !changes.isEmpty else { return }
-                
-                let group = DispatchGroup()
-                var built: [String] = []
-                
-                for change in changes {
-                    let doc = change.document
-                    let resultId = doc.documentID
-                    if self.processedResultIds.contains(resultId) { continue }
-                    self.processedResultIds.insert(resultId)
+                // Добавленные результаты
+                let added = snapshot.documentChanges.filter { $0.type == .added }
+                if !added.isEmpty {
+                    let group = DispatchGroup()
+                    var built: [String] = []
                     
-                    let data = doc.data()
-                    let testScore = data["totalScore"] as? Int ?? 0
-                    let testId = data["testId"] as? String ?? ""
+                    for change in added {
+                        let doc = change.document
+                        let resultId = doc.documentID
+                        if self.processedResultIds.contains(resultId) { continue }
+                        self.processedResultIds.insert(resultId)
+                        
+                        let data = doc.data()
+                        let testScore = data["totalScore"] as? Int ?? 0
+                        let testId = data["testId"] as? String ?? ""
+                        let teacherComment = data["teacherComment"] as? String
+                        let hasTeacher = (teacherComment?.isEmpty == false)
+                        
+                        group.enter()
+                        self.fetchTestNameByTestId(testId: testId) { testTitle in
+                            let title = testTitle ?? "Не найдено!"
+                            if hasTeacher {
+                                self.fetchTeacherShortNameByTestId(testId: testId) { teacherShort in
+                                    let teacher = teacherShort ?? "Преподаватель"
+                                    let text = "Итоговая оценка\nТест: \(title)\nПроверено: \(teacher)\nВаш балл: \(testScore)"
+                                    built.append(text)
+                                    self.teacherNotifiedResultIds.insert(resultId)
+                                    group.leave()
+                                }
+                            } else {
+                                let text = "Предварительная оценка\nТест: \(title)\nПроверено: Автоматическая проверка\nВаш балл: \(testScore)"
+                                built.append(text)
+                                group.leave()
+                            }
+                        }
+                    }
                     
-                    group.enter()
-                    self.fetchTestNameByTestId(testId: testId) { testTitle in
-                        let title = testTitle ?? "Не найдено!"
-                        let text = "Ваш тест проверили!\nНазвание теста:\n\(title)\nВаш балл: \(testScore)"
-                        built.append(text)
-                        group.leave()
+                    group.notify(queue: .main) {
+                        guard !built.isEmpty else { return }
+                        self.prependNotifications(built)
+                        self.updateNotificationList()
+                        NotificationCenter.default.post(name: .newResultNotification, object: nil)
                     }
                 }
                 
-                group.notify(queue: .main) {
-                    guard !built.isEmpty else { return }
-                    self.notifications.append(contentsOf: built)
-                    self.updateNotificationList()
-                    NotificationCenter.default.post(name: .newResultNotification, object: nil)
+                // Изменённые результаты: ловим момент появления teacherComment
+                let modified = snapshot.documentChanges.filter { $0.type == .modified }
+                if !modified.isEmpty {
+                    let group = DispatchGroup()
+                    var built: [String] = []
+                    
+                    for change in modified {
+                        let doc = change.document
+                        let resultId = doc.documentID
+                        
+                        let data = doc.data()
+                        let testScore = data["totalScore"] as? Int ?? 0
+                        let testId = data["testId"] as? String ?? ""
+                        let teacherComment = data["teacherComment"] as? String
+                        let hasTeacher = (teacherComment?.isEmpty == false)
+                        
+                        // Уведомляем итоговую оценку только один раз для каждого результата
+                        guard hasTeacher, !self.teacherNotifiedResultIds.contains(resultId) else { continue }
+                        self.teacherNotifiedResultIds.insert(resultId)
+                        
+                        group.enter()
+                        self.fetchTestNameByTestId(testId: testId) { testTitle in
+                            let title = testTitle ?? "Не найдено!"
+                            self.fetchTeacherShortNameByTestId(testId: testId) { teacherShort in
+                                let teacher = teacherShort ?? "Преподаватель"
+                                let text = "Итоговая оценка\nТест: \(title)\nПроверено: \(teacher)\nВаш балл: \(testScore)"
+                                built.append(text)
+                                group.leave()
+                            }
+                        }
+                    }
+                    
+                    group.notify(queue: .main) {
+                        guard !built.isEmpty else { return }
+                        self.prependNotifications(built)
+                        self.updateNotificationList()
+                        NotificationCenter.default.post(name: .newResultNotification, object: nil)
+                    }
                 }
             }
     }
     
     private func updateNotificationList() {
-        // Обновить UI списка уведомлений в правой панели
-        let list = UIStackView()
-        list.axis = .vertical
-        list.spacing = 12
+        // Очищаем текущие элементы
+        panelListStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
 
+        // Добавляем карточки уведомлений
         notifications.forEach { notification in
             let container = UIView()
-            // Цвет фона зависит от балла: <160 — красный, 160..300 — жёлтый, 300..400 — зелёный
             let score = scoreFromNotification(notification)
             container.backgroundColor = backgroundColor(for: score)
             container.layer.cornerRadius = 12
@@ -642,40 +767,35 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
             container.layer.shadowOpacity = 0.5
             container.layer.shadowOffset = CGSize(width: 0, height: 3)
             container.layer.shadowRadius = 6
-            
+
             let icon = UIImageView(image: UIImage(systemName: "book.fill"))
             icon.tintColor = .systemBlue
             icon.contentMode = .scaleAspectFit
             icon.translatesAutoresizingMaskIntoConstraints = false
             icon.heightAnchor.constraint(equalToConstant: 40).isActive = true
             icon.widthAnchor.constraint(equalToConstant: 40).isActive = true
-            
+
             let label = UILabel()
             label.text = notification
             label.font = .systemFont(ofSize: 16, weight: .semibold)
             label.textColor = .label
             label.numberOfLines = 0
-            
+
             let stack = UIStackView(arrangedSubviews: [icon, label])
             stack.axis = .horizontal
             stack.spacing = 10
             stack.alignment = .center
             stack.translatesAutoresizingMaskIntoConstraints = false
+
             container.addSubview(stack)
-            
             NSLayoutConstraint.activate([
                 stack.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
                 stack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
                 stack.topAnchor.constraint(equalTo: container.topAnchor, constant: 8),
                 stack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -8)
             ])
-            
-            list.addArrangedSubview(container)
-        }
 
-        if let panelStack = panelView.subviews.first(where: { $0 is UIStackView }) as? UIStackView {
-            panelStack.arrangedSubviews.last?.removeFromSuperview()
-            panelStack.addArrangedSubview(list)
+            panelListStack.addArrangedSubview(container)
         }
     }
 
@@ -751,30 +871,50 @@ private extension ProfileViewController {
         title.text = "Уведомления"
         title.font = .systemFont(ofSize: 20, weight: .semibold)
         
+        let clearBtn = UIButton(type: .system)
+        clearBtn.setTitle("Очистить", for: .normal)
+        clearBtn.addTarget(self, action: #selector(clearAllNotifications), for: .touchUpInside)
+
         let closeBtn = UIButton(type: .system)
         closeBtn.setTitle("Закрыть", for: .normal)
         closeBtn.addTarget(self, action: #selector(hidePanel), for: .touchUpInside)
         
-        let header = UIStackView(arrangedSubviews: [title, UIView(), closeBtn])
+        let header = UIStackView(arrangedSubviews: [title, clearBtn, UIView(), closeBtn])
         header.axis = .horizontal
         header.alignment = .center
+        header.spacing = 9
         
-        let list = UIStackView()
-        list.axis = .vertical
-        list.spacing = 12
+        panelListStack.axis = .vertical
+        panelListStack.spacing = 12
+        panelListStack.translatesAutoresizingMaskIntoConstraints = false
         
-        let panelStack = UIStackView(arrangedSubviews: [panelGrabber, header, list])
+        panelScrollView.alwaysBounceVertical = true
+        panelScrollView.showsVerticalScrollIndicator = true
+        panelScrollView.translatesAutoresizingMaskIntoConstraints = false
+        panelScrollView.addSubview(panelListStack)
+        
+        NSLayoutConstraint.activate([
+            panelListStack.leadingAnchor.constraint(equalTo: panelScrollView.contentLayoutGuide.leadingAnchor),
+            panelListStack.trailingAnchor.constraint(equalTo: panelScrollView.contentLayoutGuide.trailingAnchor),
+            panelListStack.topAnchor.constraint(equalTo: panelScrollView.contentLayoutGuide.topAnchor),
+            panelListStack.bottomAnchor.constraint(equalTo: panelScrollView.contentLayoutGuide.bottomAnchor),
+            panelListStack.widthAnchor.constraint(equalTo: panelScrollView.frameLayoutGuide.widthAnchor)
+        ])
+        
+        let panelStack = UIStackView(arrangedSubviews: [panelGrabber, header, panelScrollView])
         panelStack.axis = .vertical
         panelStack.spacing = 16
         panelStack.translatesAutoresizingMaskIntoConstraints = false
         panelView.addSubview(panelStack)
+
         NSLayoutConstraint.activate([
             panelGrabber.heightAnchor.constraint(equalToConstant: 4),
             panelGrabber.widthAnchor.constraint(equalToConstant: 36),
+
             panelStack.topAnchor.constraint(equalTo: panelView.safeAreaLayoutGuide.topAnchor, constant: 12),
             panelStack.leadingAnchor.constraint(equalTo: panelView.leadingAnchor, constant: 16),
             panelStack.trailingAnchor.constraint(equalTo: panelView.trailingAnchor, constant: -16),
-            panelStack.bottomAnchor.constraint(lessThanOrEqualTo: panelView.safeAreaLayoutGuide.bottomAnchor, constant: -16)
+            panelStack.bottomAnchor.constraint(equalTo: panelView.safeAreaLayoutGuide.bottomAnchor, constant: -16)
         ])
         
         panelView.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handlePanelPan(_:))))
@@ -795,6 +935,15 @@ private extension ProfileViewController {
         } else {
             animations()
         }
+    }
+    
+    @objc private func clearAllNotifications() {
+        notifications.removeAll()
+        processedResultIds.removeAll()
+        teacherNotifiedResultIds.removeAll()
+        didEmitInitialTests = false
+        didEmitInitialResults = false
+        updateNotificationList()
     }
     
     @objc func hidePanel() {
