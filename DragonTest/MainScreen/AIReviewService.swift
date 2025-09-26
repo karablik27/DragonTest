@@ -18,7 +18,7 @@ protocol AIReviewServiceProtocol {
 }
 
 final class AIReviewService: AIReviewServiceProtocol {
-    private let apiKey = "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" // 🔑 твой ключ OpenRouter
+    private let apiKey = "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" // 🔑 твой ключ OpenRouter
 
     func reviewAnswers(_ answers: [StudentAnswer], questions: [Questions]) async throws -> [StudentAnswer] {
         let url = URL(string: "https://openrouter.ai/api/v1/chat/completions")!
