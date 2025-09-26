@@ -5,6 +5,7 @@
 //  Created by Карабельников Степан on 22.09.2025.
 //
 
+import Foundation
 
 struct Test: Codable, Identifiable {
     var id: String              // UUID
@@ -13,6 +14,7 @@ struct Test: Codable, Identifiable {
     var questions: [Questions]   // ровно 40 вопросов
     var teacherId: String       // id преподавателя
     var studentIds: [String]    // список id студентов, приглашённых к тесту
+    var time: Date
 }
 
 

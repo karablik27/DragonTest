@@ -54,7 +54,8 @@ final class TestService: TestServiceProtocol {
             dragonKind: dragon,
             questions: questions,
             teacherId: teacherId,
-            studentIds: studentIds
+            studentIds: studentIds,
+            time: Date()
         )
 
         saveTest(test) { result in

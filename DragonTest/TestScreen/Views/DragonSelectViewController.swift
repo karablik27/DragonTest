@@ -452,7 +452,8 @@ extension DragonSelectViewController: AddTestDelegate {
                 dragonKind: dragon,
                 questions: questions,
                 teacherId: CurrentUserService().userId ?? "unknown",
-                studentIds: participants
+                studentIds: participants,
+                time: Date()
             )
             if let presenter = presenter as? DragonSelectPresenter {
                 presenter.didCreateTest(newTest)

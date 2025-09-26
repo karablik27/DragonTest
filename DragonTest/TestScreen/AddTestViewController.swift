@@ -7,6 +7,108 @@
 import UIKit
 import FirebaseFirestore
 
+// MARK: - Стеклянная карточка (прозрачная, без белой заливки)
+final class GlassView: UIView {
+    private let blurView = UIVisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
+    private let borderLayer = CAShapeLayer()
+    private let corner: CGFloat
+
+    init(radius: CGFloat = 20) {
+        self.corner = radius
+        super.init(frame: .zero)
+        backgroundColor = .clear
+        isOpaque = false
+        layer.cornerRadius = radius
+        if #available(iOS 13.0, *) { layer.cornerCurve = .continuous }
+        clipsToBounds = true
+
+        blurView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(blurView)
+        NSLayoutConstraint.activate([
+            blurView.topAnchor.constraint(equalTo: topAnchor),
+            blurView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            blurView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            blurView.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
+
+        // Едва заметная «ледяная» обводка
+        borderLayer.strokeColor = UIColor.white.withAlphaComponent(0.35).cgColor
+        borderLayer.fillColor = UIColor.clear.cgColor
+        borderLayer.lineWidth = 1.0 / UIScreen.main.scale
+        layer.addSublayer(borderLayer)
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        let path = UIBezierPath(roundedRect: bounds, cornerRadius: corner)
+        borderLayer.path = path.cgPath
+        borderLayer.frame = bounds
+    }
+}
+
+// MARK: - Стеклянное текстовое поле (без белого фона)
+final class GlassTextField: UIView {
+    let textField = UITextField()
+    private let blurView = UIVisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
+    private let borderLayer = CAShapeLayer()
+    private let corner: CGFloat = 12
+
+    var text: String? {
+        get { textField.text }
+        set { textField.text = newValue }
+    }
+
+    init(placeholder: String) {
+        super.init(frame: .zero)
+        backgroundColor = .clear
+        isOpaque = false
+        layer.cornerRadius = corner
+        if #available(iOS 13.0, *) { layer.cornerCurve = .continuous }
+        clipsToBounds = true
+
+        blurView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(blurView)
+        NSLayoutConstraint.activate([
+            blurView.topAnchor.constraint(equalTo: topAnchor),
+            blurView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            blurView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            blurView.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
+
+        // поле
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        textField.backgroundColor = .clear
+        textField.borderStyle = .none
+        textField.placeholder = placeholder
+        textField.autocapitalizationType = .none
+        textField.clearButtonMode = .whileEditing
+        addSubview(textField)
+
+        NSLayoutConstraint.activate([
+            heightAnchor.constraint(greaterThanOrEqualToConstant: 44),
+            textField.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
+            textField.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12),
+            textField.topAnchor.constraint(equalTo: topAnchor, constant: 8),
+            textField.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8)
+        ])
+
+        borderLayer.strokeColor = UIColor.white.withAlphaComponent(0.35).cgColor
+        borderLayer.fillColor = UIColor.clear.cgColor
+        borderLayer.lineWidth = 1.0 / UIScreen.main.scale
+        layer.addSublayer(borderLayer)
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        borderLayer.path = UIBezierPath(roundedRect: bounds, cornerRadius: corner).cgPath
+        borderLayer.frame = bounds
+    }
+}
+
 // MARK: - Основной контроллер
 final class AddTestViewController: UIViewController {
 
@@ -24,7 +126,7 @@ final class AddTestViewController: UIViewController {
     private var addedUsers: [User] = []
     private var searchResults: [User] = []
     private var currentTitle: String {
-        titleTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        titleField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
     }
 
     // MARK: - UI
@@ -36,34 +138,44 @@ final class AddTestViewController: UIViewController {
     private let nextButton = UIButton(type: .system)
 
     private let titleLabel = UILabel()
-    private let titleTextField = UITextField()
+    private let titleField = GlassTextField(placeholder: "Введите название теста")
     private let participantsLabel = UILabel()
-    private let participantTextField = UITextField()
+    private let participantField = GlassTextField(placeholder: "Начните вводить имя или почту")
 
+    // Таблица результатов поиска
     private let searchResultsTable = UITableView(frame: .zero, style: .plain)
+    private let searchGlassWrapper = GlassView(radius: 16)
 
-    private let participantsContainer = UIView()
+    // Карточка «Ученики»
+    private let participantsContainer = GlassView(radius: 20)
     private let participantsStack = UIStackView()
 
     private let step1Stack = UIStackView()
     private let step2Stack = UIStackView()
 
-    private let randomButton = UIButton(type: .system)
-    private let manualButton = UIButton(type: .system)
+    // Кнопки-действия (второй шаг — круг)
+    private let circleShadowWrapper = UIView()
+    private let circleContainer = UIView()
+    private let leftHalfButton = UIButton(type: .system)   // Случайные
+    private let rightHalfButton = UIButton(type: .system)  // Вручную
+    private let circleSeparator = UIView()
     private let step2HintLabel = UILabel()
 
     // MARK: - Init
     init(testService: TestServiceProtocol) {
         self.testService = testService
         super.init(nibName: nil, bundle: nil)
+        modalPresentationStyle = .overFullScreen // чтобы просвечивал фон за контроллером
     }
     required init?(coder: NSCoder) { fatalError() }
 
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Создание теста"
-        view.backgroundColor = .systemBackground
+
+        // Полностью прозрачный фон экрана
+        view.backgroundColor = .clear
+        view.isOpaque = false
 
         setupUI()
         setupActions()
@@ -78,8 +190,41 @@ final class AddTestViewController: UIViewController {
         refreshParticipantsChips()
     }
 
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        circleContainer.layer.cornerRadius = circleContainer.bounds.width / 2
+        if #available(iOS 13.0, *) { circleContainer.layer.cornerCurve = .continuous }
+    }
+
     // MARK: - Setup UI
     private func setupUI() {
+        // Scroll & Stack
+        scrollView.backgroundColor = .clear
+        scrollView.isOpaque = false
+        view.addSubview(scrollView)
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+
+        contentStack.axis = .vertical
+        contentStack.spacing = 16
+        contentStack.backgroundColor = .clear
+        contentStack.isOpaque = false
+        scrollView.addSubview(contentStack)
+        contentStack.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            contentStack.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor, constant: 16),
+            contentStack.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor, constant: 16),
+            contentStack.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor, constant: -16),
+            contentStack.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor, constant: -16),
+            contentStack.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -32)
+        ])
+
+        // Header
         stepLabel.font = .systemFont(ofSize: 15, weight: .semibold)
         stepLabel.textColor = .secondaryLabel
         stepLabel.textAlignment = .center
@@ -94,6 +239,7 @@ final class AddTestViewController: UIViewController {
         let headerContainer = UIView()
         headerContainer.translatesAutoresizingMaskIntoConstraints = false
         headerContainer.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        headerContainer.backgroundColor = .clear
 
         headerContainer.addSubview(backButton)
         headerContainer.addSubview(stepLabel)
@@ -116,103 +262,150 @@ final class AddTestViewController: UIViewController {
         titleLabel.text = "Название теста"
         titleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
 
-        titleTextField.placeholder = "Введите название теста"
-        titleTextField.borderStyle = .roundedRect
-
-        participantsLabel.text = "Участники"
+        participantsLabel.text = "Ученики"
         participantsLabel.font = .systemFont(ofSize: 16, weight: .semibold)
 
-        participantTextField.placeholder = "Начните вводить имя или почту"
-        participantTextField.borderStyle = .roundedRect
-        participantTextField.autocapitalizationType = .none
+        // Таблица поиска — полностью прозрачная
+        searchResultsTable.layer.cornerRadius = 12
+        searchResultsTable.clipsToBounds = true
+        searchResultsTable.backgroundColor = .clear
+        searchResultsTable.isOpaque = false
+        searchResultsTable.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        searchResultsTable.tableHeaderView = UIView(frame: .init(x: 0, y: 0, width: 1, height: 0.01))
+        searchResultsTable.tableFooterView = UIView(frame: .init(x: 0, y: 0, width: 1, height: 0.01))
 
+        searchGlassWrapper.addSubview(searchResultsTable)
+        searchGlassWrapper.translatesAutoresizingMaskIntoConstraints = false
+        searchResultsTable.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            searchResultsTable.topAnchor.constraint(equalTo: searchGlassWrapper.topAnchor),
+            searchResultsTable.leadingAnchor.constraint(equalTo: searchGlassWrapper.leadingAnchor),
+            searchResultsTable.trailingAnchor.constraint(equalTo: searchGlassWrapper.trailingAnchor),
+            searchResultsTable.bottomAnchor.constraint(equalTo: searchGlassWrapper.bottomAnchor),
+            searchGlassWrapper.heightAnchor.constraint(equalToConstant: 200)
+        ])
+
+        // Контейнер выбранных участников
         participantsStack.axis = .vertical
         participantsStack.spacing = 8
         participantsStack.alignment = .fill
-
-        participantsContainer.layer.cornerRadius = 12
-        participantsContainer.backgroundColor = UIColor.secondarySystemBackground
         participantsContainer.addSubview(participantsStack)
         participantsStack.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            participantsStack.topAnchor.constraint(equalTo: participantsContainer.topAnchor, constant: 8),
-            participantsStack.leadingAnchor.constraint(equalTo: participantsContainer.leadingAnchor, constant: 8),
-            participantsStack.trailingAnchor.constraint(equalTo: participantsContainer.trailingAnchor, constant: -8),
-            participantsStack.bottomAnchor.constraint(equalTo: participantsContainer.bottomAnchor, constant: -8),
+            participantsStack.topAnchor.constraint(equalTo: participantsContainer.topAnchor, constant: 12),
+            participantsStack.leadingAnchor.constraint(equalTo: participantsContainer.leadingAnchor, constant: 12),
+            participantsStack.trailingAnchor.constraint(equalTo: participantsContainer.trailingAnchor, constant: -12),
+            participantsStack.bottomAnchor.constraint(equalTo: participantsContainer.bottomAnchor, constant: -12),
         ])
-
-        searchResultsTable.layer.cornerRadius = 8
-        searchResultsTable.layer.borderColor = UIColor.separator.cgColor
-        searchResultsTable.rowHeight = 50
-        searchResultsTable.heightAnchor.constraint(equalToConstant: 200).isActive = true
 
         step1Stack.axis = .vertical
         step1Stack.spacing = 12
-        [titleLabel, titleTextField,
-         participantsLabel, participantTextField,
-         searchResultsTable, participantsContainer].forEach { step1Stack.addArrangedSubview($0) }
+        step1Stack.backgroundColor = .clear
+        [titleLabel, titleField,
+         participantsLabel, participantField,
+         searchGlassWrapper, participantsContainer].forEach { step1Stack.addArrangedSubview($0) }
 
-        randomButton.setTitle("Случайные 40 вопросов", for: .normal)
-        randomButton.backgroundColor = .systemBlue
-        randomButton.tintColor = .white
-        randomButton.layer.cornerRadius = 12
-        randomButton.heightAnchor.constraint(equalToConstant: 56).isActive = true
+        // Круг кнопок шага 2
+        circleShadowWrapper.backgroundColor = .clear
+        circleShadowWrapper.layer.shadowColor = UIColor.black.cgColor
+        circleShadowWrapper.layer.shadowOpacity = 0.25
+        circleShadowWrapper.layer.shadowRadius = 14
+        circleShadowWrapper.layer.shadowOffset = CGSize(width: 0, height: 10)
 
-        manualButton.setTitle("Выбрать вручную", for: .normal)
-        manualButton.backgroundColor = .systemGreen
-        manualButton.tintColor = .white
-        manualButton.layer.cornerRadius = 12
-        manualButton.heightAnchor.constraint(equalToConstant: 56).isActive = true
+        circleContainer.backgroundColor = .clear
+        circleContainer.clipsToBounds = true
 
-        let buttonsStack = UIStackView(arrangedSubviews: [randomButton, manualButton])
-        buttonsStack.axis = .vertical
-        buttonsStack.spacing = 12
+        configureHalfButton(leftHalfButton, title: "Случайные\n40 вопросов", bg: .systemBlue)
+        configureHalfButton(rightHalfButton, title: "Выбрать\nвручную", bg: .systemGreen)
+        leftHalfButton.titleLabel?.numberOfLines = 2
+        rightHalfButton.titleLabel?.numberOfLines = 2
+        leftHalfButton.titleLabel?.textAlignment = .center
+        rightHalfButton.titleLabel?.textAlignment = .center
 
-        step2HintLabel.text = "Выберите способ сформировать список вопросов"
-        step2HintLabel.numberOfLines = 0
+        circleSeparator.backgroundColor = UIColor.white.withAlphaComponent(0.5)
+
+        circleShadowWrapper.addSubview(circleContainer)
+        circleContainer.addSubview(leftHalfButton)
+        circleContainer.addSubview(rightHalfButton)
+        circleContainer.addSubview(circleSeparator)
+
+        circleShadowWrapper.translatesAutoresizingMaskIntoConstraints = false
+        circleContainer.translatesAutoresizingMaskIntoConstraints = false
+        leftHalfButton.translatesAutoresizingMaskIntoConstraints = false
+        rightHalfButton.translatesAutoresizingMaskIntoConstraints = false
+        circleSeparator.translatesAutoresizingMaskIntoConstraints = false
+
+        let circleSize: CGFloat = 360
+        NSLayoutConstraint.activate([
+            circleContainer.widthAnchor.constraint(equalToConstant: circleSize),
+            circleContainer.heightAnchor.constraint(equalTo: circleContainer.widthAnchor),
+
+            circleContainer.leadingAnchor.constraint(equalTo: circleShadowWrapper.leadingAnchor),
+            circleContainer.trailingAnchor.constraint(equalTo: circleShadowWrapper.trailingAnchor),
+            circleContainer.topAnchor.constraint(equalTo: circleShadowWrapper.topAnchor),
+            circleContainer.bottomAnchor.constraint(equalTo: circleShadowWrapper.bottomAnchor),
+
+            leftHalfButton.leadingAnchor.constraint(equalTo: circleContainer.leadingAnchor),
+            leftHalfButton.topAnchor.constraint(equalTo: circleContainer.topAnchor),
+            leftHalfButton.bottomAnchor.constraint(equalTo: circleContainer.bottomAnchor),
+            leftHalfButton.trailingAnchor.constraint(equalTo: circleContainer.centerXAnchor),
+
+            rightHalfButton.trailingAnchor.constraint(equalTo: circleContainer.trailingAnchor),
+            rightHalfButton.topAnchor.constraint(equalTo: circleContainer.topAnchor),
+            rightHalfButton.bottomAnchor.constraint(equalTo: circleContainer.bottomAnchor),
+            rightHalfButton.leadingAnchor.constraint(equalTo: circleContainer.centerXAnchor),
+
+            circleSeparator.widthAnchor.constraint(equalToConstant: 1),
+            circleSeparator.centerXAnchor.constraint(equalTo: circleContainer.centerXAnchor),
+            circleSeparator.topAnchor.constraint(equalTo: circleContainer.topAnchor),
+            circleSeparator.bottomAnchor.constraint(equalTo: circleContainer.bottomAnchor),
+        ])
+
+        // Step 2
+        step2HintLabel.text = "Выберите способ формирования теста"
+        step2HintLabel.font = .systemFont(ofSize: 16, weight: .semibold)
+        step2HintLabel.textAlignment = .center
 
         step2Stack.axis = .vertical
-        step2Stack.spacing = 12
-        [step2HintLabel, buttonsStack].forEach { step2Stack.addArrangedSubview($0) }
-
-        contentStack.axis = .vertical
-        contentStack.spacing = 16
-        [headerContainer, step1Stack, step2Stack].forEach { contentStack.addArrangedSubview($0) }
-
-        scrollView.addSubview(contentStack)
-        view.addSubview(scrollView)
-
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        contentStack.translatesAutoresizingMaskIntoConstraints = false
+        step2Stack.spacing = 16
+        step2Stack.alignment = .center
+        [step2HintLabel, circleShadowWrapper].forEach { step2Stack.addArrangedSubview($0) }
 
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-
-            contentStack.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor, constant: 16),
-            contentStack.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor, constant: 16),
-            contentStack.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor, constant: -16),
-            contentStack.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
-            contentStack.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -32)
+            circleShadowWrapper.widthAnchor.constraint(equalToConstant: circleSize),
+            circleShadowWrapper.heightAnchor.constraint(equalToConstant: circleSize),
         ])
+
+        // Контент
+        contentStack.addArrangedSubview(headerContainer)
+        contentStack.addArrangedSubview(step1Stack)
+        contentStack.addArrangedSubview(step2Stack)
+    }
+
+    private func configureHalfButton(_ btn: UIButton, title: String, bg: UIColor) {
+        btn.setTitle(title, for: .normal)
+        btn.setTitleColor(.white, for: .normal)
+        btn.backgroundColor = bg
+        btn.titleLabel?.font = .systemFont(ofSize: 15, weight: .semibold)
+        btn.contentEdgeInsets = UIEdgeInsets(top: 10, left: 6, bottom: 10, right: 6)
     }
 
     // MARK: - Actions
     private func setupActions() {
         backButton.addTarget(self, action: #selector(goBackStep), for: .touchUpInside)
         nextButton.addTarget(self, action: #selector(goNextStep), for: .touchUpInside)
-        randomButton.addTarget(self, action: #selector(addRandomTest), for: .touchUpInside)
-        manualButton.addTarget(self, action: #selector(addManualTest), for: .touchUpInside)
-        titleTextField.addTarget(self, action: #selector(titleChanged), for: .editingChanged)
-        participantTextField.addTarget(self, action: #selector(searchTextChanged), for: .editingChanged)
+
+        leftHalfButton.addTarget(self, action: #selector(addRandomTest), for: .touchUpInside)
+        rightHalfButton.addTarget(self, action: #selector(addManualTest), for: .touchUpInside)
+
+        titleField.textField.addTarget(self, action: #selector(titleChanged), for: .editingChanged)
+        participantField.textField.addTarget(self, action: #selector(searchTextChanged), for: .editingChanged)
     }
 
     @objc private func titleChanged() { updateNextButtonState() }
 
     @objc private func searchTextChanged() {
-        let query = participantTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let query = participantField.textField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         if query.count < 2 {
             searchResults = []
             searchResultsTable.isHidden = true
@@ -301,7 +494,6 @@ final class AddTestViewController: UIViewController {
         hStack.alignment = .center
         hStack.spacing = 8
         hStack.distribution = .equalSpacing
-
         return hStack
     }
 
@@ -351,7 +543,7 @@ final class AddTestViewController: UIViewController {
         return true
     }
 
-    // MARK: - Step 2
+    // MARK: - Step 2 actions
     @objc private func addRandomTest() {
         Firestore.firestore().collection("questionBank").getDocuments { snapshot, error in
             guard error == nil, let docs = snapshot?.documents else {
@@ -425,7 +617,6 @@ final class AddTestViewController: UIViewController {
 // MARK: - ManualTestDelegate
 extension AddTestViewController: ManualTestDelegate {
     func didFinishManualSelection(title: String, dragon: DragonKind, questions: [Questions], participants: [String]) {
-        
         testService.createTest(title: title,
                                dragon: dragon,
                                questions: questions,
@@ -441,14 +632,12 @@ extension AddTestViewController: ManualTestDelegate {
             }
         }
     }
-    
-    
 }
 
 // MARK: - UITableView
 extension AddTestViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return searchResults.count
+        searchResults.count
     }
 
     func tableView(_ tableView: UITableView,
@@ -460,6 +649,11 @@ extension AddTestViewController: UITableViewDelegate, UITableViewDataSource {
             return UITableViewCell()
         }
 
+        // никакой белой подложки
+        cell.backgroundColor = .clear
+        cell.contentView.backgroundColor = .clear
+        cell.selectionStyle = .none
+
         let user = searchResults[indexPath.row]
         cell.configure(with: user) { [weak self] in
             guard let self else { return }
@@ -468,7 +662,7 @@ extension AddTestViewController: UITableViewDelegate, UITableViewDataSource {
                 addedUsers.append(user)
                 refreshParticipantsChips()
             }
-            participantTextField.text = ""
+            participantField.textField.text = ""
             searchResults = []
             searchResultsTable.reloadData()
             searchResultsTable.isHidden = true
@@ -481,51 +675,3 @@ extension AddTestViewController: UITableViewDelegate, UITableViewDataSource {
     }
 }
 
-// MARK: - Кастомная ячейка поиска
-final class SearchResultCell: UITableViewCell {
-    static let reuseId = "SearchResultCell"
-
-    private let nameLabel = UILabel()
-    private let emailLabel = UILabel()
-    private let addButton = UIButton(type: .system)
-
-    private var onAdd: (() -> Void)?
-
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-
-        nameLabel.font = .systemFont(ofSize: 14, weight: .regular)
-        emailLabel.font = .systemFont(ofSize: 12, weight: .light)
-        emailLabel.textColor = .secondaryLabel
-
-        let vStack = UIStackView(arrangedSubviews: [nameLabel, emailLabel])
-        vStack.axis = .vertical
-        vStack.spacing = 2
-
-        addButton.setTitle("Добавить", for: .normal)
-        addButton.tintColor = .systemBlue
-        addButton.addAction(UIAction { [weak self] _ in self?.onAdd?() }, for: .touchUpInside)
-
-        let hStack = UIStackView(arrangedSubviews: [vStack, addButton])
-        hStack.axis = .horizontal
-        hStack.alignment = .center
-        hStack.distribution = .equalSpacing
-
-        contentView.addSubview(hStack)
-        hStack.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            hStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
-            hStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
-            hStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
-            hStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8)
-        ])
-    }
-
-    required init?(coder: NSCoder) { fatalError() }
-
-    func configure(with user: User, onAdd: @escaping () -> Void) {
-        nameLabel.text = "\(user.name) \(user.surname)"
-        emailLabel.text = user.email
-        self.onAdd = onAdd
-    }
-}
