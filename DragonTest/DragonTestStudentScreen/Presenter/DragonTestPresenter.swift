@@ -135,7 +135,6 @@ final class DragonTestPresenter: DragonTestPresenterProtocol {
             currentIndex += 1
             showCurrentQuestion()
         } else {
-            // Проверяем: все ли отвечены
             if answered.allSatisfy({ $0 }) {
                 finishTest()
             } else {
@@ -217,7 +216,7 @@ final class DragonTestPresenter: DragonTestPresenterProtocol {
 
                 try await DependencyInjection.shared.answerService.reviewAttempt(self.attempt.id, result: result)
             } catch {
-                print("❌ Ошибка фоновой проверки ИИ: \(error)")
+                print("Ошибка фоновой проверки ИИ: \(error)")
             }
         }
     }

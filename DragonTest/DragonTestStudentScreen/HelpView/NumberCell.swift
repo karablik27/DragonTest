@@ -2,7 +2,7 @@
 //  NumberCell.swift
 //  DragonTest
 //
-//  Created by Верховный Маг on 26.09.2025.
+//  Created by Карабельников Степан 26.09.2025.
 //
 
 import UIKit

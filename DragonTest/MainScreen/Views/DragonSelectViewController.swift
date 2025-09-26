@@ -66,21 +66,24 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
     
     // MARK: - DragonSelectViewProtocol
     func updateUI(items: [CarouselItem], currentIndex: Int) {
-        self.items = items                   // <–– сохраняем массив
+        self.items = items
         self.currentIndex = currentIndex
         
         emptyStateView.isHidden = true
         dragonsContainer.isHidden = false
         
         let item = items[currentIndex]
+
+        // Сначала фон
+        GradientBackground.attach(to: view, colors: gradientForItem(item))
         
+        // Потом драконы
         configure(container: centerPreviewContainer, item: item, scale: [0.8,0.8,0.8])
         configure(container: leftPreviewContainer, item: currentIndex > 0 ? items[currentIndex-1] : nil, scale: [0.6,0.6,0.6])
         configure(container: rightPreviewContainer, item: currentIndex < items.count-1 ? items[currentIndex+1] : nil, scale: [0.6,0.6,0.6])
         
+        // Заголовки и кнопки
         titleLabel.text = titleForItem(item)
-        GradientBackground.attach(to: view, colors: gradientForItem(item))
-        
         prevButton.isHidden = currentIndex == 0
         nextButton.isHidden = currentIndex == items.count-1
         
@@ -96,6 +99,7 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
             hintView.isHidden = true
         }
     }
+
     
     func showEmptyState() {
         dragonsContainer.isHidden = true
