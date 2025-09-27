@@ -22,14 +22,12 @@ final class DragonPreviewView: UIView {
         arView.backgroundColor = .clear
         arView.isOpaque = false
 
-        // Камера немного сверху
         let cam = PerspectiveCamera()
         let camAnchor = AnchorEntity(world: .zero)
         camAnchor.addChild(cam)
         arView.scene.addAnchor(camAnchor)
         cam.look(at: [0, 100, 0], from: [0, 110, 180], relativeTo: nil)
 
-        // Свет
         let sun = DirectionalLight()
         sun.light.intensity = 2200
         sun.light.color = .white
@@ -52,12 +50,11 @@ final class DragonPreviewView: UIView {
 
     required init?(coder: NSCoder) { fatalError() }
 
-    // Новый метод — принимает уже готовый entity из кэша
     func displayEntity(_ entity: Entity) {
         if let a = modelAnchor { arView.scene.removeAnchor(a) }
         
         let anchor = AnchorEntity(world: .zero)
-        let copy = entity.clone(recursive: true) // гарантированно новый экземпляр
+        let copy = entity.clone(recursive: true) 
         anchor.addChild(copy)
         arView.scene.addAnchor(anchor)
         modelAnchor = anchor

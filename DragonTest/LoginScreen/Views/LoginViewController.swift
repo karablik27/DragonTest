@@ -118,12 +118,10 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
 
     // MARK: - Setup
     private func setupUI() {
-        // Удаляем старый слой если есть
         view.layer.sublayers?
             .filter { $0.name == "backgroundGradient" }
             .forEach { $0.removeFromSuperlayer() }
 
-        // === Градиентный фон ===
         let gradient = CAGradientLayer()
         gradient.name = "backgroundGradient"
         gradient.colors = [
@@ -146,7 +144,6 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
         view.addSubview(blur)
         view.sendSubviewToBack(blur)
 
-        // === Stack ===
         let stack = UIStackView(arrangedSubviews: [
             titleLabel,
             emailTextField,
@@ -233,7 +230,6 @@ extension LoginViewController: LoginViewInput {
         loginButton.isEnabled = !isLoading
         signUpButton.isEnabled = !isLoading
         view.isUserInteractionEnabled = !isLoading
-        // Добавить индикатор
     }
     
     func showError(_ message: String) {

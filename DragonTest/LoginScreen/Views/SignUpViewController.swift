@@ -53,17 +53,6 @@ final class SignUpViewController: UIViewController, UITextFieldDelegate {
     private lazy var passwordTextField   = makeTextField(placeholder: "Пароль", isSecure: true)
     private lazy var telegramIdTextField = makeTextField(placeholder: "Telegram ID")
 
-    // language — выбор через segmented control
-    private let languageControl: UISegmentedControl = {
-        let sc = UISegmentedControl(items: ["Русский", "English"])
-        sc.selectedSegmentIndex = 0
-        sc.backgroundColor = UIColor(white: 1.0, alpha: 0.2)
-        sc.selectedSegmentTintColor = .black
-        sc.setTitleTextAttributes([.foregroundColor: UIColor.white], for: .normal)
-        sc.setTitleTextAttributes([.foregroundColor: UIColor.white], for: .selected)
-        return sc
-    }()
-
     private lazy var signUpButton: UIButton = {
         let btn = UIButton(type: .system)
         btn.setTitle("Зарегистрироваться", for: .normal)
@@ -97,7 +86,6 @@ final class SignUpViewController: UIViewController, UITextFieldDelegate {
 
     // MARK: - Setup
     private func setupUI() {
-        // === Градиентный фон ===
         view.layer.sublayers?
             .filter { $0.name == "backgroundGradient" }
             .forEach { $0.removeFromSuperlayer() }
@@ -131,7 +119,6 @@ final class SignUpViewController: UIViewController, UITextFieldDelegate {
         passwordTextField.returnKeyType   = .next
         telegramIdTextField.returnKeyType = .done
 
-        // === Stack ===
         let stack = UIStackView(arrangedSubviews: [
             titleLabel,
             nameTextField,
@@ -140,7 +127,6 @@ final class SignUpViewController: UIViewController, UITextFieldDelegate {
             emailTextField,
             passwordTextField,
             telegramIdTextField,
-            languageControl,
             signUpButton
         ])
         passwordTextField.isSecureTextEntry = true
@@ -208,8 +194,6 @@ final class SignUpViewController: UIViewController, UITextFieldDelegate {
             return
         }
         
-        let language: Language = languageControl.selectedSegmentIndex == 0 ? .russian : .english
-        
         presenter.didTapSignUp(
             name: name,
             surname: surname,
@@ -217,8 +201,7 @@ final class SignUpViewController: UIViewController, UITextFieldDelegate {
             email: email,
             password: password,
             telegramId: telegramId,
-            role: .student,
-            language: language
+            role: .student
         )
     }
     
@@ -244,7 +227,6 @@ extension SignUpViewController: SignUpViewInput {
     func setLoading(_ isLoading: Bool) {
         signUpButton.isEnabled = !isLoading
         view.isUserInteractionEnabled = !isLoading
-        // Индикатор загрузки
     }
 
     func showError(_ message: String) {
@@ -252,7 +234,6 @@ extension SignUpViewController: SignUpViewInput {
     }
 
     func showSuccess() {
-        // тост/алерт об успехе
     }
 
     func openMain() {

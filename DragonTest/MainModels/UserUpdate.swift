@@ -9,7 +9,6 @@ struct UserUpdate: Codable {
     var email: String?
     var telegramId: String?
     var role: Role?
-    var language: Language?
     var isNotificationEnabled: Bool?
     
     init(
@@ -21,7 +20,6 @@ struct UserUpdate: Codable {
         email: String? = nil,
         telegramId: String? = nil,
         role: Role? = nil,
-        language: Language? = nil,
         isNotificationEnabled: Bool? = nil
     ) {
         self.id = id
@@ -32,7 +30,6 @@ struct UserUpdate: Codable {
         self.email = email
         self.telegramId = telegramId
         self.role = role
-        self.language = language
         self.isNotificationEnabled = isNotificationEnabled
     }
 }

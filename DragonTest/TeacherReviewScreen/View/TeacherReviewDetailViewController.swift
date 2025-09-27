@@ -226,14 +226,12 @@ private final class ReviewAnswerCell: UITableViewCell, UITextFieldDelegate {
         questionLabel.text = "Вопрос: \(questionText)"
         answerLabel.text = "Ответ ученика: " + (answer.textAnswer ?? (answer.selectedIndex.map { "Вариант №\($0+1)" } ?? "—"))
         
-        // ⚡️ ИИ
         if let score = answer.llmScore, let comment = answer.llmComment {
             llmLabel.text = "ИИ → Балл: \(score)\nКомментарий: \(comment)"
         } else {
             llmLabel.text = "ИИ ещё не проверял"
         }
         
-        // ⚡️ Учитель
         if let score = answer.teacherScore {
             teacherLabel.text = "Учитель → Балл: \(score)"
         } else {

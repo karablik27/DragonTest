@@ -201,18 +201,15 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
         
         contentStack.addArrangedSubview(timerCard)
         
-        // --- Карточка вопроса ---
         let questionCard = TestGlassCard(radius: 20)
         let qStack = UIStackView()
         qStack.axis = .vertical
         qStack.spacing = 16
         
-        // чип "Вопрос"
         let questionChip = ChipLabel()
         questionChip.text = "Вопрос"
         qStack.addArrangedSubview(questionChip)
         
-        // контейнер для текста
         questionLabel.font = .systemFont(ofSize: 22, weight: .semibold)
         questionLabel.textColor = .white
         questionLabel.textAlignment = .center

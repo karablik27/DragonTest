@@ -178,15 +178,13 @@ final class SwipeUpHintView: UIControl {
             iv.tintColor = percent >= CGFloat(i+1)/3.0 ? .systemGreen : .white
         }
         
-        // запускаем фон при первом удержании
         if percent > 0 && continuousPlayer == nil {
             startContinuousVibration()
         }
         
-        // обновляем силу фоновой вибрации
         if let player = continuousPlayer {
             let param = CHHapticDynamicParameter(parameterID: .hapticIntensityControl,
-                                                 value: Float(percent), // 0...1
+                                                 value: Float(percent), 
                                                  relativeTime: 0)
             try? player.sendParameters([param], atTime: 0)
         }

@@ -13,19 +13,15 @@ struct StudentAnswer: Codable, Identifiable {
     var studentId: String        // id студента
     var testId: String           // id теста
     
-    // --- Ответ ученика ---
     var textAnswer: String?      // ответ для open-вопросов
     var selectedIndex: Int?      // индекс выбранного варианта для select
     
-    // --- Проверка учителем ---
     var teacherScore: Int?       // балл (0–10)
     var teacherComment: String?  // комментарий учителя
     
-    // --- Проверка LLM ---
     var llmScore: Int?           // балл от модели (0–10)
     var llmComment: String?      // комментарий модели
     
-    // --- Итог по этому вопросу ---
     var finalScore: Int?         // итоговый балл за вопрос
 }
 

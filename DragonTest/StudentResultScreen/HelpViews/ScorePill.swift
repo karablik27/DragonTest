@@ -57,10 +57,9 @@ final class ScorePill: UIView {
 
     // MARK: - Public
     func setText(_ text: String) { label.text = text }
-    func set(value text: String) { setText(text) } // алиас для обратной совместимости
+    func set(value text: String) { setText(text) } 
 
     func applyColor(_ color: UIColor) {
-        // лёгкий градиент от цвета к чуть более тёмному оттенку
         let darker = color.darker(by: 0.16)
         bg.colors = [color.cgColor, darker.cgColor]
     }

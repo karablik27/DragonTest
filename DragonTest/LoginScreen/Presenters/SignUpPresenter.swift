@@ -28,7 +28,7 @@ final class SignUpPresenter: SignUpViewOutput {
     
     func didTapSignUp(name: String, surname: String, lastname: String,
                       email: String, password: String, telegramId: String,
-                      role: Role, language: Language) {
+                      role: Role) {
         let email = email.trimmingCharacters(in: .whitespacesAndNewlines)
         
         guard !email.isEmpty, !password.isEmpty else {
@@ -46,7 +46,6 @@ final class SignUpPresenter: SignUpViewOutput {
                 user.lastname = lastname
                 user.telegramId = telegramId
                 user.role = role
-                user.language = language
 
                 try await self.userService.saveUser(user)
                 

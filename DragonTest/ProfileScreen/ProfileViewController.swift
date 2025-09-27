@@ -223,7 +223,7 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
     // MARK: - Stats Section
     private func addStatsSection() {
             func makeStat(icon: String, value: String, title: String) -> UIView {
-                let container = SettingsGlassCard(radius: 12)   // ✅ используем стеклянный card
+                let container = SettingsGlassCard(radius: 12)  
                 
                 let avatar = UIImageView(image: UIImage(named: icon))
                 avatar.contentMode = .scaleAspectFit
@@ -283,7 +283,7 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
     
     // MARK: - Calendar Section
     private func addCalendarSection() {
-            let container = SettingsGlassCard(radius: 12) // ✅ стеклянный card
+            let container = SettingsGlassCard(radius: 12)
             container.translatesAutoresizingMaskIntoConstraints = false
             container.heightAnchor.constraint(equalToConstant: 260).isActive = true
             
