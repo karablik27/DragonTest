@@ -86,4 +86,15 @@
 "test.loading" = "Completed 0 of 40";
 "test.hold_to_start" = "Hold to start";
 "test.continue" = "Continue";
-"test.answer_placeholder" = "Your answer..."; 
+"test.answer_placeholder" = "Your answer...";
+
+/* Sign Up Screen */
+"signup.title" = "Sign Up";
+"signup.name_placeholder" = "Name";
+"signup.surname_placeholder" = "Surname";
+"signup.lastname_placeholder" = "Last Name";
+"signup.email_placeholder" = "Email";
+"signup.password_placeholder" = "Password";
+"signup.button" = "Sign Up";
+"signup.fill_all_fields" = "Fill all fields";
+"signup.registration_error" = "Registration Error"; 

@@ -10,10 +10,14 @@ import UIKit
 final class SignUpViewController: UIViewController, UITextFieldDelegate {
     private var presenter: SignUpViewOutput!
     
+    // MARK: - Localization References
+    private weak var titleLabelRef: UILabel?
+    private weak var registerButtonRef: UIButton?
+
     // MARK: - UI
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Регистрация"
+        label.text = "signup.title".localized
         label.font = .systemFont(ofSize: 28, weight: .bold)
         label.textColor = .white
         return label
@@ -46,16 +50,16 @@ final class SignUpViewController: UIViewController, UITextFieldDelegate {
         return true
     }
 
-    private lazy var nameTextField       = makeTextField(placeholder: "Имя")
-    private lazy var surnameTextField    = makeTextField(placeholder: "Фамилия")
-    private lazy var lastnameTextField   = makeTextField(placeholder: "Отчество")
-    private lazy var emailTextField      = makeTextField(placeholder: "Почта")
-    private lazy var passwordTextField   = makeTextField(placeholder: "Пароль", isSecure: true)
+    private lazy var nameTextField       = makeTextField(placeholder: "signup.name_placeholder".localized)
+    private lazy var surnameTextField    = makeTextField(placeholder: "signup.surname_placeholder".localized)
+    private lazy var lastnameTextField   = makeTextField(placeholder: "signup.lastname_placeholder".localized)
+    private lazy var emailTextField      = makeTextField(placeholder: "signup.email_placeholder".localized)
+    private lazy var passwordTextField   = makeTextField(placeholder: "signup.password_placeholder".localized, isSecure: true)
     private lazy var telegramIdTextField = makeTextField(placeholder: "Telegram ID")
 
     // language — выбор через segmented control
     private let languageControl: UISegmentedControl = {
-        let sc = UISegmentedControl(items: ["Русский", "English"])
+        let sc = UISegmentedControl(items: ["settings.language.russian".localized, "settings.language.english".localized])
         sc.selectedSegmentIndex = 0
         sc.backgroundColor = UIColor(white: 1.0, alpha: 0.2)
         sc.selectedSegmentTintColor = .black
@@ -66,7 +70,7 @@ final class SignUpViewController: UIViewController, UITextFieldDelegate {
 
     private lazy var signUpButton: UIButton = {
         let btn = UIButton(type: .system)
-        btn.setTitle("Зарегистрироваться", for: .normal)
+        btn.setTitle("signup.button".localized, for: .normal)
         btn.setTitleColor(.white, for: .normal)
         btn.backgroundColor = .black
         btn.layer.cornerRadius = 12
@@ -86,6 +90,25 @@ final class SignUpViewController: UIViewController, UITextFieldDelegate {
             authService: DependencyInjection.shared.authentication,
             userService: DependencyInjection.shared.userService
         )
+        setupAutoLocalization()
+    }
+    
+    // MARK: - Localization
+    override func updateLocalization() {
+        super.updateLocalization()
+        titleLabelRef?.text = "signup.title".localized
+        registerButtonRef?.setTitle("signup.button".localized, for: .normal)
+        
+        // Update text field placeholders
+        nameTextField.placeholder = "signup.name_placeholder".localized
+        surnameTextField.placeholder = "signup.surname_placeholder".localized
+        lastnameTextField.placeholder = "signup.lastname_placeholder".localized
+        emailTextField.placeholder = "signup.email_placeholder".localized
+        passwordTextField.placeholder = "signup.password_placeholder".localized
+        
+        // Update segmented control
+        languageControl.setTitle("settings.language.russian".localized, forSegmentAt: 0)
+        languageControl.setTitle("settings.language.english".localized, forSegmentAt: 1)
     }
 
     override func viewDidLayoutSubviews() {
@@ -204,7 +227,7 @@ final class SignUpViewController: UIViewController, UITextFieldDelegate {
             let password = passwordTextField.text, !password.isEmpty,
             let telegramId = telegramIdTextField.text
         else {
-            showAlert(title: "Ошибка", message: "Заполните все поля")
+            showAlert(title: "alert.error".localized, message: "signup.fill_all_fields".localized)
             return
         }
         
@@ -248,7 +271,7 @@ extension SignUpViewController: SignUpViewInput {
     }
 
     func showError(_ message: String) {
-        showAlert(title: "Ошибка регистрации", message: message)
+        showAlert(title: "signup.registration_error".localized, message: message)
     }
 
     func showSuccess() {

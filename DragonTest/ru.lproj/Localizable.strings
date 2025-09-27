@@ -86,4 +86,15 @@
 "test.loading" = "Пройдено 0 из 40";
 "test.hold_to_start" = "Удерживай, чтобы начать";
 "test.continue" = "Продолжить";
-"test.answer_placeholder" = "Ваш ответ..."; 
+"test.answer_placeholder" = "Ваш ответ...";
+
+/* Sign Up Screen */
+"signup.title" = "Регистрация";
+"signup.name_placeholder" = "Имя";
+"signup.surname_placeholder" = "Фамилия";
+"signup.lastname_placeholder" = "Отчество";
+"signup.email_placeholder" = "Почта";
+"signup.password_placeholder" = "Пароль";
+"signup.button" = "Зарегистрироваться";
+"signup.fill_all_fields" = "Заполните все поля";
+"signup.registration_error" = "Ошибка регистрации"; 
