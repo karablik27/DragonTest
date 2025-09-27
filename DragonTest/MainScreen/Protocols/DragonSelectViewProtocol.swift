@@ -9,11 +9,12 @@ import UIKit
 
 protocol DragonSelectViewProtocol: AnyObject {
     func updateUI(items: [CarouselItem], currentIndex: Int)
+    func showEmptyState()
+    func openTest(_ test: Test)
+    func openResult(_ vc: StudentResultViewController)
     func animateCarousel(direction: Int, newIndex: Int, items: [CarouselItem])
     func openAddTest()
-    func openTest(_ test: Test)
-    func showEmptyState()
-    func openResult(_ vc: StudentResultViewController)
     func currentGradientColors() -> [CGColor]
+    func updateStatus(_ text: String)
 }
 
