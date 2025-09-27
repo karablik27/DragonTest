@@ -15,6 +15,9 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
     
     // MARK: - UI
     private let colors: [CGColor]
+    private let contentRoot = UIView()             // весь видимый UI живёт тут (под градиентом)
+    private let bgLayer = CAGradientLayer()        // градиентный фон (видит пользователь)
+    
     private let scrollView = UIScrollView()
     private let contentStack = UIStackView()
     
@@ -36,13 +39,17 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
         tv.isHidden = true
         tv.isScrollEnabled = false
         tv.textContainerInset = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
+        tv.autocorrectionType = .no
+        tv.spellCheckingType = .no
+        tv.smartInsertDeleteType = .no
+        tv.smartQuotesType = .no
+        tv.smartDashesType = .no
         return tv
     }()
     private var answerTextViewHeight: NSLayoutConstraint!
     
     private let nextButton = UIButton(type: .system)
-    
-    private let hiddenTextField = UITextField(frame: .zero)
+    private let hiddenTextField = UITextField(frame: .zero) // «пинок» для активации secure-снимка
     
     // MARK: - Init
     init(test: Test, colors: [CGColor], onFinish: @escaping (Int) -> Void) {
@@ -61,6 +68,29 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
     }
     required init?(coder: NSCoder) { fatalError() }
     
+    // MARK: - Secure root (UIKit-версия твоего трюка)
+    override func loadView() {
+        // создаём secure-контейнер из скрытого UITextField
+        let tf = UITextField()
+        tf.isSecureTextEntry = true
+        tf.isUserInteractionEnabled = false
+        
+        let secureView = (tf.layer.sublayers?.first?.delegate as? UIView) ?? UIView()
+        secureView.backgroundColor = .clear // сам фон рисуем на contentRoot
+        self.view = secureView
+        
+        // вкладываем contentRoot внутрь secureView
+        contentRoot.backgroundColor = .clear
+        secureView.addSubview(contentRoot)
+        contentRoot.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            contentRoot.topAnchor.constraint(equalTo: secureView.topAnchor),
+            contentRoot.leadingAnchor.constraint(equalTo: secureView.leadingAnchor),
+            contentRoot.trailingAnchor.constraint(equalTo: secureView.trailingAnchor),
+            contentRoot.bottomAnchor.constraint(equalTo: secureView.bottomAnchor)
+        ])
+    }
+    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -73,6 +103,9 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        // растягиваем фон на весь контент
+        bgLayer.frame = contentRoot.bounds
+        
         if let gradient = nextButton.layer.sublayers?.first as? CAGradientLayer {
             gradient.frame = nextButton.bounds
         }
@@ -81,10 +114,15 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         view.layoutIfNeeded()
+        // «пинок» для активизации secure-снимка
         view.addSubview(hiddenTextField)
         hiddenTextField.becomeFirstResponder()
         hiddenTextField.resignFirstResponder()
         hiddenTextField.removeFromSuperview()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     // MARK: - Keyboard
@@ -104,16 +142,15 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tap.cancelsTouchesInView = false
-        view.addGestureRecognizer(tap)
+        contentRoot.addGestureRecognizer(tap)
         
         let swipeDown = UISwipeGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         swipeDown.direction = .down
-        view.addGestureRecognizer(swipeDown)
+        contentRoot.addGestureRecognizer(swipeDown)
         
         answerTextView.delegate = self
     }
 
-    
     @objc private func keyboardWillShow(_ note: Notification) {
         guard let frame = note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
         let kbHeight = frame.height - view.safeAreaInsets.bottom
@@ -128,23 +165,25 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
     
     @objc private func dismissKeyboard() { view.endEditing(true) }
     
-    // MARK: - Background
+    // MARK: - Background (градиент в contentRoot, чтобы пользователю всё видно)
     private func setupBackground() {
-        GradientBackground.attach(to: view, colors: colors)
+        bgLayer.colors = colors
+        bgLayer.startPoint = CGPoint(x: 0, y: 0)
+        bgLayer.endPoint   = CGPoint(x: 1, y: 1)
+        contentRoot.layer.insertSublayer(bgLayer, at: 0)
     }
     
-    
-    // MARK: - Layout
+    // MARK: - Layout (всё внутри contentRoot)
     private func setupLayout() {
-        view.addSubview(scrollView)
+        contentRoot.addSubview(scrollView)
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.alwaysBounceVertical = true
         scrollView.keyboardDismissMode = .interactive
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            scrollView.topAnchor.constraint(equalTo: contentRoot.safeAreaLayoutGuide.topAnchor), // важно: safe area именно contentRoot
+            scrollView.leadingAnchor.constraint(equalTo: contentRoot.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: contentRoot.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: contentRoot.bottomAnchor)
         ])
         
         scrollView.addSubview(contentStack)
@@ -159,6 +198,7 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
             contentStack.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -32)
         ])
         
+        // --- Шапка с таймером/прогрессом ---
         let timerCard = TestGlassCard(radius: 20)
         
         timerIcon.tintColor = .white
@@ -198,9 +238,9 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
             innerStack.trailingAnchor.constraint(equalTo: timerCard.trailingAnchor, constant: -16),
             innerStack.bottomAnchor.constraint(equalTo: timerCard.bottomAnchor, constant: -16)
         ])
-        
         contentStack.addArrangedSubview(timerCard)
         
+        // --- Карточка вопроса ---
         let questionCard = TestGlassCard(radius: 20)
         let qStack = UIStackView()
         qStack.axis = .vertical
@@ -225,6 +265,7 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
             questionLabel.bottomAnchor.constraint(equalTo: questionContainer.bottomAnchor, constant: -8)
         ])
         qStack.addArrangedSubview(questionContainer)
+        
         for i in 0..<3 {
             let b = UIButton(type: .system)
             b.tag = i
@@ -237,20 +278,14 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
             answerButtons.append(b)
             qStack.addArrangedSubview(b)
         }
+        
         let answerChip = ChipLabel()
         answerChip.text = "Ваш ответ"
         qStack.addArrangedSubview(answerChip)
+        
         qStack.addArrangedSubview(answerTextView)
         answerTextViewHeight = answerTextView.heightAnchor.constraint(greaterThanOrEqualToConstant: 120)
         answerTextViewHeight.isActive = true
-        answerTextView.autocorrectionType = .no
-        answerTextView.spellCheckingType = .no
-        answerTextView.autocorrectionType = .no
-        answerTextView.spellCheckingType = .no
-        answerTextView.smartInsertDeleteType = .no
-        answerTextView.smartQuotesType = .no
-        answerTextView.smartDashesType = .no
-        answerTextView.keyboardType = .default
         
         questionCard.addSubview(qStack)
         qStack.translatesAutoresizingMaskIntoConstraints = false
@@ -261,9 +296,10 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
             qStack.bottomAnchor.constraint(equalTo: questionCard.bottomAnchor, constant: -20)
         ])
         contentStack.addArrangedSubview(questionCard)
+        
+        // Кнопка "Продолжить"
         contentStack.addArrangedSubview(nextButton)
     }
-    
     
     private func setupNextButton() {
         nextButton.setTitle("Продолжить", for: .normal)
@@ -273,6 +309,7 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
         nextButton.layer.masksToBounds = true
         nextButton.heightAnchor.constraint(equalToConstant: 56).isActive = true
         nextButton.addTarget(self, action: #selector(nextTapped), for: .touchUpInside)
+        
         let gradient = CAGradientLayer()
         gradient.colors = [
             UIColor(white: 0.2, alpha: 0.15).cgColor,
@@ -283,14 +320,13 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
         gradient.cornerRadius = 24
         gradient.frame = nextButton.bounds
         nextButton.layer.insertSublayer(gradient, at: 0)
+        
         nextButton.layer.shadowColor = UIColor.black.cgColor
         nextButton.layer.shadowOpacity = 0.2
         nextButton.layer.shadowRadius = 10
         nextButton.layer.shadowOffset = CGSize(width: 0, height: 5)
     }
 
-
-    
     // MARK: - Actions
     @objc private func answerTapped(_ sender: UIButton) {
         presenter.answerSelected(index: sender.tag)
@@ -300,7 +336,7 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
         presenter.textAnswerSubmitted(text: answerTextView.text)
     }
     
-    // MARK: - Protocol
+    // MARK: - Protocol (DragonTestViewProtocol)
     func showQuestion(text: String, options: [String]?, answerText: String?) {
         questionLabel.text = text
         
@@ -340,11 +376,10 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
         )
     }
 
-    
-    
     func updateTimerLabel(text: String) {
         timerLabel.text = text
     }
+    
     func showFinishAlert(answerCount: Int) {
         let alert = UIAlertController(
             title: "Тест завершён",
@@ -352,17 +387,13 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
             preferredStyle: .alert
         )
         alert.addAction(UIAlertAction(title: "Ок", style: .default) { [weak self] _ in
-                self?.onFinish(answerCount)
-            })
+            self?.onFinish(answerCount)
+        })
         present(alert, animated: true)
     }
     
     func showError(message: String) {
-        let alert = UIAlertController(
-            title: "Ошибка",
-            message: message,
-            preferredStyle: .alert
-        )
+        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Ок", style: .default))
         present(alert, animated: true)
     }
@@ -408,7 +439,6 @@ extension DragonTestViewController: UICollectionViewDelegate, UICollectionViewDa
         cell.configure(number: indexPath.item + 1, isCurrent: isCurrent, isAnswered: isAnswered)
         return cell
     }
-
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         presenter.questionTapped(at: indexPath.item)
