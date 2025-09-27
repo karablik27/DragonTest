@@ -7,6 +7,7 @@
 
 import UIKit
 import Firebase
+import FirebaseAuth
 
 final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDelegate {
     func numberOfComponents(in pickerView: UIPickerView) -> Int { 1 }
@@ -120,11 +121,11 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
     
     private func loadUserData() async {
         do {
-            if let user = try await userService.fetchUser() {
-                await MainActor.run {
-                    self.currentUser = user
-                    self.nameLabel?.text = user.name.isEmpty ? "profile.username".localized : user.name
-                }
+            guard let uid = Auth.auth().currentUser?.uid else { return }
+            let user = try await userService.fetchUser(uid: uid)
+            await MainActor.run {
+                self.currentUser = user
+                self.nameLabel?.text = user.name.isEmpty ? "profile.username".localized : user.name
             }
         } catch {
             print("Failed to load user data: \(error)")

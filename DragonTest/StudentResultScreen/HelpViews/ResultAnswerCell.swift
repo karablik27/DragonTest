@@ -15,7 +15,7 @@ final class ResultAnswerCell: UITableViewCell {
     private let questionContainer = UIView()
     private let questionLbl = UILabel()
 
-    private let answerTitle = PillLabel(text: "Ваш ответ", style: .white)
+    private let answerTitle = PillLabel(text: "result.your_answer".localized, style: .white)
 
     private let answerBox = PaddedLabel()
 
@@ -179,7 +179,7 @@ final class ResultAnswerCell: UITableViewCell {
         if let t = answer.textAnswer, !t.isEmpty {
             answerBox.text = t
         } else if let idx = answer.selectedIndex {
-            answerBox.text = "Вариант №\(idx + 1)"
+                            answerBox.text = String(format: "result.variant_number".localized, idx + 1)
         } else {
             answerBox.text = "—"
         }

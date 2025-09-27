@@ -28,7 +28,7 @@ final class TeacherReviewDetailViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Проверка ответов"
+        title = "teacher_review.answer_review".localized
         view.backgroundColor = .systemBackground
         setupTable()
         setupSaveButton()
@@ -52,7 +52,7 @@ final class TeacherReviewDetailViewController: UIViewController {
     }
     
     private func setupSaveButton() {
-        saveButton.setTitle("💾 Сохранить результат", for: .normal)
+        saveButton.setTitle("teacher_review.save_result".localized, for: .normal)
         saveButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
         saveButton.backgroundColor = .systemBlue
         saveButton.tintColor = .white
@@ -85,8 +85,8 @@ final class TeacherReviewDetailViewController: UIViewController {
         let notScored = answers.filter { $0.teacherScore == nil }
         if !notScored.isEmpty {
             let alert = UIAlertController(
-                title: "Не все вопросы оценены",
-                message: "Поставьте баллы за каждый ответ перед сохранением.",
+                            title: "teacher_review.not_all_questions_graded".localized,
+            message: "teacher_review.grade_all_answers".localized,
                 preferredStyle: .alert
             )
             alert.addAction(UIAlertAction(title: "alert.ok".localized, style: .default))
@@ -105,7 +105,7 @@ final class TeacherReviewDetailViewController: UIViewController {
             totalScore: totalScore,
             completed: completed,
             capturedDragon: totalScore >= 320,
-            teacherComment: "Оценка учителя сохранена",
+                            teacherComment: "teacher_review.teacher_grade_saved".localized,
             llmComment: attempt.result?.llmComment,
             llmReviewedAt: attempt.result?.llmReviewedAt,
             teacherReviewedAt: Date()
@@ -117,7 +117,7 @@ final class TeacherReviewDetailViewController: UIViewController {
                 await MainActor.run {
                     let alert = UIAlertController(
                         title: "common.saved".localized,
-                        message: "Результат проверки отправлен ✅",
+                        message: "teacher_review.review_sent".localized,
                         preferredStyle: .alert
                     )
                     alert.addAction(UIAlertAction(title: "alert.ok".localized, style: .default) { _ in
@@ -129,10 +129,10 @@ final class TeacherReviewDetailViewController: UIViewController {
                 await MainActor.run {
                     let alert = UIAlertController(
                         title: "alert.error".localized,
-                        message: "Не удалось сохранить результат",
+                        message: "teacher_review.failed_to_save".localized,
                         preferredStyle: .alert
                     )
-                    alert.addAction(UIAlertAction(title: "Ок", style: .default))
+                    alert.addAction(UIAlertAction(title: "common.ok".localized, style: .default))
                     self.present(alert, animated: true)
                 }
             }

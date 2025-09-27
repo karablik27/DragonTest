@@ -62,11 +62,11 @@ final class ScoreSummaryView: UIView {
     /// Конфигурируем данные карточки
     func configure(value: Int?, isFinal: Bool) {
         if isFinal {
-            titleLabel.text = "Итоговый балл"
-            subtitleLabel.text = "Проверено учителем"
+            titleLabel.text = "result.final_score".localized
+            subtitleLabel.text = "result.checked_by_teacher".localized
         } else {
-            titleLabel.text = "Промежуточный балл (ИИ)"
-            subtitleLabel.text = "Ожидает проверки учителем"
+            titleLabel.text = "result.preliminary_score_ai".localized
+            subtitleLabel.text = "result.awaiting_teacher_review".localized
         }
         valueLabel.text = value.map(String.init) ?? "—"
     }

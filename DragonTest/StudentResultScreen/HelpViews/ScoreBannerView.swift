@@ -16,7 +16,7 @@ final class ScoreBannerView: UIView {
         l.font = .systemFont(ofSize: 15, weight: .semibold)
         l.textColor = UIColor.white.withAlphaComponent(0.9)
         l.textAlignment = .center
-        l.text = "Промежуточный балл (ИИ)"
+        l.text = "result.preliminary_score_ai".localized
         return l
     }()
 
@@ -34,7 +34,7 @@ final class ScoreBannerView: UIView {
         l.font = .systemFont(ofSize: 15, weight: .regular)
         l.textColor = UIColor.white.withAlphaComponent(0.85)
         l.textAlignment = .center
-        l.text = "Ожидает проверки учителем"
+        l.text = "result.awaiting_teacher_review".localized
         return l
     }()
 
@@ -73,18 +73,18 @@ final class ScoreBannerView: UIView {
     func configure(aiScore: Int?, teacherScore: Int?) {
         if let t = teacherScore {
             // Итог
-            titleLabel.text = "Итоговая оценка"
+            titleLabel.text = "result.final_grade".localized
             valueLabel.text = "\(t)"
-            subtitleLabel.text = "Проверено учителем"
+            subtitleLabel.text = "result.checked_by_teacher".localized
         } else if let ai = aiScore {
             // Промежуточно (ИИ)
-            titleLabel.text = "Промежуточный балл (ИИ)"
+            titleLabel.text = "result.preliminary_score_ai".localized
             valueLabel.text = "\(ai)"
-            subtitleLabel.text = "Ожидает проверки учителем"
+            subtitleLabel.text = "result.awaiting_teacher_review".localized
         } else {
             titleLabel.text = "common.grade".localized
             valueLabel.text = "—"
-            subtitleLabel.text = "Нет данных"
+            subtitleLabel.text = "result.no_data".localized
         }
     }
 }
