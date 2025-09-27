@@ -8,26 +8,11 @@
 import UIKit
 import Firebase
 
-final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDelegate {
-    func numberOfComponents(in pickerView: UIPickerView) -> Int { 1 }
-    
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return testNames.count
-    }
-    
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return testNames[row]
-    }
-    
-    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        testTextField?.text = testNames[row]
-    }
+final class ProfileViewController: UIViewController {
     
     
     // MARK: - Data
-    private var testNames: [String] = []
-    private var pickerView: UIPickerView?
-    private weak var testTextField: UITextField?
+    private var currentUser: User?
     
     // MARK: - UI (основной экран)
     private let headerView = UIView()
@@ -55,6 +40,41 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
     private var didEmitInitialTests = false
     private var didEmitInitialResults = false
     
+    // MARK: - Stats Data
+    private var dragonsCount = 0
+    private var excellentStudentsCount = 0
+    private var studentTestsCount = 0
+    private var teacherTestsCount = 0
+    private var studentTeachersCount = 0
+    private var teacherStudentsCount = 0
+    private var studentAverageScore = 0.0
+    private var teacherStudentsAverageScore = 0.0
+    
+    // MARK: - Calendar Data
+    private var isWeekView = false  // false = месяц, true = неделя
+    private var currentDate = Date()
+    private var studentActivityDates = Set<String>()  // Даты активности студента (формат "yyyy-MM-dd")
+    private var teacherActivityDates = Set<String>()  // Даты создания тестов учителя
+    private var calendarCollectionView: UICollectionView?
+    
+    // MARK: - Firebase Listeners
+    private var dragonsListener: ListenerRegistration?
+    private var testsListener: ListenerRegistration?
+    private var resultsListener: ListenerRegistration?
+    private var studentTestsListener: ListenerRegistration?
+    private var teacherTestsListener: ListenerRegistration?
+    private var studentTeachersListener: ListenerRegistration?
+    private var teacherStudentsListener: ListenerRegistration?
+    private var studentScoreListener: ListenerRegistration?
+    private var teacherScoreListener: ListenerRegistration?
+    private var studentActivityListener: ListenerRegistration?
+    private var teacherActivityListener: ListenerRegistration?
+    
+    // MARK: - Rating Data
+    private var allStudentsRating: [(studentId: String, name: String, totalScore: Int, place: Int)] = []
+    private var studentsListener: ListenerRegistration?
+    private var usersListener: ListenerRegistration?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -66,6 +86,7 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
         addSudentsResultsSection()
         
         setupRightPanel()
+        loadCurrentUser()
         
         fetchNotifications()
         fetchResultNotifications()
@@ -131,7 +152,7 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
 
         // Лейблы
         let welcomeLabel = UILabel()
-        welcomeLabel.text = "Welcome,"
+        welcomeLabel.text = "Добро пожаловать,"
         welcomeLabel.font = .systemFont(ofSize: 14, weight: .regular)
         welcomeLabel.textColor = .secondaryLabel
 
@@ -139,6 +160,7 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
         nameLabel.text = "Username"
         nameLabel.font = .systemFont(ofSize: 20, weight: .semibold)
         nameLabel.textColor = .label
+        nameLabel.tag = 100
 
         nameStack.axis = .vertical
         nameStack.spacing = 2
@@ -223,7 +245,7 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
     // MARK: - Stats Section
     private func addStatsSection() {
             func makeStat(icon: String, value: String, title: String) -> UIView {
-                let container = SettingsGlassCard(radius: 12)  
+                let container = SettingsGlassCard(radius: 12)   // ✅ используем стеклянный card
                 
                 let avatar = UIImageView(image: UIImage(named: icon))
                 avatar.contentMode = .scaleAspectFit
@@ -283,34 +305,51 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
     
     // MARK: - Calendar Section
     private func addCalendarSection() {
-            let container = SettingsGlassCard(radius: 12)
-            container.translatesAutoresizingMaskIntoConstraints = false
-            container.heightAnchor.constraint(equalToConstant: 260).isActive = true
-            
-            let segment = UISegmentedControl(items: ["Неделя", "Месяц"])
-            segment.selectedSegmentIndex = 1
-            
-            let calendarLabel = UILabel()
-            calendarLabel.text = "Календарь активности"
-            calendarLabel.font = .systemFont(ofSize: 16, weight: .medium)
-            calendarLabel.textAlignment = .center
-            calendarLabel.textColor = .secondaryLabel
-            
-            let stack = UIStackView(arrangedSubviews: [segment, calendarLabel])
-            stack.axis = .vertical
-            stack.spacing = 12
-            stack.translatesAutoresizingMaskIntoConstraints = false
-            
-            container.addSubview(stack)
-            NSLayoutConstraint.activate([
-                stack.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
-                stack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
-                stack.topAnchor.constraint(equalTo: container.topAnchor, constant: 16),
-                stack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -16)
-            ])
-            
-            contentStack.addArrangedSubview(container)
-        }
+        let container = SettingsGlassCard(radius: 12)
+        container.translatesAutoresizingMaskIntoConstraints = false
+        container.heightAnchor.constraint(equalToConstant: 300).isActive = true
+        
+        let segment = UISegmentedControl(items: ["Неделя", "Месяц"])
+        segment.selectedSegmentIndex = 1
+        segment.addTarget(self, action: #selector(calendarViewChanged(_:)), for: .valueChanged)
+        
+        // Заголовок календаря
+        let calendarLabel = UILabel()
+        calendarLabel.text = "Календарь активности"
+        calendarLabel.font = .systemFont(ofSize: 16, weight: .medium)
+        calendarLabel.textAlignment = .center
+        calendarLabel.textColor = .secondaryLabel
+        
+        // Создаем collection view для календаря
+        let layout = UICollectionViewFlowLayout()
+        layout.minimumInteritemSpacing = 2
+        layout.minimumLineSpacing = 4
+        layout.sectionInset = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+        
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = .clear
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.heightAnchor.constraint(equalToConstant: 200).isActive = true
+        collectionView.register(CalendarDayCell.self, forCellWithReuseIdentifier: "DayCell")
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        self.calendarCollectionView = collectionView
+        
+        let stack = UIStackView(arrangedSubviews: [segment, calendarLabel, collectionView])
+        stack.axis = .vertical
+        stack.spacing = 12
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        
+        container.addSubview(stack)
+        NSLayoutConstraint.activate([
+            stack.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
+            stack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
+            stack.topAnchor.constraint(equalTo: container.topAnchor, constant: 16),
+            stack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -16)
+        ])
+        
+        contentStack.addArrangedSubview(container)
+    }
     
     // MARK: - Students Results Section (подиум)
     private func addSudentsResultsSection() {
@@ -322,39 +361,6 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
         titleLabel.text = "Рейтинг прохождения тестов"
         titleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
         titleLabel.textColor = .label
-
-        testNames = ["Коллоквиум №1", "Коллоквиум №2", "Итоговый тест", "Практика iOS"]
-
-        let picker = UIPickerView()
-        picker.dataSource = self
-        picker.delegate = self
-        self.pickerView = picker
-
-        // Поле выбора теста (glass)
-        let testField = SettingsGlassTextField(placeholder: "Выберите тест")
-        testField.textField.inputView = picker
-        self.testTextField = testField.textField
-
-        // Поле поиска (glass)
-        let searchField = SettingsGlassTextField(placeholder: "Поиск по названию")
-        let searchIcon = UIImageView(image: UIImage(systemName: "magnifyingglass"))
-        searchIcon.tintColor = .secondaryLabel
-        searchIcon.contentMode = .scaleAspectFit
-        searchIcon.translatesAutoresizingMaskIntoConstraints = false
-        searchIcon.widthAnchor.constraint(equalToConstant: 20).isActive = true
-        searchIcon.heightAnchor.constraint(equalToConstant: 20).isActive = true
-
-        // Встраиваем иконку внутрь textField
-        let iconContainer = UIView(frame: CGRect(x: 0, y: 0, width: 28, height: 20))
-        iconContainer.addSubview(searchIcon)
-        searchIcon.centerYAnchor.constraint(equalTo: iconContainer.centerYAnchor).isActive = true
-        searchIcon.centerXAnchor.constraint(equalTo: iconContainer.centerXAnchor).isActive = true
-        searchField.textField.leftView = iconContainer
-        searchField.textField.leftViewMode = .always
-
-        let filterStack = UIStackView(arrangedSubviews: [titleLabel, testField, searchField])
-        filterStack.axis = .vertical
-        filterStack.spacing = 16
 
         func makeStudentView(place: Int, name: String, score: String, imageName: String) -> UIView {
             let column = UIView()
@@ -466,7 +472,7 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
         podiumStack.distribution = .equalSpacing
         podiumStack.spacing = 12
 
-        let mainStack = UIStackView(arrangedSubviews: [filterStack, podiumStack])
+        let mainStack = UIStackView(arrangedSubviews: [titleLabel, podiumStack])
         mainStack.axis = .vertical
         mainStack.spacing = 32
 
@@ -829,6 +835,22 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
             return UIColor(white: 0.95, alpha: 1)
         }
     }
+    
+    deinit {
+        dragonsListener?.remove()
+        testsListener?.remove()
+        resultsListener?.remove()
+        studentTestsListener?.remove()
+        teacherTestsListener?.remove()
+        studentTeachersListener?.remove()
+        teacherStudentsListener?.remove()
+        studentScoreListener?.remove()
+        teacherScoreListener?.remove()
+        studentActivityListener?.remove()
+        teacherActivityListener?.remove()
+        studentsListener?.remove()
+        usersListener?.remove()
+    }
 }
 
 // MARK: - Правая панель уведомлений
@@ -920,8 +942,6 @@ private extension ProfileViewController {
         panelView.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handlePanelPan(_:))))
     }
     
-    @objc func didTapBell() { showPanel() }
-    
     private func showPanel(animated: Bool = true) {
         guard !panelIsVisible else { return }
         panelIsVisible = true
@@ -936,6 +956,714 @@ private extension ProfileViewController {
             animations()
         }
     }
+    
+    private func loadCurrentUser() {
+        Task {
+            do {
+                let user = try await DependencyInjection.shared.currentUser.getCurrentUser()
+                await MainActor.run {
+                    self.currentUser = user
+                    self.updateUserName()
+                    self.loadUserAvatar()
+                    self.loadStatsData()
+                }
+            } catch {
+                print("Ошибка загрузки пользователя: \(error)")
+            }
+        }
+    }
+        
+    private func updateUserName() {
+        guard let user = currentUser else { return }
+        
+        if let nameLabel = nameStack.arrangedSubviews.first(where: { $0.tag == 100 }) as? UILabel {
+            let name = "\(user.surname) \(user.name)".trimmingCharacters(in: .whitespacesAndNewlines)
+            nameLabel.text = name.isEmpty ? "Пользователь" : name
+        }
+    }
+    
+    private func loadUserAvatar() {
+        guard let userId = DependencyInjection.shared.currentUser.userId else { return }
+        let db = Firestore.firestore()
+        let docRef = db.collection("profilePhoto").document(userId)
+
+        docRef.getDocument { [weak self] snapshot, _ in
+            DispatchQueue.main.async {
+                if let data = snapshot?.data(),
+                   let base64 = data["photoBase64"] as? String,
+                   !base64.isEmpty,
+                   let image = self?.decodeBase64ToImage(base64) {
+                    self?.avatarImageView.image = image
+                } else {
+                    self?.avatarImageView.image = UIImage(named: "avatar")
+                }
+            }
+        }
+    }
+
+    private func decodeBase64ToImage(_ base64: String) -> UIImage? {
+        guard let data = Data(base64Encoded: base64) else { return nil }
+        return UIImage(data: data)
+    }
+    
+    // MARK: -Stats
+    private func loadStatsData() {
+        guard let user = currentUser else { return }
+        
+        if user.role == .student {
+            loadDragonsCount()
+            loadStudentTestsCount()
+            loadStudentTeachersCount()
+            loadStudentAverageScore()
+            loadStudentActivityDates()
+        } else {
+            loadExcellentStudentsCount()
+            loadTeacherTestsCount()
+            loadTeacherStudentsCount()
+            loadTeacherStudentsAverageScore()
+            loadTeacherActivityDates()
+        }
+        
+        loadRatingData()
+    }
+    
+    private func loadDragonsCount() {
+        guard let userId = DependencyInjection.shared.currentUser.userId else { return }
+        let db = Firestore.firestore()
+        
+        // Удаляем старый слушатель если есть
+        dragonsListener?.remove()
+        
+        // Устанавливаем новый слушатель
+        dragonsListener = db.collection("results")
+            .whereField("studentId", isEqualTo: userId)
+            .whereField("capturedDragon", isEqualTo: true)
+            .addSnapshotListener { [weak self] snapshot, error in
+                DispatchQueue.main.async {
+                    self?.dragonsCount = snapshot?.documents.count ?? 0
+                    self?.updateStatsUI()
+                }
+            }
+    }
+    
+    private func loadExcellentStudentsCount() {
+        guard let userId = DependencyInjection.shared.currentUser.userId else { return }
+        let db = Firestore.firestore()
+        
+        testsListener?.remove()
+        resultsListener?.remove()
+        
+        testsListener = db.collection("tests")
+            .whereField("teacherId", isEqualTo: userId)
+            .addSnapshotListener { [weak self] snapshot, error in
+                guard let self = self, let testDocs = snapshot?.documents else { return }
+                
+                var allStudentIds = Set<String>()
+                for testDoc in testDocs {
+                    if let studentIds = testDoc.data()["studentIds"] as? [String] {
+                        allStudentIds.formUnion(studentIds)
+                    }
+                }
+                
+                guard !allStudentIds.isEmpty else {
+                    DispatchQueue.main.async {
+                        self.excellentStudentsCount = 0
+                        self.updateStatsUI()
+                    }
+                    return
+                }
+                
+                self.resultsListener?.remove()
+                self.resultsListener = db.collection("results")
+                    .whereField("studentId", in: Array(allStudentIds))
+                    .addSnapshotListener { [weak self] resultsSnapshot, _ in
+                        guard let self = self, let resultDocs = resultsSnapshot?.documents else { return }
+                        
+                        // Группируем результаты по студентам
+                        var studentScores: [String: [Int]] = [:]
+                        for doc in resultDocs {
+                            let data = doc.data()
+                            guard let studentId = data["studentId"] as? String,
+                                  let score = data["totalScore"] as? Int else { continue }
+                            
+                            if studentScores[studentId] == nil {
+                                studentScores[studentId] = []
+                            }
+                            studentScores[studentId]?.append(score)
+                        }
+                        
+                        // Считаем отличников (средний балл ≥ 320)
+                        var excellentCount = 0
+                        for (_, scores) in studentScores {
+                            guard !scores.isEmpty else { continue }
+                            let average = Double(scores.reduce(0, +)) / Double(scores.count)
+                            if average >= 320 {
+                                excellentCount += 1
+                            }
+                        }
+                        
+                        DispatchQueue.main.async {
+                            self.excellentStudentsCount = excellentCount
+                            self.updateStatsUI()
+                        }
+                    }
+            }
+    }
+    
+    private func loadStudentTestsCount() {
+        guard let userId = DependencyInjection.shared.currentUser.userId else { return }
+        let db = Firestore.firestore()
+        
+        // Удаляем старый слушатель если есть
+        studentTestsListener?.remove()
+        
+        // Устанавливаем слушатель на результаты студента (пройденные тесты)
+        studentTestsListener = db.collection("results")
+            .whereField("studentId", isEqualTo: userId)
+            .addSnapshotListener { [weak self] snapshot, error in
+                DispatchQueue.main.async {
+                    // Считаем уникальные testId (один студент может иметь несколько попыток одного теста)
+                    let uniqueTestIds = Set(snapshot?.documents.compactMap { doc in
+                        doc.data()["testId"] as? String
+                    } ?? [])
+                    
+                    self?.studentTestsCount = uniqueTestIds.count
+                    self?.updateStatsUI()
+                }
+            }
+    }
+    
+    private func loadTeacherTestsCount() {
+        guard let userId = DependencyInjection.shared.currentUser.userId else { return }
+        let db = Firestore.firestore()
+        
+        // Удаляем старый слушатель если есть
+        teacherTestsListener?.remove()
+        
+        // Устанавливаем слушатель на тесты, созданные преподавателем
+        teacherTestsListener = db.collection("tests")
+            .whereField("teacherId", isEqualTo: userId)
+            .addSnapshotListener { [weak self] snapshot, error in
+                DispatchQueue.main.async {
+                    self?.teacherTestsCount = snapshot?.documents.count ?? 0
+                    self?.updateStatsUI()
+                }
+            }
+    }
+    
+    private func loadStudentTeachersCount() {
+        guard let userId = DependencyInjection.shared.currentUser.userId else { return }
+        let db = Firestore.firestore()
+        
+        // Удаляем старый слушатель если есть
+        studentTeachersListener?.remove()
+        
+        // Находим все тесты, где студент участвует, и собираем уникальных преподавателей
+        studentTeachersListener = db.collection("tests")
+            .whereField("studentIds", arrayContains: userId)
+            .addSnapshotListener { [weak self] snapshot, error in
+                DispatchQueue.main.async {
+                    let uniqueTeacherIds = Set(snapshot?.documents.compactMap { doc in
+                        doc.data()["teacherId"] as? String
+                    } ?? [])
+                    
+                    self?.studentTeachersCount = uniqueTeacherIds.count
+                    self?.updateStatsUI()
+                }
+            }
+    }
+
+    private func loadTeacherStudentsCount() {
+        guard let userId = DependencyInjection.shared.currentUser.userId else { return }
+        let db = Firestore.firestore()
+        
+        // Удаляем старый слушатель если есть
+        teacherStudentsListener?.remove()
+        
+        // Находим все тесты преподавателя и собираем уникальных студентов
+        teacherStudentsListener = db.collection("tests")
+            .whereField("teacherId", isEqualTo: userId)
+            .addSnapshotListener { [weak self] snapshot, error in
+                DispatchQueue.main.async {
+                    var allStudentIds = Set<String>()
+                    
+                    snapshot?.documents.forEach { testDoc in
+                        if let studentIds = testDoc.data()["studentIds"] as? [String] {
+                            allStudentIds.formUnion(studentIds)
+                        }
+                    }
+                    
+                    self?.teacherStudentsCount = allStudentIds.count
+                    self?.updateStatsUI()
+                }
+            }
+    }
+    
+    private func loadStudentAverageScore() {
+        guard let userId = DependencyInjection.shared.currentUser.userId else { return }
+        let db = Firestore.firestore()
+        
+        // Удаляем старый слушатель если есть
+        studentScoreListener?.remove()
+        
+        // Слушаем результаты студента для подсчета среднего балла
+        studentScoreListener = db.collection("results")
+            .whereField("studentId", isEqualTo: userId)
+            .addSnapshotListener { [weak self] snapshot, error in
+                DispatchQueue.main.async {
+                    guard let docs = snapshot?.documents, !docs.isEmpty else {
+                        self?.studentAverageScore = 0.0
+                        self?.updateStatsUI()
+                        return
+                    }
+                    
+                    let totalScore = docs.reduce(0) { sum, doc in
+                        let score = doc.data()["totalScore"] as? Int ?? 0
+                        return sum + score
+                    }
+                    
+                    let averageScore = Double(totalScore) / Double(docs.count)
+                    // Переводим в проценты (400 баллов = 100%)
+                    self?.studentAverageScore = min(100.0, max(0.0, (averageScore / 400.0) * 100.0))
+                    self?.updateStatsUI()
+                }
+            }
+    }
+
+    private func loadTeacherStudentsAverageScore() {
+        guard let userId = DependencyInjection.shared.currentUser.userId else { return }
+        let db = Firestore.firestore()
+        
+        // Удаляем старый слушатель если есть
+        teacherScoreListener?.remove()
+        
+        // Сначала находим всех студентов преподавателя
+        teacherScoreListener = db.collection("tests")
+            .whereField("teacherId", isEqualTo: userId)
+            .addSnapshotListener { [weak self] snapshot, error in
+                guard let self = self, let testDocs = snapshot?.documents else { return }
+                
+                var allStudentIds = Set<String>()
+                for testDoc in testDocs {
+                    if let studentIds = testDoc.data()["studentIds"] as? [String] {
+                        allStudentIds.formUnion(studentIds)
+                    }
+                }
+                
+                guard !allStudentIds.isEmpty else {
+                    DispatchQueue.main.async {
+                        self.teacherStudentsAverageScore = 0.0
+                        self.updateStatsUI()
+                    }
+                    return
+                }
+                
+                // Получаем результаты всех студентов
+                db.collection("results")
+                    .whereField("studentId", in: Array(allStudentIds))
+                    .getDocuments { snapshot, _ in
+                        DispatchQueue.main.async {
+                            guard let resultDocs = snapshot?.documents, !resultDocs.isEmpty else {
+                                self.teacherStudentsAverageScore = 0.0
+                                self.updateStatsUI()
+                                return
+                            }
+                            
+                            // Группируем результаты по студентам и считаем средний балл каждого
+                            var studentScores: [String: [Int]] = [:]
+                            for doc in resultDocs {
+                                let data = doc.data()
+                                guard let studentId = data["studentId"] as? String,
+                                      let score = data["totalScore"] as? Int else { continue }
+                                
+                                if studentScores[studentId] == nil {
+                                    studentScores[studentId] = []
+                                }
+                                studentScores[studentId]?.append(score)
+                            }
+                            
+                            // Считаем средний балл каждого студента
+                            var allAverages: [Double] = []
+                            for (_, scores) in studentScores {
+                                guard !scores.isEmpty else { continue }
+                                let average = Double(scores.reduce(0, +)) / Double(scores.count)
+                                allAverages.append(average)
+                            }
+                            
+                            // Общий средний балл всех студентов
+                            let overallAverage = allAverages.isEmpty ? 0.0 : allAverages.reduce(0, +) / Double(allAverages.count)
+                            
+                            // Переводим в проценты (400 баллов = 100%)
+                            self.teacherStudentsAverageScore = min(100.0, max(0.0, (overallAverage / 400.0) * 100.0))
+                            self.updateStatsUI()
+                        }
+                    }
+            }
+    }
+    
+    private func loadStudentActivityDates() {
+        guard let userId = DependencyInjection.shared.currentUser.userId else { return }
+        let db = Firestore.firestore()
+        
+        studentActivityListener?.remove()
+        
+        studentActivityListener = db.collection("attempts")
+            .whereField("studentId", isEqualTo: userId)
+            .addSnapshotListener { [weak self] snapshot, error in
+                DispatchQueue.main.async {
+                    var dates = Set<String>()
+                    
+                    snapshot?.documents.forEach { doc in
+                        let data = doc.data()
+                        if let timestamp = data["submittedAt"] as? Timestamp {
+                            let date = timestamp.dateValue()
+                            let formatter = DateFormatter()
+                            formatter.dateFormat = "yyyy-MM-dd"
+                            dates.insert(formatter.string(from: date))
+                        }
+                    }
+                    
+                    self?.studentActivityDates = dates
+                    self?.calendarCollectionView?.reloadData()
+                }
+            }
+    }
+
+    private func loadTeacherActivityDates() {
+        guard let userId = DependencyInjection.shared.currentUser.userId else { return }
+        let db = Firestore.firestore()
+        
+        teacherActivityListener?.remove()
+        
+        teacherActivityListener = db.collection("tests")
+            .whereField("teacherId", isEqualTo: userId)
+            .addSnapshotListener { [weak self] snapshot, error in
+                DispatchQueue.main.async {
+                    var dates = Set<String>()
+                    
+                    snapshot?.documents.forEach { doc in
+                        let data = doc.data()
+                        if let timestamp = data["time"] as? Timestamp {
+                            let date = timestamp.dateValue()
+                            let formatter = DateFormatter()
+                            formatter.dateFormat = "yyyy-MM-dd"
+                            dates.insert(formatter.string(from: date))
+                        }
+                    }
+                    
+                    self?.teacherActivityDates = dates
+                    self?.calendarCollectionView?.reloadData()
+                }
+            }
+    }
+    
+
+    private func loadRatingData() {
+        let db = Firestore.firestore()
+        
+        studentsListener?.remove()
+        
+        // Общий рейтинг по ВСЕМ тестам - только результаты с teacherComment
+        studentsListener = db.collection("results")
+            .whereField("teacherComment", isGreaterThan: "")
+            .addSnapshotListener { [weak self] snapshot, error in
+                guard let self = self, let docs = snapshot?.documents else { return }
+                
+                // Общий рейтинг - суммируем все баллы по всем тестам
+                var studentTotalScores: [String: Int] = [:]
+                
+                for doc in docs {
+                    let data = doc.data()
+                    guard let studentId = data["studentId"] as? String,
+                          let score = data["totalScore"] as? Int else { continue }
+                    
+                    studentTotalScores[studentId] = (studentTotalScores[studentId] ?? 0) + score
+                }
+                
+                self.processStudentScores(studentTotalScores)
+            }
+    }
+
+    private func processStudentScores(_ studentScores: [String: Int]) {
+        guard !studentScores.isEmpty else {
+            DispatchQueue.main.async {
+                self.allStudentsRating = []
+                self.updateRatingDisplay()
+            }
+            return
+        }
+        
+        let db = Firestore.firestore()
+        let group = DispatchGroup()
+        var studentsWithNames: [(studentId: String, name: String, totalScore: Int, avatar: UIImage?)] = []
+        
+        for (studentId, score) in studentScores {
+            group.enter()
+            
+            // Загружаем данные пользователя
+            db.collection("users").document(studentId).getDocument { doc, _ in
+                guard let data = doc?.data() else {
+                    group.leave()
+                    return
+                }
+                
+                let name = data["name"] as? String ?? ""
+                let surname = data["surname"] as? String ?? ""
+                let lastname = data["lastname"] as? String ?? ""
+                
+                let displayName = self.formatStudentName(name: name, surname: surname, lastname: lastname)
+                
+                // Загружаем аватарку
+                db.collection("profilePhoto").document(studentId).getDocument { photoDoc, _ in
+                    defer { group.leave() }
+                    
+                    var avatar: UIImage?
+                    if let photoData = photoDoc?.data(),
+                       let base64 = photoData["photoBase64"] as? String,
+                       !base64.isEmpty,
+                       let image = self.decodeBase64ToImage(base64) {
+                        avatar = image
+                    } else {
+                        avatar = UIImage(named: "avatar")
+                    }
+                    
+                    studentsWithNames.append((studentId: studentId, name: displayName, totalScore: score, avatar: avatar))
+                }
+            }
+        }
+        
+        group.notify(queue: .main) {
+            // Сортируем по баллам (по убыванию)
+            let sorted = studentsWithNames.sorted { $0.totalScore > $1.totalScore }
+            
+            // Добавляем места (без аватарки в структуре данных, но сохраняем в кэше)
+            self.allStudentsRating = sorted.enumerated().map { index, student in
+                (studentId: student.studentId, name: student.name, totalScore: student.totalScore, place: index + 1)
+            }
+            
+            // Сохраняем аватарки отдельно
+            var avatarCache: [String: UIImage] = [:]
+            for student in sorted {
+                if let avatar = student.avatar {
+                    avatarCache[student.studentId] = avatar
+                }
+            }
+            self.updateRatingDisplay(avatars: avatarCache)
+        }
+    }
+
+    private func formatStudentName(name: String, surname: String, lastname: String) -> String {
+        let s = surname.trimmingCharacters(in: .whitespacesAndNewlines)
+        let n = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let l = lastname.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        var initials: [String] = []
+        if let first = n.first { initials.append("\(first).") }
+        if let first = l.first { initials.append("\(first).") }
+        
+        if s.isEmpty && initials.isEmpty { return "Студент" }
+        if s.isEmpty { return initials.joined(separator: " ") }
+        if initials.isEmpty { return s }
+        
+        return "\(s) \(initials.joined(separator: " "))"
+    }
+
+    private func updateRatingDisplay(avatars: [String: UIImage] = [:]) {
+        guard let container = contentStack.arrangedSubviews.last as? SettingsGlassCard else { return }
+        
+        // Находим подиум
+        func findPodiumStack(in view: UIView) -> UIStackView? {
+            if let stack = view as? UIStackView,
+               stack.axis == .horizontal,
+               stack.arrangedSubviews.count == 3 {
+                return stack
+            }
+            for subview in view.subviews {
+                if let found = findPodiumStack(in: subview) {
+                    return found
+                }
+            }
+            return nil
+        }
+        
+        guard let podiumStack = findPodiumStack(in: container) else { return }
+        
+        // Обновляем подиум (топ-3)
+        let topThree = Array(allStudentsRating.prefix(3))
+        
+        for (index, podiumView) in podiumStack.arrangedSubviews.enumerated() {
+            let place = index == 0 ? 2 : (index == 1 ? 1 : 3) // Порядок: 2-1-3
+            let actualIndex = place - 1
+            
+            if actualIndex < topThree.count {
+                let student = topThree[actualIndex]
+                let avatar = avatars[student.studentId]
+                updatePodiumView(podiumView, with: student, avatar: avatar)
+            } else {
+                updatePodiumView(podiumView, with: (studentId: "", name: "—", totalScore: 0, place: place), avatar: nil)
+            }
+        }
+    }
+
+    private func updatePodiumView(_ view: UIView, with student: (studentId: String, name: String, totalScore: Int, place: Int), avatar: UIImage?) {
+        func findLabels(in view: UIView) -> (name: UILabel?, score: UILabel?, avatar: UIImageView?) {
+            var nameLabel: UILabel?
+            var scoreLabel: UILabel?
+            var avatarView: UIImageView?
+            
+            func searchLabels(in v: UIView) {
+                if let label = v as? UILabel {
+                    // Ищем лейбл имени - более гибкий поиск
+                    if label.font?.pointSize == 14 && label.textColor == .white {
+                        nameLabel = label
+                    } else if label.font?.pointSize == 12 && label.textColor == .white {
+                        scoreLabel = label
+                    }
+                } else if let imageView = v as? UIImageView,
+                          imageView.layer.cornerRadius == 30 { // Аватарка сверху подиума
+                    avatarView = imageView
+                }
+                for subview in v.subviews {
+                    searchLabels(in: subview)
+                }
+            }
+            
+            searchLabels(in: view)
+            return (nameLabel, scoreLabel, avatarView)
+        }
+        
+        let (nameLabel, scoreLabel, avatarView) = findLabels(in: view)
+        
+        // Разделяем имя на фамилию и инициалы
+        let nameComponents = student.name.components(separatedBy: " ")
+        let surname = nameComponents.first ?? ""
+        let initials = nameComponents.dropFirst().joined(separator: " ")
+        
+        // Устанавливаем текст в две строки
+        nameLabel?.text = "\(surname)\n\(initials)"
+        nameLabel?.numberOfLines = 2
+        nameLabel?.textAlignment = .center
+        nameLabel?.textColor = .black // Меняем цвет на черный
+        nameLabel?.font = .systemFont(ofSize: 12, weight: .medium) // Уменьшаем размер шрифта
+        
+        scoreLabel?.text = "\(student.totalScore)"
+        scoreLabel?.textColor = .black // Меняем цвет на черный
+        
+        // Устанавливаем аватарку
+        if let avatar = avatar {
+            avatarView?.image = avatar
+        } else {
+            avatarView?.image = UIImage(named: "avatar")
+        }
+    }
+
+    
+    private func updateStatsUI() {
+        // Найдем контейнер со статистикой
+        guard let gridStack = contentStack.arrangedSubviews.first as? UIStackView,
+              let firstRow = gridStack.arrangedSubviews.first as? UIStackView,
+              let secondRow = gridStack.arrangedSubviews.count > 1 ? gridStack.arrangedSubviews[1] as? UIStackView : nil else { return }
+        
+        // Получаем карточки
+        let firstCard = firstRow.arrangedSubviews.first
+        let secondCard = firstRow.arrangedSubviews.count > 1 ? firstRow.arrangedSubviews[1] : nil
+        
+        // Найдем лейбл со значением (большая цифра)
+        func findValueLabel(in view: UIView) -> UILabel? {
+            if let label = view as? UILabel,
+               label.font?.pointSize == 20,
+               label.font?.fontDescriptor.symbolicTraits.contains(.traitBold) == true {
+                return label
+            }
+            for subview in view.subviews {
+                if let found = findValueLabel(in: subview) {
+                    return found
+                }
+            }
+            return nil
+        }
+        
+        // Найдем лейбл с заголовком
+        func findTitleLabel(in view: UIView) -> UILabel? {
+            if let label = view as? UILabel,
+               label.font?.pointSize == 14,
+               label.textColor == .secondaryLabel {
+                return label
+            }
+            for subview in view.subviews {
+                if let found = findTitleLabel(in: subview) {
+                    return found
+                }
+            }
+            return nil
+        }
+        
+        guard let user = currentUser else { return }
+        
+        // Обновляем первый квадратик
+        if let firstCard = firstCard,
+           let valueLabel = findValueLabel(in: firstCard),
+           let titleLabel = findTitleLabel(in: firstCard) {
+            
+            if user.role == .student {
+                valueLabel.text = "\(dragonsCount)"
+                titleLabel.text = "Драконов"
+            } else {
+                valueLabel.text = "\(excellentStudentsCount)"
+                titleLabel.text = "Отличников"
+            }
+        }
+        
+        // Обновляем второй квадратик
+        if let secondCard = secondCard,
+           let valueLabel = findValueLabel(in: secondCard),
+           let titleLabel = findTitleLabel(in: secondCard) {
+            
+            if user.role == .student {
+                valueLabel.text = "\(studentTestsCount)"
+                titleLabel.text = "Пройдено тестов"
+            } else {
+                valueLabel.text = "\(teacherTestsCount)"
+                titleLabel.text = "Тестов создано"
+            }
+        }
+        
+        // Обновляем третий квадратик
+        if let thirdCard = secondRow.arrangedSubviews.first,
+           let valueLabel = findValueLabel(in: thirdCard),
+           let titleLabel = findTitleLabel(in: thirdCard) {
+            
+            if user.role == .student {
+                valueLabel.text = "\(studentTeachersCount)"
+                titleLabel.text = "Преподавателей"
+            } else {
+                valueLabel.text = "\(teacherStudentsCount)"
+                titleLabel.text = "Студентов"
+            }
+        }
+        
+        // Обновляем четвертый квадратик
+        if let fourthCard = secondRow.arrangedSubviews.count > 1 ? secondRow.arrangedSubviews[1] : nil,
+           let valueLabel = findValueLabel(in: fourthCard),
+           let titleLabel = findTitleLabel(in: fourthCard) {
+            
+            if user.role == .student {
+                valueLabel.text = String(format: "%.0f%%", studentAverageScore)
+                titleLabel.text = "Средний балл"
+            } else {
+                valueLabel.text = String(format: "%.0f%%", teacherStudentsAverageScore)
+                titleLabel.text = "Средний балл учеников"
+            }
+        }
+    }
+    
+    @objc func didTapBell() { showPanel() }
+    
+    @objc private func calendarViewChanged(_ sender: UISegmentedControl) {
+        isWeekView = (sender.selectedSegmentIndex == 0)
+        calendarCollectionView?.reloadData()
+    }
+    
     
     @objc private func clearAllNotifications() {
         notifications.removeAll()
@@ -979,4 +1707,138 @@ private extension ProfileViewController {
 extension Notification.Name {
     static let newTestNotification = Notification.Name("newTestNotification")
     static let newResultNotification = Notification.Name("newResultNotification")
+}
+
+// MARK: - Calendar Collection View
+extension ProfileViewController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+    
+    private func getDaysToShow() -> [Date] {
+        let calendar = Calendar.current
+        
+        if isWeekView {
+            // Показываем текущую неделю
+            let startOfWeek = calendar.dateInterval(of: .weekOfYear, for: currentDate)?.start ?? currentDate
+            return (0..<7).compactMap { calendar.date(byAdding: .day, value: $0, to: startOfWeek) }
+        } else {
+            // Показываем текущий месяц
+            let startOfMonth = calendar.dateInterval(of: .month, for: currentDate)?.start ?? currentDate
+            let range = calendar.range(of: .day, in: .month, for: currentDate) ?? 1..<32
+            return range.compactMap { calendar.date(byAdding: .day, value: $0 - 1, to: startOfMonth) }
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return getDaysToShow().count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DayCell", for: indexPath) as! CalendarDayCell
+        
+        let days = getDaysToShow()
+        let date = days[indexPath.item]
+        
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d"
+        cell.dayLabel.text = formatter.string(from: date)
+        
+        // Проверяем активность
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let dateString = dateFormatter.string(from: date)
+        
+        let hasActivity: Bool
+        if let user = currentUser, user.role == .student {
+            hasActivity = studentActivityDates.contains(dateString)
+        } else {
+            hasActivity = teacherActivityDates.contains(dateString)
+        }
+        
+        cell.configure(hasActivity: hasActivity, isToday: Calendar.current.isDateInToday(date))
+        
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let width = collectionView.frame.width
+        let availableWidth = width - 16 // padding
+        let columns: CGFloat = isWeekView ? 7 : 7
+        let cellWidth = (availableWidth - (columns - 1) * 2) / columns
+        return CGSize(width: cellWidth, height: cellWidth)
+    }
+}
+
+// MARK: - Calendar Cell
+class CalendarDayCell: UICollectionViewCell {
+    let dayLabel = UILabel()
+    private let activityIndicator = UIView()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupUI()
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupUI()
+    }
+    
+    private func setupUI() {
+        backgroundColor = .clear
+        layer.cornerRadius = 8
+        
+        dayLabel.textAlignment = .center
+        dayLabel.font = .systemFont(ofSize: 14, weight: .medium)
+        dayLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        activityIndicator.backgroundColor = .systemBlue
+        activityIndicator.layer.cornerRadius = 3
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        
+        addSubview(dayLabel)
+        addSubview(activityIndicator)
+        
+        NSLayoutConstraint.activate([
+            dayLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
+            dayLabel.centerYAnchor.constraint(equalTo: centerYAnchor, constant: -4),
+            
+            activityIndicator.centerXAnchor.constraint(equalTo: centerXAnchor),
+            activityIndicator.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -4),
+            activityIndicator.widthAnchor.constraint(equalToConstant: 6),
+            activityIndicator.heightAnchor.constraint(equalToConstant: 6)
+        ])
+    }
+    
+    func configure(hasActivity: Bool, isToday: Bool) {
+        activityIndicator.isHidden = !hasActivity
+        
+        if isToday {
+            // Сегодняшний день - яркий синий фон
+            backgroundColor = UIColor.systemBlue
+            dayLabel.textColor = .white
+            dayLabel.font = .systemFont(ofSize: 14, weight: .bold)
+            layer.borderWidth = 0
+        } else if hasActivity {
+            // День с активностью - светло-зеленый фон
+            backgroundColor = UIColor.systemGreen.withAlphaComponent(0.3)
+            dayLabel.textColor = .label
+            dayLabel.font = .systemFont(ofSize: 14, weight: .semibold)
+            layer.borderWidth = 1
+            layer.borderColor = UIColor.systemGreen.cgColor
+        } else {
+            // Обычный день - легкий белый фон с границей
+            backgroundColor = UIColor.systemBackground.withAlphaComponent(0.7)
+            dayLabel.textColor = .label
+            dayLabel.font = .systemFont(ofSize: 14, weight: .medium)
+            layer.borderWidth = 0.5
+            layer.borderColor = UIColor.separator.cgColor
+        }
+        
+        if hasActivity {
+            if isToday {
+                activityIndicator.backgroundColor = .white
+            } else {
+                activityIndicator.backgroundColor = .systemGreen
+            }
+        }
+    }
 }
