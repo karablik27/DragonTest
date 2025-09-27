@@ -2,7 +2,7 @@
 //  ResultStyle.swift
 //  DragonTest
 //
-//  Created by Верховный Маг on 27.09.2025.
+//  Created by Карабельников Степан on 27.09.2025.
 //
 
 import UIKit
@@ -29,7 +29,7 @@ enum ResultStyle {
     static let teacherAccent = UIColor.systemBlue
     static let okAccent      = UIColor.systemGreen
 
-    // ⚡️ Яркие заливки для плашек-оценок (НЕ стекло)
+    // Яркие заливки для плашек-оценок (НЕ стекло)
     static let aiScoreFill: UIColor = UIColor(red: 1.00, green: 0.53, blue: 0.08, alpha: 0.95)     // сочный оранжевый
     static let teacherScoreFill: UIColor = UIColor(red: 0.05, green: 0.43, blue: 0.93, alpha: 0.95) // сочный синий
 

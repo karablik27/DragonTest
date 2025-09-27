@@ -2,10 +2,9 @@
 //  ScoreBannerView.swift
 //  DragonTest
 //
-//  Created by Верховный Маг on 27.09.2025.
+//  Created by Карабельников Степан on 27.09.2025.
 //
 
-//  ScoreBannerView.swift
 import UIKit
 
 final class ScoreBannerView: UIView {

@@ -2,7 +2,7 @@
 //  SignUpViewController.swift
 //  DragonTest
 //
-//  Created by Верховный Маг on 20.09.2025.
+//  Created by Карабельников Степан on 20.09.2025.
 //
 
 import UIKit

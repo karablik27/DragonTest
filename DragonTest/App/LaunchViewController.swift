@@ -2,7 +2,7 @@
 //  LaunchViewController.swift
 //  DragonTest
 //
-//  Created by MacBoock on 27.09.2025.
+//  Created by Лазарева Александра on 27.09.2025.
 //
 
 import UIKit

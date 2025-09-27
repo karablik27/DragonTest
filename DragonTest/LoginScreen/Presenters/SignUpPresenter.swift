@@ -2,7 +2,7 @@
 //  SignUpPresenter.swift
 //  DragonTest
 //
-//  Created by Sergey on 23.09.2025.
+//  Created by Крючков Сергей on 23.09.2025.
 //
 
 import UIKit
