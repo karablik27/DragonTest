@@ -57,12 +57,13 @@
 "addtest.participants_placeholder" = "Start typing name or email";
 "addtest.step1" = "Step 1 of 2";
 "addtest.step2" = "Step 2 of 2";
-"addtest.step2_hint" = "Choose how to form the question list";
-"addtest.random_button" = "Random 40 questions";
-"addtest.manual_button" = "Select manually";
+"addtest.step2_hint" = "Choose how to form the test";
+"addtest.random_button" = "Random\n40 questions";
+"addtest.manual_button" = "Select\nmanually";
 "addtest.empty_list" = "List is empty";
 "addtest.add_button" = "Add";
 "addtest.remove_button" = "✕";
+"addtest.empty_title_error" = "Please specify the test title.";
 
 /* Profile Screen */
 "profile.welcome" = "Welcome,";

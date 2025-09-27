@@ -169,6 +169,18 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
     
     private var userDataTask: Task<User?, Never> = Task { nil }
 
+    // MARK: - Localization References
+    private weak var titleLabel: UILabel?
+    private weak var nameLabel: UILabel?
+    private weak var telegramLabel: UILabel?
+    private weak var emailLabel: UILabel?
+    private weak var passwordLabel: UILabel?
+    private weak var roleLabel: UILabel?
+    private weak var languageLabel: UILabel?
+    private weak var themeLabel: UILabel?
+    private weak var notificationsLabel: UILabel?
+    private weak var logoutButton: UIButton?
+
     // MARK: - Controls
     private weak var themeSegment: UISegmentedControl?
     private weak var roleSegment: UISegmentedControl?
@@ -176,15 +188,15 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
     private weak var notifSwitch: UISwitch?
 
     // MARK: - Fields
-    private let nameField = SettingsGlassTextField(placeholder: "Введите имя")
-    private let tgField = SettingsGlassTextField(placeholder: "@username")
+    private let nameField = SettingsGlassTextField(placeholder: "settings.username.placeholder".localized)
+    private let tgField = SettingsGlassTextField(placeholder: "settings.telegram.placeholder".localized)
     private let emailField = SettingsGlassTextField(
-        placeholder: "example@mail.com",
+        placeholder: "settings.email.placeholder".localized,
         isSecure: false,
         keyboard: .emailAddress
     )
     private let passwordField = SettingsGlassTextField(
-        placeholder: "Введите новый пароль",
+        placeholder: "settings.password.placeholder".localized,
         isSecure: true,
         keyboard: .default
     )
@@ -212,6 +224,7 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
         setupTelegramInteractions()
         fillFields()
         loadOrCreateProfilePhoto()
+        setupAutoLocalization()
 
         NotificationCenter.default.addObserver(
             self,
@@ -223,6 +236,40 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
 
     deinit {
         NotificationCenter.default.removeObserver(self)
+        removeLocalizationObserver()
+    }
+    
+    // MARK: - Localization
+    override func updateLocalization() {
+        super.updateLocalization()
+        
+        titleLabel?.text = "settings.title".localized
+        nameLabel?.text = "settings.username".localized
+        telegramLabel?.text = "settings.telegram".localized
+        emailLabel?.text = "settings.email".localized
+        passwordLabel?.text = "settings.password".localized
+        roleLabel?.text = "settings.role".localized
+        languageLabel?.text = "settings.language".localized
+        themeLabel?.text = "settings.theme".localized
+        notificationsLabel?.text = "settings.notifications".localized
+        logoutButton?.setTitle("settings.logout".localized, for: .normal)
+        
+        // Update placeholders
+        nameField.textField.placeholder = "settings.username.placeholder".localized
+        tgField.textField.placeholder = "settings.telegram.placeholder".localized
+        emailField.textField.placeholder = "settings.email.placeholder".localized
+        passwordField.textField.placeholder = "settings.password.placeholder".localized
+        
+        // Update segment controls
+        roleSegment?.setTitle("settings.role.student".localized, forSegmentAt: 0)
+        roleSegment?.setTitle("settings.role.teacher".localized, forSegmentAt: 1)
+        
+        langSegment?.setTitle("settings.language.russian".localized, forSegmentAt: 0)
+        langSegment?.setTitle("settings.language.english".localized, forSegmentAt: 1)
+        
+        themeSegment?.setTitle("settings.theme.system".localized, forSegmentAt: 0)
+        themeSegment?.setTitle("settings.theme.light".localized, forSegmentAt: 1)
+        themeSegment?.setTitle("settings.theme.dark".localized, forSegmentAt: 2)
     }
 
     // MARK: - Data Loading
@@ -232,7 +279,7 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
             do { return try await self?.userService.fetchUser(uid: uid) }
             catch {
                 await MainActor.run {
-                    self?.showAlert(title: "Ошибка", message: "Не удалось загрузить профиль")
+                    self?.showAlert(title: "alert.error".localized, message: "alert.profile.load.error".localized)
                 }
                 return nil
             }
@@ -296,9 +343,10 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
         let container = UIView()
 
         let usernameLabel = UILabel()
-        usernameLabel.text = "Настройки"
+        usernameLabel.text = "settings.title".localized
         usernameLabel.font = .systemFont(ofSize: 20, weight: .semibold)
         usernameLabel.textColor = .label
+        self.titleLabel = usernameLabel
 
         let textStack = UIStackView(arrangedSubviews: [usernameLabel])
         textStack.axis = .vertical
@@ -372,7 +420,7 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
         profileStack.axis = .vertical
         profileStack.spacing = 10
 
-        func fieldRow(title: String, field: SettingsGlassTextField, action: Selector?) -> UIView {
+        func fieldRow(title: String, field: SettingsGlassTextField, action: Selector?) -> (UIView, UILabel) {
             let t = UILabel()
             t.text = title
             t.font = UIFont.systemFont(ofSize: 14, weight: .medium)
@@ -383,13 +431,22 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
             let v = UIStackView(arrangedSubviews: [t, field])
             v.axis = .vertical
             v.spacing = 6
-            return v
+            return (v, t)
         }
 
-        [ fieldRow(title: "Имя пользователя", field: nameField,     action: #selector(nameChanged(_:))),
-          fieldRow(title: "Телеграм",          field: tgField,       action: #selector(telegramChanged(_:))),
-          fieldRow(title: "Логин",             field: emailField,    action: #selector(emailChanged(_:))),
-          fieldRow(title: "Пароль",            field: passwordField, action: #selector(passwordChanged(_:)))
+        let (nameRow, nameLabel) = fieldRow(title: "settings.username".localized, field: nameField, action: #selector(nameChanged(_:)))
+        self.nameLabel = nameLabel
+        
+        let (telegramRow, telegramLabel) = fieldRow(title: "settings.telegram".localized, field: tgField, action: #selector(telegramChanged(_:)))
+        self.telegramLabel = telegramLabel
+        
+        let (emailRow, emailLabel) = fieldRow(title: "settings.email".localized, field: emailField, action: #selector(emailChanged(_:)))
+        self.emailLabel = emailLabel
+        
+        let (passwordRow, passwordLabel) = fieldRow(title: "settings.password".localized, field: passwordField, action: #selector(passwordChanged(_:)))
+        self.passwordLabel = passwordLabel
+
+        [nameRow, telegramRow, emailRow, passwordRow
         ].forEach { profileStack.addArrangedSubview($0) }
 
         profileCard.addSubview(profileStack)
@@ -408,10 +465,11 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
         settingsStack.spacing = 16
 
         let roleTitle = UILabel()
-        roleTitle.text = "Роль"
+        roleTitle.text = "settings.role".localized
         roleTitle.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        self.roleLabel = roleTitle
 
-        let roleSegment = UISegmentedControl(items: ["Студент", "Преподаватель"])
+        let roleSegment = UISegmentedControl(items: ["settings.role.student".localized, "settings.role.teacher".localized])
         roleSegment.selectedSegmentIndex = 0
         roleSegment.isEnabled = false
         
@@ -422,10 +480,11 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
         roleRow.spacing = 6
 
         let langTitle = UILabel()
-        langTitle.text = "Язык"
+        langTitle.text = "settings.language".localized
         langTitle.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        self.languageLabel = langTitle
 
-        let langSegment = UISegmentedControl(items: ["Русский", "English"])
+        let langSegment = UISegmentedControl(items: ["settings.language.russian".localized, "settings.language.english".localized])
         langSegment.selectedSegmentIndex = 0
         langSegment.addTarget(self, action: #selector(languageChanged(_:)), for: .valueChanged)
         self.langSegment = langSegment
@@ -435,10 +494,11 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
         langRow.spacing = 6
 
         let themeTitle = UILabel()
-        themeTitle.text = "Тема"
+        themeTitle.text = "settings.theme".localized
         themeTitle.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        self.themeLabel = themeTitle
 
-        let themeSegment = UISegmentedControl(items: ["Система", "Светлая", "Тёмная"])
+        let themeSegment = UISegmentedControl(items: ["settings.theme.system".localized, "settings.theme.light".localized, "settings.theme.dark".localized])
         themeSegment.selectedSegmentIndex = ThemeManager.shared.current.rawValue
         themeSegment.addTarget(self, action: #selector(themeChanged(_:)), for: .valueChanged)
         self.themeSegment = themeSegment
@@ -448,8 +508,9 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
         themeRow.spacing = 6
 
         let notifTitle = UILabel()
-        notifTitle.text = "Уведомления"
+        notifTitle.text = "settings.notifications".localized
         notifTitle.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        self.notificationsLabel = notifTitle
 
         let notifSwitch = UISwitch()
         notifSwitch.addTarget(self, action: #selector(notificationChanged(_:)), for: .valueChanged)
@@ -473,12 +534,13 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
         ])
 
         let logoutButton = UIButton(type: .system)
-        logoutButton.setTitle("Выйти", for: .normal)
+        logoutButton.setTitle("settings.logout".localized, for: .normal)
         logoutButton.setTitleColor(.white, for: .normal)
         logoutButton.backgroundColor = .systemRed
         logoutButton.layer.cornerRadius = 22
         logoutButton.heightAnchor.constraint(equalToConstant: 44).isActive = true
         logoutButton.addTarget(self, action: #selector(logoutTapped), for: .touchUpInside)
+        self.logoutButton = logoutButton
 
         contentStack.addArrangedSubview(profileCard)
         contentStack.addArrangedSubview(settingsCard)
@@ -544,7 +606,7 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
     private func tryOpenTelegramFromField() {
         let raw = tgField.textField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         guard let username = sanitizeTelegram(raw) else {
-            showAlert(title: "Telegram", message: "Укажите @username или ссылку t.me/…")
+            showAlert(title: "Telegram", message: "settings.telegram.error".localized)
             return
         }
         openTelegram(usernameOrLink: username)
@@ -576,7 +638,7 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
             if let url = URL(string: usernameOrLink) {
                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
             } else {
-                showAlert(title: "Telegram", message: "Некорректная ссылка.")
+                showAlert(title: "Telegram", message: "settings.telegram.invalid_link".localized)
             }
             return
         }
@@ -589,7 +651,7 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
         } else if let web = URL(string: "https://t.me/\(username)") {
             UIApplication.shared.open(web, options: [:], completionHandler: nil)
         } else {
-            showAlert(title: "Telegram", message: "Не удалось открыть Telegram.")
+            showAlert(title: "Telegram", message: "settings.telegram.open_error".localized)
         }
     }
 
@@ -654,6 +716,9 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
         guard let uid = Auth.auth().currentUser?.uid else { return }
         let newLanguage: Language = sender.selectedSegmentIndex == 0 ? .russian : .english
         updateUser(with: UserUpdate(id: uid, language: newLanguage))
+        
+        // Update app language
+        DependencyInjection.shared.localizationService.changeLanguage(to: newLanguage)
     }
 
     @objc private func notificationChanged(_ sender: UISwitch) {
@@ -662,17 +727,17 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
     }
     
     @objc private func avatarTapped() {
-        let actionSheet = UIAlertController(title: "Выберите иконку", message: nil, preferredStyle: .actionSheet)
+        let actionSheet = UIAlertController(title: "settings.avatar.choose".localized, message: nil, preferredStyle: .actionSheet)
         
-        let takePhotoAction = UIAlertAction(title: "Снять фото", style: .default) { [weak self] _ in
+        let takePhotoAction = UIAlertAction(title: "settings.avatar.take_photo".localized, style: .default) { [weak self] _ in
             self?.openCamera()
         }
         
-        let chooseFromGalleryAction = UIAlertAction(title: "Выбрать из галереи", style: .default) { [weak self] _ in
+        let chooseFromGalleryAction = UIAlertAction(title: "settings.avatar.choose_gallery".localized, style: .default) { [weak self] _ in
             self?.openPhotoLibrary()
         }
         
-        let cancelAction = UIAlertAction(title: "Отмена", style: .cancel)
+        let cancelAction = UIAlertAction(title: "settings.avatar.cancel".localized, style: .cancel)
         
         actionSheet.addAction(takePhotoAction)
         actionSheet.addAction(chooseFromGalleryAction)
@@ -689,7 +754,7 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
     
     private func openCamera() {
         guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
-            showAlert(title: "Ошибка", message: "Камера недоступна")
+            showAlert(title: "alert.error".localized, message: "settings.camera.unavailable".localized)
             return
         }
         
@@ -711,7 +776,7 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
     private func updateUser(with update: UserUpdate) {
         Task {
             do { try await userService.updateUser(update) }
-            catch { await MainActor.run { showAlert(title: "Ошибка", message: "Не удалось сохранить изменения") } }
+            catch { await MainActor.run { showAlert(title: "alert.error".localized, message: "alert.save.error".localized) } }
         }
     }
 
@@ -719,9 +784,9 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
         Task {
             do {
                 try await userService.updateEmail(newEmail)
-                await MainActor.run { showAlert(title: "Успешно", message: "Email обновлён") }
+                await MainActor.run { showAlert(title: "alert.success".localized, message: "alert.email.success".localized) }
             } catch {
-                await MainActor.run { showAlert(title: "Ошибка", message: "Не удалось обновить email: \(error.localizedDescription)") }
+                await MainActor.run { showAlert(title: "alert.error".localized, message: String(format: "alert.email.error".localized, error.localizedDescription)) }
             }
         }
     }
@@ -730,9 +795,9 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
         Task {
             do {
                 try await userService.updatePassword(newPassword)
-                await MainActor.run { showAlert(title: "Успешно", message: "Пароль обновлён") }
+                await MainActor.run { showAlert(title: "alert.success".localized, message: "alert.password.success".localized) }
             } catch {
-                await MainActor.run { showAlert(title: "Ошибка", message: "Не удалось обновить пароль: \(error.localizedDescription)") }
+                await MainActor.run { showAlert(title: "alert.error".localized, message: String(format: "alert.password.error".localized, error.localizedDescription)) }
             }
         }
     }
@@ -791,7 +856,7 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
     private func saveAvatarToFirestoreBase64(_ image: UIImage) {
         guard let userId = Auth.auth().currentUser?.uid else { return }
         guard let base64 = encodeImageToBase64(image) else {
-            showAlert(title: "Ошибка", message: "Слишком большой файл: не удалось сжать до 1 МБ")
+            showAlert(title: "alert.error".localized, message: "settings.file.too_large".localized)
             return
         }
         let db = Firestore.firestore()
@@ -800,7 +865,7 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
             "photoBase64": base64
         ], merge: true) { [weak self] error in
             if let error = error {
-                self?.showAlert(title: "Ошибка", message: "Не удалось сохранить фото профиля: \(error.localizedDescription)")
+                self?.showAlert(title: "alert.error".localized, message: String(format: "settings.photo.save_error".localized, error.localizedDescription))
             } else {
                 print("Аватар сохранён в Firestore как base64")
             }
@@ -825,7 +890,7 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
     
     private func showAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        alert.addAction(UIAlertAction(title: "alert.ok".localized, style: .default))
         present(alert, animated: true)
     }
 }

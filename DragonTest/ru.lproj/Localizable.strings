@@ -57,12 +57,13 @@
 "addtest.participants_placeholder" = "Начните вводить имя или почту";
 "addtest.step1" = "Шаг 1 из 2";
 "addtest.step2" = "Шаг 2 из 2";
-"addtest.step2_hint" = "Выберите способ сформировать список вопросов";
-"addtest.random_button" = "Случайные 40 вопросов";
-"addtest.manual_button" = "Выбрать вручную";
+"addtest.step2_hint" = "Выберите способ формирования теста";
+"addtest.random_button" = "Случайные\n40 вопросов";
+"addtest.manual_button" = "Выбрать\nвручную";
 "addtest.empty_list" = "Список пуст";
 "addtest.add_button" = "Добавить";
 "addtest.remove_button" = "✕";
+"addtest.empty_title_error" = "Пожалуйста, укажите название теста.";
 
 /* Profile Screen */
 "profile.welcome" = "Добро пожаловать,";

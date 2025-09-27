@@ -138,9 +138,9 @@ final class AddTestViewController: UIViewController {
     private let nextButton = UIButton(type: .system)
 
     private let titleLabel = UILabel()
-    private let titleField = GlassTextField(placeholder: "Введите название теста")
+    private let titleField = GlassTextField(placeholder: "addtest.title_placeholder".localized)
     private let participantsLabel = UILabel()
-    private let participantField = GlassTextField(placeholder: "Начните вводить имя или почту")
+    private let participantField = GlassTextField(placeholder: "addtest.participants_placeholder".localized)
 
     // Таблица результатов поиска
     private let searchResultsTable = UITableView(frame: .zero, style: .plain)
@@ -160,6 +160,16 @@ final class AddTestViewController: UIViewController {
     private let rightHalfButton = UIButton(type: .system)  // Вручную
     private let circleSeparator = UIView()
     private let step2HintLabel = UILabel()
+
+    // MARK: - Localization References
+    private weak var backButtonRef: UIButton?
+    private weak var nextButtonRef: UIButton?
+    private weak var stepLabelRef: UILabel?
+    private weak var titleLabelRef: UILabel?
+    private weak var participantsLabelRef: UILabel?
+    private weak var leftHalfButtonRef: UIButton?
+    private weak var rightHalfButtonRef: UIButton?
+    private weak var step2HintLabelRef: UILabel?
 
     // MARK: - Init
     init(testService: TestServiceProtocol) {
@@ -184,6 +194,7 @@ final class AddTestViewController: UIViewController {
         searchResultsTable.isHidden = true
         searchResultsTable.delegate = self
         searchResultsTable.dataSource = self
+        setupAutoLocalization()
 
         currentStep = .details
         updateNextButtonState()
@@ -194,6 +205,33 @@ final class AddTestViewController: UIViewController {
         super.viewDidLayoutSubviews()
         circleContainer.layer.cornerRadius = circleContainer.bounds.width / 2
         if #available(iOS 13.0, *) { circleContainer.layer.cornerCurve = .continuous }
+    }
+    
+    // MARK: - Localization
+    override func updateLocalization() {
+        super.updateLocalization()
+        
+        backButtonRef?.setTitle("addtest.back".localized, for: .normal)
+        nextButtonRef?.setTitle("addtest.next".localized, for: .normal)
+        titleLabelRef?.text = "addtest.title_label".localized
+        participantsLabelRef?.text = "addtest.participants_label".localized
+        step2HintLabelRef?.text = "addtest.step2_hint".localized
+        
+        // Update placeholders
+        titleField.textField.placeholder = "addtest.title_placeholder".localized
+        participantField.textField.placeholder = "addtest.participants_placeholder".localized
+        
+        // Update buttons
+        leftHalfButtonRef?.setTitle("addtest.random_button".localized, for: .normal)
+        rightHalfButtonRef?.setTitle("addtest.manual_button".localized, for: .normal)
+        
+        // Update step labels
+        switch currentStep {
+        case .details:
+            stepLabelRef?.text = "addtest.step1".localized
+        case .mode:
+            stepLabelRef?.text = "addtest.step2".localized
+        }
     }
 
     // MARK: - Setup UI
@@ -228,9 +266,12 @@ final class AddTestViewController: UIViewController {
         stepLabel.font = .systemFont(ofSize: 15, weight: .semibold)
         stepLabel.textColor = .secondaryLabel
         stepLabel.textAlignment = .center
+        self.stepLabelRef = stepLabel
 
-        backButton.setTitle("Назад", for: .normal)
-        nextButton.setTitle("Далее", for: .normal)
+        backButton.setTitle("addtest.back".localized, for: .normal)
+        nextButton.setTitle("addtest.next".localized, for: .normal)
+        self.backButtonRef = backButton
+        self.nextButtonRef = nextButton
         nextButton.backgroundColor = .systemBlue
         nextButton.tintColor = .white
         nextButton.layer.cornerRadius = 10
@@ -259,11 +300,13 @@ final class AddTestViewController: UIViewController {
         ])
 
         // Step 1
-        titleLabel.text = "Название теста"
+        titleLabel.text = "addtest.title_label".localized
         titleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
+        self.titleLabelRef = titleLabel
 
-        participantsLabel.text = "Ученики"
+        participantsLabel.text = "addtest.participants_label".localized
         participantsLabel.font = .systemFont(ofSize: 16, weight: .semibold)
+        self.participantsLabelRef = participantsLabel
 
         // Таблица поиска — полностью прозрачная
         searchResultsTable.layer.cornerRadius = 12
@@ -315,8 +358,10 @@ final class AddTestViewController: UIViewController {
         circleContainer.backgroundColor = .clear
         circleContainer.clipsToBounds = true
 
-        configureHalfButton(leftHalfButton, title: "Случайные\n40 вопросов", bg: .systemBlue)
-        configureHalfButton(rightHalfButton, title: "Выбрать\nвручную", bg: .systemGreen)
+        configureHalfButton(leftHalfButton, title: "addtest.random_button".localized, bg: .systemBlue)
+        configureHalfButton(rightHalfButton, title: "addtest.manual_button".localized, bg: .systemGreen)
+        self.leftHalfButtonRef = leftHalfButton
+        self.rightHalfButtonRef = rightHalfButton
         leftHalfButton.titleLabel?.numberOfLines = 2
         rightHalfButton.titleLabel?.numberOfLines = 2
         leftHalfButton.titleLabel?.textAlignment = .center
@@ -362,9 +407,10 @@ final class AddTestViewController: UIViewController {
         ])
 
         // Step 2
-        step2HintLabel.text = "Выберите способ формирования теста"
+        step2HintLabel.text = "addtest.step2_hint".localized
         step2HintLabel.font = .systemFont(ofSize: 16, weight: .semibold)
         step2HintLabel.textAlignment = .center
+        self.step2HintLabelRef = step2HintLabel
 
         step2Stack.axis = .vertical
         step2Stack.spacing = 16
@@ -519,12 +565,12 @@ final class AddTestViewController: UIViewController {
         let apply = {
             switch self.currentStep {
             case .details:
-                self.stepLabel.text = "Шаг 1 из 2"
+                self.stepLabel.text = "addtest.step1".localized
                 self.step1Stack.isHidden = false
                 self.step2Stack.isHidden = true
                 self.nextButton.isHidden = false
             case .mode:
-                self.stepLabel.text = "Шаг 2 из 2"
+                self.stepLabel.text = "addtest.step2".localized
                 self.step1Stack.isHidden = true
                 self.step2Stack.isHidden = false
                 self.nextButton.isHidden = true
@@ -537,7 +583,7 @@ final class AddTestViewController: UIViewController {
 
     private func validateDetails() -> Bool {
         guard !currentTitle.isEmpty else {
-            showAlert(title: "Введите название", message: "Пожалуйста, укажите название теста.")
+            showAlert(title: "alert.error".localized, message: "addtest.empty_title_error".localized)
             return false
         }
         return true
@@ -609,7 +655,7 @@ final class AddTestViewController: UIViewController {
 
     private func showAlert(title: String, message: String) {
         let a = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        a.addAction(UIAlertAction(title: "Ок", style: .default))
+        a.addAction(UIAlertAction(title: "alert.ok".localized, style: .default))
         present(a, animated: true)
     }
 }

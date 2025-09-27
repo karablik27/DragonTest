@@ -48,6 +48,21 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
     private let panelScrollView = UIScrollView()
     private let panelListStack = UIStackView()
     
+    // MARK: - Localization References
+    private weak var welcomeLabel: UILabel?
+    private weak var nameLabel: UILabel?
+    private weak var dragonsStatTitle: UILabel?
+    private weak var testsStatTitle: UILabel?
+    private weak var teachersStatTitle: UILabel?
+    private weak var averageScoreStatTitle: UILabel?
+    private weak var calendarTitleLabel: UILabel?
+    private weak var ratingTitleLabel: UILabel?
+    private weak var periodSegment: UISegmentedControl?
+    private weak var testPicker: UITextField?
+    private weak var searchField: UITextField?
+    private weak var notificationsTitle: UILabel?
+    private weak var closeButton: UIButton?
+    
     // MARK: - Notifications
     private var notifications: [String] = []
     private var processedResultIds = Set<String>()
@@ -69,6 +84,31 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
         
         fetchNotifications()
         fetchResultNotifications()
+        setupAutoLocalization()
+    }
+    
+    // MARK: - Localization
+    override func updateLocalization() {
+        super.updateLocalization()
+        
+        welcomeLabel?.text = "profile.welcome".localized
+        nameLabel?.text = currentUser?.name ?? "profile.username".localized
+        dragonsStatTitle?.text = "profile.stat_dragons".localized
+        testsStatTitle?.text = "profile.stat_tests".localized
+        teachersStatTitle?.text = "profile.stat_teachers".localized
+        averageScoreStatTitle?.text = "profile.stat_average_score".localized
+        calendarTitleLabel?.text = "profile.calendar".localized
+        ratingTitleLabel?.text = "profile.rating_title".localized
+        notificationsTitle?.text = "profile.notifications".localized
+        closeButton?.setTitle("profile.close".localized, for: .normal)
+        
+        // Update segment control
+        periodSegment?.setTitle("profile.period_week".localized, forSegmentAt: 0)
+        periodSegment?.setTitle("profile.period_month".localized, forSegmentAt: 1)
+        
+        // Update placeholders
+        testPicker?.placeholder = "profile.test_placeholder".localized
+        searchField?.placeholder = "profile.search_placeholder".localized
     }
     
     override func viewDidLayoutSubviews() {
@@ -131,12 +171,14 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
 
         // Лейблы
         let welcomeLabel = UILabel()
-        welcomeLabel.text = "Welcome,"
+        welcomeLabel.text = "profile.welcome".localized
         welcomeLabel.font = .systemFont(ofSize: 14, weight: .regular)
         welcomeLabel.textColor = .secondaryLabel
+        self.welcomeLabel = welcomeLabel
 
         let nameLabel = UILabel()
-        nameLabel.text = "Username"
+        nameLabel.text = "profile.username".localized
+        self.nameLabel = nameLabel
         nameLabel.font = .systemFont(ofSize: 20, weight: .semibold)
         nameLabel.textColor = .label
 
@@ -222,7 +264,7 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
     
     // MARK: - Stats Section
     private func addStatsSection() {
-            func makeStat(icon: String, value: String, title: String) -> UIView {
+            func makeStat(icon: String, value: String, title: String, titleRef: inout UILabel?) -> UIView {
                 let container = SettingsGlassCard(radius: 12)   // ✅ используем стеклянный card
                 
                 let avatar = UIImageView(image: UIImage(named: icon))
@@ -242,6 +284,7 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
                 titleLabel.text = title
                 titleLabel.font = .systemFont(ofSize: 14)
                 titleLabel.textColor = .secondaryLabel
+                titleRef = titleLabel  // Сохраняем ссылку
                 
                 let stack = UIStackView(arrangedSubviews: [avatar, valueLabel, titleLabel])
                 stack.axis = .vertical
@@ -259,10 +302,10 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
                 return container
             }
             
-            let dragons = makeStat(icon: "dragon.icon", value: "5", title: "Драконов")
-            let tests = makeStat(icon: "📚", value: "12", title: "Тестов")
-            let teachers = makeStat(icon: "👑", value: "3", title: "Учителя")
-            let score = makeStat(icon: "⭐️", value: "87%", title: "Средний балл")
+                          let dragons = makeStat(icon: "dragon.icon", value: "5", title: "profile.stat_dragons".localized, titleRef: &dragonsStatTitle)
+              let tests = makeStat(icon: "📚", value: "12", title: "profile.stat_tests".localized, titleRef: &testsStatTitle)
+              let teachers = makeStat(icon: "👑", value: "3", title: "profile.stat_teachers".localized, titleRef: &teachersStatTitle)
+              let score = makeStat(icon: "⭐️", value: "87%", title: "profile.stat_average_score".localized, titleRef: &averageScoreStatTitle)
             
             let row1 = UIStackView(arrangedSubviews: [dragons, tests])
             row1.axis = .horizontal
@@ -287,11 +330,13 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
             container.translatesAutoresizingMaskIntoConstraints = false
             container.heightAnchor.constraint(equalToConstant: 260).isActive = true
             
-            let segment = UISegmentedControl(items: ["Неделя", "Месяц"])
+            let segment = UISegmentedControl(items: ["profile.period_week".localized, "profile.period_month".localized])
+        self.periodSegment = segment
             segment.selectedSegmentIndex = 1
             
             let calendarLabel = UILabel()
-            calendarLabel.text = "Календарь активности"
+            calendarLabel.text = "profile.calendar".localized
+        self.calendarTitleLabel = calendarLabel
             calendarLabel.font = .systemFont(ofSize: 16, weight: .medium)
             calendarLabel.textAlignment = .center
             calendarLabel.textColor = .secondaryLabel
@@ -319,7 +364,8 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
         container.heightAnchor.constraint(equalToConstant: 450).isActive = true
 
         let titleLabel = UILabel()
-        titleLabel.text = "Рейтинг прохождения тестов"
+        titleLabel.text = "profile.rating_title".localized
+        self.ratingTitleLabel = titleLabel
         titleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
         titleLabel.textColor = .label
 
@@ -331,12 +377,14 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
         self.pickerView = picker
 
         // Поле выбора теста (glass)
-        let testField = SettingsGlassTextField(placeholder: "Выберите тест")
+        let testField = SettingsGlassTextField(placeholder: "profile.test_placeholder".localized)
         testField.textField.inputView = picker
         self.testTextField = testField.textField
+        self.testPicker = testField.textField
 
         // Поле поиска (glass)
-        let searchField = SettingsGlassTextField(placeholder: "Поиск по названию")
+        let searchField = SettingsGlassTextField(placeholder: "profile.search_placeholder".localized)
+        self.searchField = searchField.textField
         let searchIcon = UIImageView(image: UIImage(systemName: "magnifyingglass"))
         searchIcon.tintColor = .secondaryLabel
         searchIcon.contentMode = .scaleAspectFit
@@ -868,7 +916,8 @@ private extension ProfileViewController {
         panelGrabber.layer.cornerRadius = 2
         
         let title = UILabel()
-        title.text = "Уведомления"
+        title.text = "profile.notifications".localized
+        self.notificationsTitle = title
         title.font = .systemFont(ofSize: 20, weight: .semibold)
         
         let clearBtn = UIButton(type: .system)
@@ -876,7 +925,8 @@ private extension ProfileViewController {
         clearBtn.addTarget(self, action: #selector(clearAllNotifications), for: .touchUpInside)
 
         let closeBtn = UIButton(type: .system)
-        closeBtn.setTitle("Закрыть", for: .normal)
+        closeBtn.setTitle("profile.close".localized, for: .normal)
+        self.closeButton = closeBtn
         closeBtn.addTarget(self, action: #selector(hidePanel), for: .touchUpInside)
         
         let header = UIStackView(arrangedSubviews: [title, clearBtn, UIView(), closeBtn])
