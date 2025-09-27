@@ -1,0 +1,4 @@
+module FirebaseInstallations {
+umbrella header "/Users/amir/Library/Developer/Xcode/DerivedData/DragonTest-eoatxnyatvqscffepautwrtypyvz/SourcePackages/checkouts/firebase-ios-sdk/FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FirebaseInstallations.h"
+export *
+}

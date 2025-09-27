@@ -22,14 +22,14 @@ final class ResultAnswerCell: UITableViewCell {
     // AI
     private let aiHeader = UIStackView()
     private let aiIcon   = UIImageView(image: UIImage(systemName: "brain.head.profile"))
-    private let aiChip   = PillLabel(text: "ИИ", style: .neutral)
+    private let aiChip   = PillLabel(text: "common.ai".localized, style: .neutral)
     private let aiScorePill  = ScorePill(color: ResultStyle.aiScoreFill)
     private let aiComment = PaddedLabel()
 
     // Teacher
     private let teacherHeader = UIStackView()
     private let teacherIcon   = UIImageView(image: UIImage(systemName: "person.crop.circle.badge.checkmark"))
-    private let teacherChip   = PillLabel(text: "Учитель", style: .neutral)
+    private let teacherChip   = PillLabel(text: "common.teacher".localized, style: .neutral)
     private let teacherScorePill  = ScorePill(color: ResultStyle.teacherScoreFill)
     private let teacherComment = PaddedLabel()
 

@@ -1,0 +1,4 @@
+module GoogleUtilities_AppDelegateSwizzler {
+umbrella "/Users/amir/Library/Developer/Xcode/DerivedData/DragonTest-eoatxnyatvqscffepautwrtypyvz/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/AppDelegateSwizzler/Public"
+export *
+}

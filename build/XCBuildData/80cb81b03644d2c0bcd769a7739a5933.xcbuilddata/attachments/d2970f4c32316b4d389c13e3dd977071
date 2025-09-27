@@ -1,0 +1,4 @@
+module leveldb {
+umbrella "/Users/amir/Library/Developer/Xcode/DerivedData/DragonTest-eoatxnyatvqscffepautwrtypyvz/SourcePackages/checkouts/leveldb/include"
+export *
+}

@@ -52,7 +52,7 @@ final class TeacherReviewViewController: UIViewController, TeacherReviewViewProt
     }
     
     func showError(_ message: String) {
-        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+        let alert = UIAlertController(title: "alert.error".localized, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
     }

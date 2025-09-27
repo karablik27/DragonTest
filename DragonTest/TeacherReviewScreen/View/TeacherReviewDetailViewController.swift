@@ -89,7 +89,7 @@ final class TeacherReviewDetailViewController: UIViewController {
                 message: "Поставьте баллы за каждый ответ перед сохранением.",
                 preferredStyle: .alert
             )
-            alert.addAction(UIAlertAction(title: "Ок", style: .default))
+            alert.addAction(UIAlertAction(title: "alert.ok".localized, style: .default))
             present(alert, animated: true)
             return
         }
@@ -116,11 +116,11 @@ final class TeacherReviewDetailViewController: UIViewController {
                 try await answerService.reviewAttempt(attempt.id, result: result)
                 await MainActor.run {
                     let alert = UIAlertController(
-                        title: "Сохранено",
+                        title: "common.saved".localized,
                         message: "Результат проверки отправлен ✅",
                         preferredStyle: .alert
                     )
-                    alert.addAction(UIAlertAction(title: "Ок", style: .default) { _ in
+                    alert.addAction(UIAlertAction(title: "alert.ok".localized, style: .default) { _ in
                         self.navigationController?.popViewController(animated: true)
                     })
                     self.present(alert, animated: true)
@@ -128,7 +128,7 @@ final class TeacherReviewDetailViewController: UIViewController {
             } catch {
                 await MainActor.run {
                     let alert = UIAlertController(
-                        title: "Ошибка",
+                        title: "alert.error".localized,
                         message: "Не удалось сохранить результат",
                         preferredStyle: .alert
                     )
@@ -267,7 +267,7 @@ private final class ReviewAnswerCell: UITableViewCell, UITextFieldDelegate {
         let tb = UIToolbar()
         tb.sizeToFit()
         let flex = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let done = UIBarButtonItem(title: "Готово", style: .done, target: self, action: #selector(dismissKeyboard))
+        let done = UIBarButtonItem(title: "common.done".localized, style: .done, target: self, action: #selector(dismissKeyboard))
         tb.items = [flex, done]
         return tb
     }

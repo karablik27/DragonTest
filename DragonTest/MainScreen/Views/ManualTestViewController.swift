@@ -18,7 +18,7 @@ final class ManualTestViewController: UIViewController {
 
     // MARK: - Nav items
     private lazy var doneItem: UIBarButtonItem = {
-        let item = UIBarButtonItem(title: "Готово", style: .done, target: self, action: #selector(finishSelection))
+        let item = UIBarButtonItem(title: "common.done".localized, style: .done, target: self, action: #selector(finishSelection))
         item.isEnabled = false
         return item
     }()
@@ -28,7 +28,7 @@ final class ManualTestViewController: UIViewController {
                                    style: .plain,
                                    target: self,
                                    action: #selector(backTapped))
-        item.accessibilityLabel = "Назад"
+        item.accessibilityLabel = "common.back".localized
         return item
     }()
 
@@ -162,7 +162,7 @@ final class ManualTestViewController: UIViewController {
 
     @objc private func finishSelection() {
         guard selectedQuestions.count == 40 else {
-            showAlert(title: "Ошибка", message: "Нужно выбрать ровно 40 вопросов!")
+            showAlert(title: "alert.error".localized, message: "error.select_40_questions".localized)
             return
         }
         let dragon = DragonKind.allCases.randomElement()!
@@ -235,7 +235,7 @@ final class ManualTestViewController: UIViewController {
     // MARK: - Helpers
     private func showAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Ок", style: .default))
+        alert.addAction(UIAlertAction(title: "alert.ok".localized, style: .default))
         present(alert, animated: true)
     }
 }
@@ -265,7 +265,7 @@ extension ManualTestViewController: UITableViewDataSource, UITableViewDelegate {
     // Запрет выбора > 40
     func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
         if selectedQuestions.count >= 40 {
-            showAlert(title: "Лимит", message: "Вы уже выбрали 40 вопросов. Снимите выбор, чтобы выбрать другой.")
+            showAlert(title: "common.limit".localized, message: "error.already_selected_40".localized)
             return nil
         }
         return indexPath
@@ -278,7 +278,7 @@ extension ManualTestViewController: UITableViewDataSource, UITableViewDelegate {
             selectedQuestions.append(q)
         } else {
             tableView.deselectRow(at: indexPath, animated: true)
-            showAlert(title: "Лимит", message: "Нельзя выбрать больше 40 вопросов.")
+            showAlert(title: "common.limit".localized, message: "error.cannot_select_more_40".localized)
         }
     }
 

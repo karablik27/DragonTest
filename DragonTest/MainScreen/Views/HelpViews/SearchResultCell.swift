@@ -30,7 +30,7 @@ final class SearchResultCell: UITableViewCell {
         vStack.axis = .vertical
         vStack.spacing = 2
 
-        addButton.setTitle("Добавить", for: .normal)
+        addButton.setTitle("common.add".localized, for: .normal)
         addButton.tintColor = .systemBlue
         addButton.addAction(UIAction { [weak self] _ in self?.onAdd?() }, for: .touchUpInside)
 

@@ -32,7 +32,7 @@ final class SignUpPresenter: SignUpViewOutput {
         let email = email.trimmingCharacters(in: .whitespacesAndNewlines)
         
         guard !email.isEmpty, !password.isEmpty else {
-            view?.showError("Заполните почту и пароль")
+            view?.showError("signup.fill_email_password".localized)
             return
         }
         view?.setLoading(true)
@@ -60,7 +60,7 @@ final class SignUpPresenter: SignUpViewOutput {
                 } catch {
                     await MainActor.run {
                         self.view?.setLoading(false)
-                        self.view?.showError("Аккаунт уже активен на другом устройстве. Пожалуйста, завершите сессию на другом устройстве.")
+                        self.view?.showError("signup.account_active_another_device".localized)
                     }
                     return
                 }
@@ -91,10 +91,10 @@ final class SignUpPresenter: SignUpViewOutput {
     private func map(_ error: Error) -> String {
         let ns = error as NSError
         switch ns.code {
-        case 17007: return "Email уже используется."
-        case 17008: return "Неверный формат email."
-        case 17026: return "Слабый пароль (минимум 6 символов)."
-        case 17020: return "Ошибка сети. Проверьте интернет."
+        case 17007: return "signup.email_already_used".localized
+        case 17008: return "signup.invalid_email_format".localized
+        case 17026: return "signup.weak_password".localized
+        case 17020: return "signup.network_error".localized
         default: return ns.localizedDescription
         }
     }

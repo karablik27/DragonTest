@@ -1,0 +1,4 @@
+module GoogleAppMeasurementCoreTarget {
+umbrella "/Users/amir/Library/Developer/Xcode/DerivedData/DragonTest-eoatxnyatvqscffepautwrtypyvz/SourcePackages/checkouts/GoogleAppMeasurement/GoogleAppMeasurementCoreWrapper/include"
+export *
+}

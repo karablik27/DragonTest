@@ -132,3 +132,102 @@
 /* Notifications */
 "notification.results_title" = "Results";
 "notification.test_checked" = "Your test has been checked!"; 
+
+// Errors - User Service
+"errors.no_current_user" = "No current user";
+"errors.user_not_found_firestore" = "User not found in Firestore";
+
+// Student Results
+"result.your_answer" = "Your answer";
+"result.variant_number" = "Option #%d";
+"result.final_score" = "Final score";
+"result.checked_by_teacher" = "Checked by teacher";
+"result.preliminary_score_ai" = "Preliminary score (AI)";
+"result.awaiting_teacher_review" = "Awaiting teacher review";
+"result.final_grade" = "Final grade";
+"result.no_data" = "No data";
+"result.result_prefix" = "Result:";
+
+// Login errors
+"login.enter_email_password" = "Enter email and password";
+"login.account_used_another_device" = "Account is being used on another device. Please log out from the previous session.";
+"login.wrong_password" = "Wrong password.";
+"login.email_already_registered" = "User with this email is already registered.";
+"login.invalid_email_format" = "Invalid email format.";
+"login.invalid_credentials" = "Invalid credentials.";
+"login.user_not_found" = "User with this email not found.";
+"login.network_error" = "Network error (no internet).";
+"login.account_title" = "Sign In to\nAccount";
+"login.remember_me" = "Remember me";
+"login.no_account" = "No account?";
+
+// Signup errors
+"signup.fill_email_password" = "Fill in email and password";
+"signup.account_active_another_device" = "Account is already active on another device. Please end the session on the other device.";
+"signup.email_already_used" = "Email is already in use.";
+"signup.invalid_email_format" = "Invalid email format.";
+"signup.weak_password" = "Weak password (minimum 6 characters).";
+"signup.network_error" = "Network error. Check your internet.";
+
+// Teacher Review
+"teacher_review.answer_review" = "Answer Review";
+"teacher_review.save_result" = "💾 Save Result";
+"teacher_review.not_all_questions_graded" = "Not all questions graded";
+"teacher_review.grade_all_answers" = "Grade all answers before saving.";
+"teacher_review.teacher_grade_saved" = "Teacher grade saved";
+"teacher_review.review_sent" = "Review result sent ✅";
+"teacher_review.failed_to_save" = "Failed to save result";
+"teacher_review.question_not_found" = "Question not found";
+"teacher_review.teacher_score_placeholder" = "Teacher score (0–10)";
+"teacher_review.teacher_comment_placeholder" = "Teacher comment";
+"teacher_review.question_prefix" = "Question: %@";
+"teacher_review.student_answer_prefix" = "Student answer: %@";
+"teacher_review.ai_score_comment" = "AI → Score: %d\nComment: %@";
+"teacher_review.ai_not_reviewed" = "AI hasn't reviewed yet";
+"teacher_review.teacher_score_prefix" = "Teacher → Score: %d";
+"teacher_review.teacher_not_graded" = "Teacher hasn't graded yet";
+"teacher_review.students_title" = "Students: %@";
+"teacher_review.checked_by_teacher" = "✅ Checked (teacher)";
+"teacher_review.checked_by_ai" = "🤖 Checked by AI, awaiting teacher";
+"teacher_review.reviewing_by_ai" = "⏳ Under review (AI)";
+"teacher_review.not_passed" = "❌ Not passed";
+
+// Profile
+"profile.test_examples" = "Quiz #1,Quiz #2,Final Test,iOS Practice";
+"profile.invited_to_test" = "You are invited to test:\n%@";
+"profile.not_found" = "Not found!";
+"profile.final_grade_notification" = "Final grade\nTest: %@\nChecked by: %@\nYour score: %d";
+"profile.preliminary_grade_notification" = "Preliminary grade\nTest: %@\nChecked by: Automatic review\nYour score: %d";
+"profile.score_pattern" = "Your score:\\s*(\\d+)";
+
+// Main Screen
+"main.questions_count" = "Questions: %d";
+"main.hold_to_start" = "Hold to start";
+
+// Student Result
+"student_result.loading" = "Loading result…";
+"student_result.unknown_question" = "Unknown question";
+"student_result.checked_score" = "✅ Checked. Score: %d";
+"student_result.teacher_comment" = "Teacher comment: %@";
+"student_result.ai_comment" = "AI: %@";
+"student_result.under_review" = "⏳ Under review…";
+"student_result.loading_error" = "❌ Error loading result";
+
+// User Roles and Languages
+"user.role.student" = "Student";
+"user.role.teacher" = "Teacher";
+"user.language.russian" = "Russian";
+
+// Notifications
+"notifications.ios_call" = "iOS is calling you to study...";
+"notifications.added_to_test" = "You have been added to a new test!";
+
+// Debugging messages (keep in English for developers)
+"debug.avatar_saved" = "Avatar saved to Firestore as base64";
+"debug.notification_permissions_error" = "Error requesting notification permissions: %@";
+"debug.notification_permissions_granted" = "Notification permissions granted.";
+"debug.notification_permissions_denied" = "Notification permissions denied.";
+"debug.notification_schedule_error" = "Error adding notification: %@";
+"debug.notification_scheduled" = "Notification scheduled";
+"debug.no_animations" = "⚠️ No built-in animations in %@";
+"debug.failed_to_load_data" = "Failed to load data"; 

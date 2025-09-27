@@ -19,7 +19,7 @@ final class UserService: UserServiceProtocol {
         guard let uid = Auth.auth().currentUser?.uid else {
             throw NSError(domain: "UserService",
                           code: 0,
-                          userInfo: [NSLocalizedDescriptionKey: "Нет текущего пользователя"])
+                          userInfo: [NSLocalizedDescriptionKey: "errors.no_current_user".localized])
         }
 
         try dataBase.collection("users").document(uid).setData(from: user)
@@ -29,14 +29,14 @@ final class UserService: UserServiceProtocol {
         guard let uid = Auth.auth().currentUser?.uid else {
             throw NSError(domain: "UserService",
                           code: 0,
-                          userInfo: [NSLocalizedDescriptionKey: "Нет текущего пользователя"])
+                          userInfo: [NSLocalizedDescriptionKey: "errors.no_current_user".localized])
         }
         try await dataBase.collection("users").document(uid).setData(from: userUpdate, merge: true)
     }
     
     func updateEmail(_ newEmail: String) async throws {
         guard let currentUser = Auth.auth().currentUser else {
-            throw NSError(domain: "UserService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Нет текущего пользователя"])
+            throw NSError(domain: "UserService", code: 0, userInfo: [NSLocalizedDescriptionKey: "errors.no_current_user".localized])
         }
         
         try await currentUser.updateEmail(to: newEmail)
@@ -47,7 +47,7 @@ final class UserService: UserServiceProtocol {
     
     func updatePassword(_ newPassword: String) async throws {
         guard let currentUser = Auth.auth().currentUser else {
-            throw NSError(domain: "UserService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Нет текущего пользователя"])
+            throw NSError(domain: "UserService", code: 0, userInfo: [NSLocalizedDescriptionKey: "errors.no_current_user".localized])
         }
         
         try await currentUser.updatePassword(to: newPassword)
@@ -58,7 +58,7 @@ final class UserService: UserServiceProtocol {
         guard let data = snapshot.data() else {
             throw NSError(domain: "UserService",
                           code: 1,
-                          userInfo: [NSLocalizedDescriptionKey: "Пользователь не найден в Firestore"])
+                          userInfo: [NSLocalizedDescriptionKey: "errors.user_not_found_firestore".localized])
         }
         return try Firestore.Decoder().decode(User.self, from: data)
     }

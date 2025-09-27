@@ -1,0 +1,889 @@
+{
+  "" : {
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTest-primary.dia",
+    "emit-module-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTest-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTest-primary-emit-module.dia",
+    "pch" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTest-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTest-primary.swiftdeps"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/App/AppDelegate.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AppDelegate.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AppDelegate.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AppDelegate.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AppDelegate.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AppDelegate.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AppDelegate.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AppDelegate.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AppDelegate~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/App/RootTabBarController.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/RootTabBarController.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/RootTabBarController.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/RootTabBarController.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/RootTabBarController.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/RootTabBarController.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/RootTabBarController.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/RootTabBarController.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/RootTabBarController~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/App/SceneDelegate.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SceneDelegate.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SceneDelegate.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SceneDelegate.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SceneDelegate.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SceneDelegate.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SceneDelegate.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SceneDelegate.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SceneDelegate~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/DependencyInjection.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DependencyInjection.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DependencyInjection.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DependencyInjection.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DependencyInjection.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DependencyInjection.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DependencyInjection.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DependencyInjection.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DependencyInjection~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/DragonTestStudentScreen/DragonTestViewController.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestViewController.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestViewController.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestViewController.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestViewController.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestViewController.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestViewController.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestViewController.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestViewController~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/DragonTestStudentScreen/HelpView/ChipLabel.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ChipLabel.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ChipLabel.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ChipLabel.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ChipLabel.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ChipLabel.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ChipLabel.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ChipLabel.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ChipLabel~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/DragonTestStudentScreen/HelpView/NoPasteTextField.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/NoPasteTextField.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/NoPasteTextField.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/NoPasteTextField.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/NoPasteTextField.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/NoPasteTextField.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/NoPasteTextField.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/NoPasteTextField.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/NoPasteTextField~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/DragonTestStudentScreen/HelpView/NumberCell.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/NumberCell.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/NumberCell.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/NumberCell.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/NumberCell.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/NumberCell.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/NumberCell.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/NumberCell.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/NumberCell~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/DragonTestStudentScreen/HelpView/TestGlassCard.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestGlassCard.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestGlassCard.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestGlassCard.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestGlassCard.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestGlassCard.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestGlassCard.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestGlassCard.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestGlassCard~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/DragonTestStudentScreen/Presenter/DragonTestPresenter.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestPresenter.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestPresenter.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestPresenter.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestPresenter.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestPresenter.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestPresenter.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestPresenter.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestPresenter~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/DragonTestStudentScreen/Protocols/DragonTestPresenterProtocol.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestPresenterProtocol.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestPresenterProtocol.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestPresenterProtocol.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestPresenterProtocol.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestPresenterProtocol.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestPresenterProtocol.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestPresenterProtocol.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestPresenterProtocol~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/DragonTestStudentScreen/Protocols/DragonTestViewProtocol.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestViewProtocol.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestViewProtocol.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestViewProtocol.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestViewProtocol.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestViewProtocol.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestViewProtocol.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestViewProtocol.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonTestViewProtocol~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/Helpers/DeviceIdProvider.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DeviceIdProvider.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DeviceIdProvider.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DeviceIdProvider.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DeviceIdProvider.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DeviceIdProvider.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DeviceIdProvider.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DeviceIdProvider.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DeviceIdProvider~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/Helpers/GradientBackground.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/GradientBackground.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/GradientBackground.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/GradientBackground.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/GradientBackground.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/GradientBackground.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/GradientBackground.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/GradientBackground.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/GradientBackground~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/Helpers/KeychainStorage.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/KeychainStorage.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/KeychainStorage.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/KeychainStorage.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/KeychainStorage.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/KeychainStorage.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/KeychainStorage.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/KeychainStorage.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/KeychainStorage~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/Helpers/Localizer.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Localizer.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Localizer.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Localizer.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Localizer.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Localizer.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Localizer.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Localizer.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Localizer~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/Helpers/UIViewController+Localization.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UIViewController+Localization.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UIViewController+Localization.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UIViewController+Localization.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UIViewController+Localization.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UIViewController+Localization.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UIViewController+Localization.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UIViewController+Localization.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UIViewController+Localization~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/Localization/LocalizationService.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LocalizationService.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LocalizationService.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LocalizationService.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LocalizationService.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LocalizationService.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LocalizationService.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LocalizationService.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LocalizationService~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/LoginScreen/Presenters/LoginPresenter.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LoginPresenter.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LoginPresenter.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LoginPresenter.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LoginPresenter.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LoginPresenter.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LoginPresenter.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LoginPresenter.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LoginPresenter~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/LoginScreen/Presenters/SignUpPresenter.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SignUpPresenter.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SignUpPresenter.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SignUpPresenter.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SignUpPresenter.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SignUpPresenter.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SignUpPresenter.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SignUpPresenter.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SignUpPresenter~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/LoginScreen/Protocols/AuthenticationServiceProtocol.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AuthenticationServiceProtocol.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AuthenticationServiceProtocol.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AuthenticationServiceProtocol.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AuthenticationServiceProtocol.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AuthenticationServiceProtocol.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AuthenticationServiceProtocol.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AuthenticationServiceProtocol.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AuthenticationServiceProtocol~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/LoginScreen/Protocols/CurrentUserServiceProtocol.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/CurrentUserServiceProtocol.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/CurrentUserServiceProtocol.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/CurrentUserServiceProtocol.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/CurrentUserServiceProtocol.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/CurrentUserServiceProtocol.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/CurrentUserServiceProtocol.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/CurrentUserServiceProtocol.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/CurrentUserServiceProtocol~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/LoginScreen/Protocols/LoginViewIO.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LoginViewIO.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LoginViewIO.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LoginViewIO.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LoginViewIO.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LoginViewIO.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LoginViewIO.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LoginViewIO.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LoginViewIO~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/LoginScreen/Protocols/SessionServiceProtocol.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SessionServiceProtocol.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SessionServiceProtocol.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SessionServiceProtocol.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SessionServiceProtocol.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SessionServiceProtocol.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SessionServiceProtocol.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SessionServiceProtocol.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SessionServiceProtocol~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/LoginScreen/Protocols/SignUpViewIO.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SignUpViewIO.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SignUpViewIO.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SignUpViewIO.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SignUpViewIO.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SignUpViewIO.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SignUpViewIO.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SignUpViewIO.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SignUpViewIO~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/LoginScreen/Protocols/UserServiceProtocol.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UserServiceProtocol.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UserServiceProtocol.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UserServiceProtocol.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UserServiceProtocol.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UserServiceProtocol.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UserServiceProtocol.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UserServiceProtocol.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UserServiceProtocol~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/LoginScreen/Services/AuthenticationService.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AuthenticationService.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AuthenticationService.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AuthenticationService.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AuthenticationService.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AuthenticationService.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AuthenticationService.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AuthenticationService.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AuthenticationService~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/LoginScreen/Services/CurrentUserService.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/CurrentUserService.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/CurrentUserService.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/CurrentUserService.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/CurrentUserService.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/CurrentUserService.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/CurrentUserService.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/CurrentUserService.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/CurrentUserService~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/LoginScreen/Services/SessionService.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SessionService.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SessionService.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SessionService.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SessionService.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SessionService.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SessionService.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SessionService.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SessionService~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/LoginScreen/Services/UserService.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UserService.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UserService.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UserService.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UserService.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UserService.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UserService.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UserService.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UserService~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/LoginScreen/Views/LoginViewController.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LoginViewController.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LoginViewController.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LoginViewController.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LoginViewController.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LoginViewController.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LoginViewController.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LoginViewController.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/LoginViewController~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/LoginScreen/Views/SignUpViewController.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SignUpViewController.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SignUpViewController.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SignUpViewController.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SignUpViewController.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SignUpViewController.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SignUpViewController.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SignUpViewController.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SignUpViewController~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainModels/Tests/Question.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Question.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Question.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Question.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Question.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Question.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Question.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Question.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Question~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainModels/Tests/StudentAnswer.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentAnswer.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentAnswer.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentAnswer.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentAnswer.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentAnswer.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentAnswer.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentAnswer.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentAnswer~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainModels/Tests/StudentAttempt.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentAttempt.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentAttempt.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentAttempt.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentAttempt.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentAttempt.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentAttempt.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentAttempt.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentAttempt~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainModels/Tests/Test.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Test.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Test.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Test.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Test.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Test.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Test.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Test.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Test~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainModels/Tests/TestResult.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestResult.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestResult.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestResult.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestResult.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestResult.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestResult.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestResult.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestResult~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainModels/Tests/Topic.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Topic.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Topic.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Topic.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Topic.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Topic.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Topic.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Topic.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/Topic~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainModels/User.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/User.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/User.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/User.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/User.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/User.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/User.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/User.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/User~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainModels/UserUpdate.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UserUpdate.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UserUpdate.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UserUpdate.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UserUpdate.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UserUpdate.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UserUpdate.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UserUpdate.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/UserUpdate~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainScreen/AIReviewService.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AIReviewService.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AIReviewService.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AIReviewService.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AIReviewService.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AIReviewService.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AIReviewService.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AIReviewService.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AIReviewService~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainScreen/AddTestViewController.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AddTestViewController.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AddTestViewController.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AddTestViewController.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AddTestViewController.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AddTestViewController.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AddTestViewController.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AddTestViewController.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AddTestViewController~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainScreen/Models/DragonCache.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonCache.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonCache.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonCache.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonCache.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonCache.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonCache.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonCache.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonCache~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainScreen/Models/DragonKind.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonKind.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonKind.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonKind.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonKind.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonKind.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonKind.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonKind.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonKind~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainScreen/Presenters/DragonSelectPresenter.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectPresenter.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectPresenter.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectPresenter.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectPresenter.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectPresenter.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectPresenter.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectPresenter.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectPresenter~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainScreen/Protocols/AddTestDelegate.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AddTestDelegate.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AddTestDelegate.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AddTestDelegate.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AddTestDelegate.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AddTestDelegate.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AddTestDelegate.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AddTestDelegate.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AddTestDelegate~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainScreen/Protocols/DragonSelectPresenterProtocol.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectPresenterProtocol.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectPresenterProtocol.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectPresenterProtocol.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectPresenterProtocol.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectPresenterProtocol.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectPresenterProtocol.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectPresenterProtocol.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectPresenterProtocol~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainScreen/Protocols/DragonSelectViewProtocol.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectViewProtocol.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectViewProtocol.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectViewProtocol.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectViewProtocol.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectViewProtocol.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectViewProtocol.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectViewProtocol.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectViewProtocol~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainScreen/Protocols/ManualTestDelegate.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ManualTestDelegate.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ManualTestDelegate.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ManualTestDelegate.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ManualTestDelegate.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ManualTestDelegate.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ManualTestDelegate.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ManualTestDelegate.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ManualTestDelegate~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainScreen/Protocols/TestServiceProtocol.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestServiceProtocol.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestServiceProtocol.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestServiceProtocol.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestServiceProtocol.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestServiceProtocol.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestServiceProtocol.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestServiceProtocol.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestServiceProtocol~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainScreen/TestService.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestService.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestService.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestService.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestService.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestService.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestService.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestService.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TestService~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainScreen/Views/DragonSelectViewController.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectViewController.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectViewController.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectViewController.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectViewController.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectViewController.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectViewController.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectViewController.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSelectViewController~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainScreen/Views/HelpViews/AddButtonPreviewView.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AddButtonPreviewView.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AddButtonPreviewView.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AddButtonPreviewView.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AddButtonPreviewView.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AddButtonPreviewView.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AddButtonPreviewView.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AddButtonPreviewView.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AddButtonPreviewView~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainScreen/Views/HelpViews/DragonARViewController.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonARViewController.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonARViewController.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonARViewController.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonARViewController.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonARViewController.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonARViewController.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonARViewController.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonARViewController~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainScreen/Views/HelpViews/DragonPreviewView.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonPreviewView.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonPreviewView.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonPreviewView.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonPreviewView.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonPreviewView.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonPreviewView.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonPreviewView.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonPreviewView~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainScreen/Views/HelpViews/DragonSlideCell.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSlideCell.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSlideCell.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSlideCell.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSlideCell.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSlideCell.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSlideCell.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSlideCell.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/DragonSlideCell~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainScreen/Views/HelpViews/EmptyStateView.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/EmptyStateView.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/EmptyStateView.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/EmptyStateView.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/EmptyStateView.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/EmptyStateView.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/EmptyStateView.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/EmptyStateView.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/EmptyStateView~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainScreen/Views/HelpViews/SearchResultCell.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SearchResultCell.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SearchResultCell.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SearchResultCell.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SearchResultCell.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SearchResultCell.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SearchResultCell.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SearchResultCell.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SearchResultCell~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainScreen/Views/HelpViews/SwipeUpHintView.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SwipeUpHintView.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SwipeUpHintView.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SwipeUpHintView.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SwipeUpHintView.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SwipeUpHintView.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SwipeUpHintView.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SwipeUpHintView.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SwipeUpHintView~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/MainScreen/Views/ManualTestViewController.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ManualTestViewController.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ManualTestViewController.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ManualTestViewController.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ManualTestViewController.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ManualTestViewController.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ManualTestViewController.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ManualTestViewController.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ManualTestViewController~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/ProfileScreen/ProfileViewController.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ProfileViewController.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ProfileViewController.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ProfileViewController.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ProfileViewController.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ProfileViewController.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ProfileViewController.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ProfileViewController.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ProfileViewController~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/SettingsScreen/SettingsViewController.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SettingsViewController.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SettingsViewController.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SettingsViewController.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SettingsViewController.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SettingsViewController.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SettingsViewController.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SettingsViewController.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/SettingsViewController~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/StudentResultScreen/HelpViews/FieldGlass.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/FieldGlass.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/FieldGlass.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/FieldGlass.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/FieldGlass.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/FieldGlass.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/FieldGlass.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/FieldGlass.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/FieldGlass~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/StudentResultScreen/HelpViews/InsetLabel.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/InsetLabel.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/InsetLabel.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/InsetLabel.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/InsetLabel.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/InsetLabel.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/InsetLabel.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/InsetLabel.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/InsetLabel~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/StudentResultScreen/HelpViews/MetricPill.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/MetricPill.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/MetricPill.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/MetricPill.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/MetricPill.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/MetricPill.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/MetricPill.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/MetricPill.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/MetricPill~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/StudentResultScreen/HelpViews/PaddedLabel.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/PaddedLabel.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/PaddedLabel.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/PaddedLabel.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/PaddedLabel.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/PaddedLabel.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/PaddedLabel.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/PaddedLabel.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/PaddedLabel~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/StudentResultScreen/HelpViews/PillLabel.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/PillLabel.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/PillLabel.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/PillLabel.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/PillLabel.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/PillLabel.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/PillLabel.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/PillLabel.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/PillLabel~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/StudentResultScreen/HelpViews/ResultAnswerCell.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultAnswerCell.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultAnswerCell.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultAnswerCell.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultAnswerCell.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultAnswerCell.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultAnswerCell.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultAnswerCell.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultAnswerCell~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/StudentResultScreen/HelpViews/ResultGlassCard.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultGlassCard.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultGlassCard.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultGlassCard.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultGlassCard.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultGlassCard.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultGlassCard.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultGlassCard.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultGlassCard~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/StudentResultScreen/HelpViews/ResultStyle.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultStyle.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultStyle.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultStyle.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultStyle.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultStyle.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultStyle.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultStyle.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultStyle~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/StudentResultScreen/HelpViews/ScoreBadge.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScoreBadge.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScoreBadge.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScoreBadge.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScoreBadge.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScoreBadge.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScoreBadge.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScoreBadge.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScoreBadge~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/StudentResultScreen/HelpViews/ScoreBannerView.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScoreBannerView.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScoreBannerView.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScoreBannerView.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScoreBannerView.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScoreBannerView.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScoreBannerView.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScoreBannerView.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScoreBannerView~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/StudentResultScreen/HelpViews/ScorePill.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScorePill.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScorePill.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScorePill.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScorePill.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScorePill.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScorePill.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScorePill.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScorePill~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/StudentResultScreen/HelpViews/ScoreSummaryView.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScoreSummaryView.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScoreSummaryView.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScoreSummaryView.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScoreSummaryView.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScoreSummaryView.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScoreSummaryView.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScoreSummaryView.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ScoreSummaryView~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/StudentResultScreen/Presenter/StudentResultPresenter.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultPresenter.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultPresenter.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultPresenter.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultPresenter.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultPresenter.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultPresenter.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultPresenter.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultPresenter~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/StudentResultScreen/Protocols/StudentResultPresenterProtocol.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultPresenterProtocol.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultPresenterProtocol.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultPresenterProtocol.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultPresenterProtocol.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultPresenterProtocol.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultPresenterProtocol.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultPresenterProtocol.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultPresenterProtocol~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/StudentResultScreen/Protocols/StudentResultViewProtocol.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultViewProtocol.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultViewProtocol.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultViewProtocol.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultViewProtocol.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultViewProtocol.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultViewProtocol.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultViewProtocol.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultViewProtocol~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/StudentResultScreen/ResultService/ResultService.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultService.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultService.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultService.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultService.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultService.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultService.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultService.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultService~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/StudentResultScreen/ResultService/ResultServiceProtocol.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultServiceProtocol.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultServiceProtocol.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultServiceProtocol.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultServiceProtocol.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultServiceProtocol.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultServiceProtocol.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultServiceProtocol.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/ResultServiceProtocol~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/StudentResultScreen/StudentResultViewController.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultViewController.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultViewController.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultViewController.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultViewController.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultViewController.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultViewController.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultViewController.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentResultViewController~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/TeacherReviewScreen/AnswerService.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AnswerService.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AnswerService.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AnswerService.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AnswerService.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AnswerService.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AnswerService.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AnswerService.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AnswerService~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/TeacherReviewScreen/Models/StudentRowModel.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentRowModel.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentRowModel.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentRowModel.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentRowModel.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentRowModel.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentRowModel.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentRowModel.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/StudentRowModel~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/TeacherReviewScreen/Presenters/TeacherReviewPresenter.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewPresenter.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewPresenter.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewPresenter.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewPresenter.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewPresenter.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewPresenter.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewPresenter.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewPresenter~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/TeacherReviewScreen/Protocols/AnswerServiceProtocol.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AnswerServiceProtocol.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AnswerServiceProtocol.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AnswerServiceProtocol.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AnswerServiceProtocol.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AnswerServiceProtocol.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AnswerServiceProtocol.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AnswerServiceProtocol.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/AnswerServiceProtocol~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/TeacherReviewScreen/Protocols/TeacherReviewViewProtocol.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewViewProtocol.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewViewProtocol.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewViewProtocol.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewViewProtocol.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewViewProtocol.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewViewProtocol.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewViewProtocol.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewViewProtocol~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/TeacherReviewScreen/View/TeacherReviewDetailViewController.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewDetailViewController.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewDetailViewController.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewDetailViewController.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewDetailViewController.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewDetailViewController.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewDetailViewController.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewDetailViewController.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewDetailViewController~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/DragonTest/TeacherReviewScreen/View/TeacherReviewViewController.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewViewController.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewViewController.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewViewController.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewViewController.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewViewController.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewViewController.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewViewController.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/TeacherReviewViewController~partial.swiftmodule"
+  },
+  "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/GeneratedAssetSymbols.dia",
+    "index-unit-output-path" : "/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftdeps",
+    "swiftmodule" : "/Users/amir/Documents/DragonTest/build/DragonTest.build/Debug-iphoneos/DragonTest.build/Objects-normal/arm64/GeneratedAssetSymbols~partial.swiftmodule"
+  }
+}

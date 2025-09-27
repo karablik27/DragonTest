@@ -22,7 +22,7 @@ final class LoginPresenter: LoginViewOutput {
     func didTapLogin(email: String, password: String) {
         let email = email.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !email.isEmpty, !password.isEmpty else {
-            view?.showError("Введите почту и пароль")
+            view?.showError("login.enter_email_password".localized)
             return
         }
         view?.closeKeyboard()
@@ -43,7 +43,7 @@ final class LoginPresenter: LoginViewOutput {
                 } catch {
                     await MainActor.run {
                         self.view?.setLoading(false)
-                        self.view?.showError("Аккаунт используется на другом устройстве. Пожалуйста, выйдите из прошлой сессии.")
+                        self.view?.showError("login.account_used_another_device".localized)
                     }
                     return
                 }
@@ -73,12 +73,12 @@ final class LoginPresenter: LoginViewOutput {
     private func map(_ error: Error) -> String {
         let ns = error as NSError
         switch ns.code {
-        case 17004: return "Неверный пароль."
-        case 17007: return "Пользователь с таким e-mail уже зарегистрирован."
-        case 17008: return "Неверный формат email."
-        case 17009: return "Некорректные учетные данные."
-        case 17011: return "Пользователь с такие e-mail не найден."
-        case 17020: return "Ошибка сети (нет интернета)."
+        case 17004: return "login.wrong_password".localized
+        case 17007: return "login.email_already_registered".localized
+        case 17008: return "login.invalid_email_format".localized
+        case 17009: return "login.invalid_credentials".localized
+        case 17011: return "login.user_not_found".localized
+        case 17020: return "login.network_error".localized
         default: return ns.localizedDescription
         }
     }

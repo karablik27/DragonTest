@@ -22,7 +22,7 @@ final class NoPasteTextField: UITextField {
         let toolbar = UIToolbar()
         toolbar.sizeToFit()
         let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let doneButton = UIBarButtonItem(title: "Готово", style: .done, target: self, action: #selector(doneButtonTapped))
+        let doneButton = UIBarButtonItem(title: "common.done".localized, style: .done, target: self, action: #selector(doneButtonTapped))
         toolbar.setItems([flexSpace, doneButton], animated: false)
         self.inputAccessoryView = toolbar
     }

@@ -1,0 +1,4 @@
+module nanopb {
+umbrella "/Users/amir/Library/Developer/Xcode/DerivedData/DragonTest-eoatxnyatvqscffepautwrtypyvz/SourcePackages/checkouts/nanopb/spm_headers"
+export *
+}

@@ -132,3 +132,102 @@
 /* Notifications */
 "notification.results_title" = "Результаты";
 "notification.test_checked" = "Ваш тест проверен!"; 
+
+// Errors - User Service
+"errors.no_current_user" = "Нет текущего пользователя";
+"errors.user_not_found_firestore" = "Пользователь не найден в Firestore";
+
+// Student Results
+"result.your_answer" = "Ваш ответ";
+"result.variant_number" = "Вариант №%d";
+"result.final_score" = "Итоговый балл";
+"result.checked_by_teacher" = "Проверено учителем";
+"result.preliminary_score_ai" = "Промежуточный балл (ИИ)";
+"result.awaiting_teacher_review" = "Ожидает проверки учителем";
+"result.final_grade" = "Итоговая оценка";
+"result.no_data" = "Нет данных";
+"result.result_prefix" = "Результат:";
+
+// Login errors
+"login.enter_email_password" = "Введите почту и пароль";
+"login.account_used_another_device" = "Аккаунт используется на другом устройстве. Пожалуйста, выйдите из прошлой сессии.";
+"login.wrong_password" = "Неверный пароль.";
+"login.email_already_registered" = "Пользователь с таким e-mail уже зарегистрирован.";
+"login.invalid_email_format" = "Неверный формат email.";
+"login.invalid_credentials" = "Некорректные учетные данные.";
+"login.user_not_found" = "Пользователь с такие e-mail не найден.";
+"login.network_error" = "Ошибка сети (нет интернета).";
+"login.account_title" = "Вход в\nаккаунт";
+"login.remember_me" = "Запомнить меня";
+"login.no_account" = "Нет аккаунта?";
+
+// Signup errors
+"signup.fill_email_password" = "Заполните почту и пароль";
+"signup.account_active_another_device" = "Аккаунт уже активен на другом устройстве. Пожалуйста, завершите сессию на другом устройстве.";
+"signup.email_already_used" = "Email уже используется.";
+"signup.invalid_email_format" = "Неверный формат email.";
+"signup.weak_password" = "Слабый пароль (минимум 6 символов).";
+"signup.network_error" = "Ошибка сети. Проверьте интернет.";
+
+// Teacher Review
+"teacher_review.answer_review" = "Проверка ответов";
+"teacher_review.save_result" = "💾 Сохранить результат";
+"teacher_review.not_all_questions_graded" = "Не все вопросы оценены";
+"teacher_review.grade_all_answers" = "Поставьте баллы за каждый ответ перед сохранением.";
+"teacher_review.teacher_grade_saved" = "Оценка учителя сохранена";
+"teacher_review.review_sent" = "Результат проверки отправлен ✅";
+"teacher_review.failed_to_save" = "Не удалось сохранить результат";
+"teacher_review.question_not_found" = "Вопрос не найден";
+"teacher_review.teacher_score_placeholder" = "Балл учителя (0–10)";
+"teacher_review.teacher_comment_placeholder" = "Комментарий учителя";
+"teacher_review.question_prefix" = "Вопрос: %@";
+"teacher_review.student_answer_prefix" = "Ответ ученика: %@";
+"teacher_review.ai_score_comment" = "ИИ → Балл: %d\nКомментарий: %@";
+"teacher_review.ai_not_reviewed" = "ИИ ещё не проверял";
+"teacher_review.teacher_score_prefix" = "Учитель → Балл: %d";
+"teacher_review.teacher_not_graded" = "Учитель ещё не оценил";
+"teacher_review.students_title" = "Ученики: %@";
+"teacher_review.checked_by_teacher" = "✅ Проверен (учитель)";
+"teacher_review.checked_by_ai" = "🤖 Проверен ИИ, ждёт учителя";
+"teacher_review.reviewing_by_ai" = "⏳ На проверке (ИИ)";
+"teacher_review.not_passed" = "❌ Не прошёл";
+
+// Profile
+"profile.test_examples" = "Коллоквиум №1,Коллоквиум №2,Итоговый тест,Практика iOS";
+"profile.invited_to_test" = "Вы приглашены в тест:\n%@";
+"profile.not_found" = "Не найдено!";
+"profile.final_grade_notification" = "Итоговая оценка\nТест: %@\nПроверено: %@\nВаш балл: %d";
+"profile.preliminary_grade_notification" = "Предварительная оценка\nТест: %@\nПроверено: Автоматическая проверка\nВаш балл: %d";
+"profile.score_pattern" = "Ваш балл:\\s*(\\d+)";
+
+// Main Screen
+"main.questions_count" = "Вопросов: %d";
+"main.hold_to_start" = "Удерживай, чтобы начать";
+
+// Student Result
+"student_result.loading" = "Загрузка результата…";
+"student_result.unknown_question" = "Неизвестный вопрос";
+"student_result.checked_score" = "✅ Проверено. Балл: %d";
+"student_result.teacher_comment" = "Комментарий учителя: %@";
+"student_result.ai_comment" = "ИИ: %@";
+"student_result.under_review" = "⏳ Работа на проверке…";
+"student_result.loading_error" = "❌ Ошибка загрузки результата";
+
+// User Roles and Languages
+"user.role.student" = "Студент";
+"user.role.teacher" = "Преподаватель";
+"user.language.russian" = "Русский";
+
+// Notifications
+"notifications.ios_call" = "Ios зовет ботать...";
+"notifications.added_to_test" = "Вас добавили в новый тест!";
+
+// Debugging messages (keep in Russian for developers)
+"debug.avatar_saved" = "Аватар сохранён в Firestore как base64";
+"debug.notification_permissions_error" = "Ошибка при запросе разрешений на уведомления: %@";
+"debug.notification_permissions_granted" = "Разрешения на уведомления предоставлены.";
+"debug.notification_permissions_denied" = "Разрешения на уведомления не предоставлены.";
+"debug.notification_schedule_error" = "Ошибка при добавлении уведомления: %@";
+"debug.notification_scheduled" = "Уведомление запланировано";
+"debug.no_animations" = "⚠️ Нет встроенных анимаций в %@";
+"debug.failed_to_load_data" = "Не удалось загрузить данные"; 

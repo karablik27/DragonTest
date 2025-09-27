@@ -88,7 +88,9 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
         
         fetchNotifications()
         fetchResultNotifications()
-        loadUserData()
+        Task {
+            await loadUserData()
+        }
         setupAutoLocalization()
     }
     
@@ -114,6 +116,19 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
         // Update placeholders
         testPicker?.placeholder = "profile.test_placeholder".localized
         searchField?.placeholder = "profile.search_placeholder".localized
+    }
+    
+    private func loadUserData() async {
+        do {
+            if let user = try await userService.fetchUser() {
+                await MainActor.run {
+                    self.currentUser = user
+                    self.nameLabel?.text = user.name.isEmpty ? "profile.username".localized : user.name
+                }
+            }
+        } catch {
+            print("Failed to load user data: \(error)")
+        }
     }
     
     override func viewDidLayoutSubviews() {

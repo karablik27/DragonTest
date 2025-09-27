@@ -17,11 +17,11 @@ final class StudentResultViewController: UIViewController, StudentResultViewProt
 
     // summary (glass) header
     private let summaryCard = ResultGlassCard()
-    private let testTitlePill = PillLabel(text: "Тест", style: .white)
+    private let testTitlePill = PillLabel(text: "common.test".localized, style: .white)
     private let metricsRow = UIStackView()
-    private let pointsPill  = MetricPill(title: "Баллы")
-    private let gradePill   = MetricPill(title: "Оценка")
-    private let whoPill     = MetricPill(title: "Проверил")
+    private let pointsPill  = MetricPill(title: "common.points".localized)
+    private let gradePill   = MetricPill(title: "common.grade".localized)
+    private let whoPill     = MetricPill(title: "common.checked_by".localized)
 
     // чтобы обновлять название теста в плашке
     private var cachedTestTitle: String?
@@ -132,7 +132,7 @@ final class StudentResultViewController: UIViewController, StudentResultViewProt
         card.translatesAutoresizingMaskIntoConstraints = false
 
         // верхняя белая плашка — название теста
-        testTitlePill.setText(cachedTestTitle ?? "Тест")
+        testTitlePill.setText(cachedTestTitle ?? "common.test".localized)
         let topRow = UIStackView(arrangedSubviews: [testTitlePill, UIView()])
         topRow.axis = .horizontal
         topRow.alignment = .center
@@ -194,7 +194,7 @@ final class StudentResultViewController: UIViewController, StudentResultViewProt
         guard rows > 0 else {
             pointsPill.set(value: "0")
             gradePill.set(value: "0")
-            whoPill.set(value: "ИИ")
+                            whoPill.set(value: "common.ai".localized)
             relayoutHeader()
             return
         }
@@ -220,7 +220,7 @@ final class StudentResultViewController: UIViewController, StudentResultViewProt
 
         pointsPill.set(value: "\(total)")
         gradePill.set(value: "\(grade10)")
-        whoPill.set(value: teacherCoveredAll ? "Учитель" : "ИИ")
+                    whoPill.set(value: teacherCoveredAll ? "common.teacher".localized : "common.ai".localized)
 
         relayoutHeader()
     }

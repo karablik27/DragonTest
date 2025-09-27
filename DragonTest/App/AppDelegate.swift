@@ -95,7 +95,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     @objc func handleNewResultNotification() { // + добавить
-        scheduleLocalNotification(title: "Результаты", body: "Ваш тест проверен!")
+        scheduleLocalNotification(title: "notification.results_title".localized, body: "notification.test_checked".localized)
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {

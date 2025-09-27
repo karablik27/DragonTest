@@ -1,0 +1,4 @@
+module GoogleAppMeasurementIdentitySupportTarget {
+umbrella "/Users/amir/Library/Developer/Xcode/DerivedData/DragonTest-eoatxnyatvqscffepautwrtypyvz/SourcePackages/checkouts/GoogleAppMeasurement/GoogleAppMeasurementIdentitySupportWrapper/include"
+export *
+}

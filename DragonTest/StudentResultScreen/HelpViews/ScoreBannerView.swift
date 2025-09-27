@@ -82,7 +82,7 @@ final class ScoreBannerView: UIView {
             valueLabel.text = "\(ai)"
             subtitleLabel.text = "Ожидает проверки учителем"
         } else {
-            titleLabel.text = "Оценка"
+            titleLabel.text = "common.grade".localized
             valueLabel.text = "—"
             subtitleLabel.text = "Нет данных"
         }
