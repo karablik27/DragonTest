@@ -282,8 +282,8 @@ final class ProfileViewController: UIViewController {
             }
             
             let dragons = makeStat(icon: "dragon.icon", value: "5", title: "Драконов")
-            let tests = makeStat(icon: "📚", value: "12", title: "Тестов")
-            let teachers = makeStat(icon: "👑", value: "3", title: "Учителя")
+            let tests = makeStat(icon: "📚", value: "12", title: "Пройдено тестов")
+            let teachers = makeStat(icon: "👥", value: "3", title: "Преподавателей")
             let score = makeStat(icon: "⭐️", value: "87%", title: "Средний балл")
             
             let row1 = UIStackView(arrangedSubviews: [dragons, tests])
@@ -1513,10 +1513,12 @@ private extension ProfileViewController {
             
             func searchLabels(in v: UIView) {
                 if let label = v as? UILabel {
-                    // Ищем лейбл имени - более гибкий поиск
-                    if label.font?.pointSize == 14 && label.textColor == .white {
+                    // Ищем лейбл имени по размеру шрифта (14pt)
+                    if label.font?.pointSize == 14 {
                         nameLabel = label
-                    } else if label.font?.pointSize == 12 && label.textColor == .white {
+                    }
+                    // Ищем лейбл счета по размеру шрифта (12pt)
+                    else if label.font?.pointSize == 12 {
                         scoreLabel = label
                     }
                 } else if let imageView = v as? UIImageView,
@@ -1655,6 +1657,70 @@ private extension ProfileViewController {
                 titleLabel.text = "Средний балл учеников"
             }
         }
+        
+        // Обновляем иконки в зависимости от роли
+        if let firstCard = firstCard {
+            updateIcons(in: firstCard, for: user.role, position: 1)
+        }
+        if let secondCard = secondCard {
+            updateIcons(in: secondCard, for: user.role, position: 2)
+        }
+        if let thirdCard = secondRow.arrangedSubviews.first {
+            updateIcons(in: thirdCard, for: user.role, position: 3)
+        }
+        if let fourthCard = secondRow.arrangedSubviews.count > 1 ? secondRow.arrangedSubviews[1] : nil {
+            updateIcons(in: fourthCard, for: user.role, position: 4)
+        }
+    }
+    
+    private func updateIcons(in view: UIView?, for role: Role, position: Int) {
+        guard let view = view else { return }
+        
+        // Ищем UIImageView с иконкой - первый UIImageView в stack
+        func findIconView(in v: UIView) -> UIImageView? {
+            // Ищем UIStackView с вертикальной осью
+            if let stack = v as? UIStackView, stack.axis == .vertical {
+                // Берем первый элемент (иконку)
+                if let firstView = stack.arrangedSubviews.first as? UIImageView {
+                    return firstView
+                }
+            }
+            for subview in v.subviews {
+                if let found = findIconView(in: subview) {
+                    return found
+                }
+            }
+            return nil
+        }
+        
+        guard let iconView = findIconView(in: view) else { 
+            
+            return 
+        }
+        
+        
+        
+        // Определяем иконку по позиции квадратика
+        let iconName: String
+        switch position {
+        case 1: // Первый квадратик
+            iconName = role == .student ? "flame.fill" : "trophy.fill"
+        case 2: // Второй квадратик
+            iconName = role == .student ? "book.fill" : "doc.text.fill"
+        case 3: // Третий квадратик
+            iconName = role == .student ? "person.2.fill" : "graduationcap.fill"
+        case 4: // Четвертый квадратик
+            iconName = role == .student ? "star.fill" : "chart.bar.fill"
+        default:
+            iconName = "questionmark"
+        }
+        
+        // Для всех SF Symbols используем одинаковый подход
+        let config = UIImage.SymbolConfiguration(pointSize: 25, weight: .medium)
+        let image = UIImage(systemName: iconName, withConfiguration: config)
+        iconView.image = image
+        iconView.tintColor = .black
+        
     }
     
     @objc func didTapBell() { showPanel() }
