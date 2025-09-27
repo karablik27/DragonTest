@@ -29,6 +29,10 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
     private var pickerView: UIPickerView?
     private weak var testTextField: UITextField?
     
+    // MARK: - Services
+    private let userService = DependencyInjection.shared.userService
+    private var currentUser: User?
+    
     // MARK: - UI (основной экран)
     private let headerView = UIView()
     private let nameStack = UIStackView()
@@ -84,6 +88,7 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
         
         fetchNotifications()
         fetchResultNotifications()
+        loadUserData()
         setupAutoLocalization()
     }
     
@@ -550,7 +555,7 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
 
                     let items = docs.map { doc -> String in
                         let data = doc.data()
-                        let testTitle = data["title"] as? String ?? "Тест"
+                        let testTitle = data["title"] as? String ?? "common.test".localized
                         return "Вы приглашены в тест:\n\(testTitle)"
                     }
                     self.prependNotifications(items)
@@ -564,7 +569,7 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
 
                 let newItems = added.map { change -> String in
                     let data = change.document.data()
-                    let testTitle = data["title"] as? String ?? "Тест"
+                    let testTitle = data["title"] as? String ?? "common.test".localized
                     return "Вы приглашены в тест:\n\(testTitle)"
                 }
 
@@ -605,7 +610,7 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
         var initials: [String] = []
         if let first = n.first { initials.append("\(first).") }
         if let first = l.first { initials.append("\(first).") }
-        if s.isEmpty, initials.isEmpty { return "Преподаватель" }
+        if s.isEmpty, initials.isEmpty { return "common.teacher_short".localized }
         if s.isEmpty { return initials.joined(separator: " ") }
         if initials.isEmpty { return s }
         return "\(s) \(initials.joined(separator: " "))"
@@ -691,7 +696,7 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
                             if hasTeacher {
                                 // Нужна фамилия и инициалы
                                 self.fetchTeacherShortNameByTestId(testId: testId) { teacherShort in
-                                    let teacher = teacherShort ?? "Преподаватель"
+                                    let teacher = teacherShort ?? "common.teacher_short".localized
                                     let text = "Итоговая оценка\nТест: \(title)\nПроверено: \(teacher)\nВаш балл: \(testScore)"
                                     built.append(text)
                                     self.teacherNotifiedResultIds.insert(resultId)
@@ -737,7 +742,7 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
                             let title = testTitle ?? "Не найдено!"
                             if hasTeacher {
                                 self.fetchTeacherShortNameByTestId(testId: testId) { teacherShort in
-                                    let teacher = teacherShort ?? "Преподаватель"
+                                    let teacher = teacherShort ?? "common.teacher_short".localized
                                     let text = "Итоговая оценка\nТест: \(title)\nПроверено: \(teacher)\nВаш балл: \(testScore)"
                                     built.append(text)
                                     self.teacherNotifiedResultIds.insert(resultId)
@@ -783,7 +788,7 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
                         self.fetchTestNameByTestId(testId: testId) { testTitle in
                             let title = testTitle ?? "Не найдено!"
                             self.fetchTeacherShortNameByTestId(testId: testId) { teacherShort in
-                                let teacher = teacherShort ?? "Преподаватель"
+                                let teacher = teacherShort ?? "common.teacher_short".localized
                                 let text = "Итоговая оценка\nТест: \(title)\nПроверено: \(teacher)\nВаш балл: \(testScore)"
                                 built.append(text)
                                 group.leave()
@@ -921,7 +926,7 @@ private extension ProfileViewController {
         title.font = .systemFont(ofSize: 20, weight: .semibold)
         
         let clearBtn = UIButton(type: .system)
-        clearBtn.setTitle("Очистить", for: .normal)
+        clearBtn.setTitle("common.clear".localized, for: .normal)
         clearBtn.addTarget(self, action: #selector(clearAllNotifications), for: .touchUpInside)
 
         let closeBtn = UIButton(type: .system)

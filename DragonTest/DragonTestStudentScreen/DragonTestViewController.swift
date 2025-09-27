@@ -209,7 +209,7 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
         
         // чип "Вопрос"
         let questionChip = ChipLabel()
-        questionChip.text = "Вопрос"
+        questionChip.text = "common.question".localized
         qStack.addArrangedSubview(questionChip)
         
         // контейнер для текста
@@ -269,7 +269,7 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
     
     
     private func setupNextButton() {
-        nextButton.setTitle("Продолжить", for: .normal)
+        nextButton.setTitle("common.continue".localized, for: .normal)
         nextButton.setTitleColor(.white, for: .normal)
         nextButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
         nextButton.layer.cornerRadius = 24
@@ -332,7 +332,7 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
         if presenter.currentIndex == presenter.questionsCount - 1 {
             nextButton.setTitle("Завершить тест", for: .normal)
         } else {
-            nextButton.setTitle("Продолжить", for: .normal)
+            nextButton.setTitle("common.continue".localized, for: .normal)
         }
 
         questionNumbersCollection.reloadData()
@@ -354,7 +354,7 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
             message: "Молодец! 🎉 Ответы отправлены. Дожидайтесь автоматической проверки, она может занять несколько минут.\nКоличество ответов: \(answerCount)",
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: "Ок", style: .default) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: "alert.ok".localized, style: .default) { [weak self] _ in
                 self?.onFinish(answerCount)
             })
         present(alert, animated: true)
@@ -362,7 +362,7 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
     
     func showError(message: String) {
         let alert = UIAlertController(
-            title: "Ошибка",
+            title: "alert.error".localized,
             message: message,
             preferredStyle: .alert
         )

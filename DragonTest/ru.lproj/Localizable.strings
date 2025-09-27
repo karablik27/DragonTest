@@ -97,4 +97,38 @@
 "signup.password_placeholder" = "Пароль";
 "signup.button" = "Зарегистрироваться";
 "signup.fill_all_fields" = "Заполните все поля";
-"signup.registration_error" = "Ошибка регистрации"; 
+"signup.registration_error" = "Ошибка регистрации";
+
+/* Login Screen */
+"login.email_placeholder" = "Почта";
+"login.password_placeholder" = "Пароль";
+"login.button" = "Войти";
+"login.signup_button" = "Регистрация";
+
+/* Common UI */
+"common.done" = "Готово";
+"common.back" = "Назад";
+"common.clear" = "Очистить";
+"common.add" = "Добавить";
+"common.continue" = "Продолжить";
+"common.saved" = "Сохранено";
+"common.limit" = "Лимит";
+"common.test" = "Тест";
+"common.teacher_short" = "Преподаватель";
+"common.teacher" = "Учитель";
+"common.ai" = "ИИ";
+"common.question" = "Вопрос";
+"common.points" = "Баллы";
+"common.grade" = "Оценка";
+"common.checked_by" = "Проверил";
+
+/* Errors */
+"error.load_questions" = "Не удалось загрузить вопросы.";
+"error.not_enough_questions" = "Недостаточно вопросов в базе.";
+"error.select_40_questions" = "Нужно выбрать ровно 40 вопросов!";
+"error.already_selected_40" = "Вы уже выбрали 40 вопросов. Снимите выбор, чтобы выбрать другой.";
+"error.cannot_select_more_40" = "Нельзя выбрать больше 40 вопросов.";
+
+/* Notifications */
+"notification.results_title" = "Результаты";
+"notification.test_checked" = "Ваш тест проверен!"; 

@@ -593,7 +593,7 @@ final class AddTestViewController: UIViewController {
     @objc private func addRandomTest() {
         Firestore.firestore().collection("questionBank").getDocuments { snapshot, error in
             guard error == nil, let docs = snapshot?.documents else {
-                self.showAlert(title: "Ошибка", message: "Не удалось загрузить вопросы.")
+                self.showAlert(title: "alert.error".localized, message: "error.load_questions".localized)
                 return
             }
 
@@ -625,7 +625,7 @@ final class AddTestViewController: UIViewController {
 
             group.notify(queue: .main) {
                 guard allQuestions.count >= 40 else {
-                    self.showAlert(title: "Ошибка", message: "Недостаточно вопросов в базе.")
+                    self.showAlert(title: "alert.error".localized, message: "error.not_enough_questions".localized)
                     return
                 }
                 let randomQuestions = Array(allQuestions.shuffled().prefix(40))

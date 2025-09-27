@@ -22,7 +22,7 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
 
     private lazy var emailTextField: UITextField = {
         let tf = UITextField()
-        tf.placeholder = "Почта"
+        tf.placeholder = "login.email_placeholder".localized
         tf.autocapitalizationType = .none
         tf.keyboardType = .emailAddress
         tf.borderStyle = .none
@@ -38,7 +38,7 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
 
     private lazy var passwordTextField: UITextField = {
         let tf = UITextField()
-        tf.placeholder = "Пароль"
+        tf.placeholder = "login.password_placeholder".localized
         tf.isSecureTextEntry = true
         tf.borderStyle = .none
         tf.backgroundColor = UIColor(white: 1.0, alpha: 0.2)
@@ -72,7 +72,7 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
 
     private lazy var loginButton: UIButton = {
         let btn = UIButton(type: .system)
-        btn.setTitle("Войти", for: .normal)
+        btn.setTitle("login.button".localized, for: .normal)
         btn.setTitleColor(.white, for: .normal)
         btn.backgroundColor = .black
         btn.layer.cornerRadius = 12
@@ -83,7 +83,7 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
 
     private lazy var signUpButton: UIButton = {
         var config = UIButton.Configuration.plain()
-        config.title = "Регистрация"
+        config.title = "login.signup_button".localized
         config.baseForegroundColor = .white
         config.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 0)
 
@@ -232,7 +232,7 @@ extension LoginViewController: LoginViewInput {
     }
     
     func showError(_ message: String) {
-        showAlert(title: "Ошибка", message: message)
+        showAlert(title: "alert.error".localized, message: message)
     }
     
     func closeKeyboard() {

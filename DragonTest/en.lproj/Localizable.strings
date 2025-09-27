@@ -97,4 +97,38 @@
 "signup.password_placeholder" = "Password";
 "signup.button" = "Sign Up";
 "signup.fill_all_fields" = "Fill all fields";
-"signup.registration_error" = "Registration Error"; 
+"signup.registration_error" = "Registration Error";
+
+/* Login Screen */
+"login.email_placeholder" = "Email";
+"login.password_placeholder" = "Password";
+"login.button" = "Login";
+"login.signup_button" = "Sign Up";
+
+/* Common UI */
+"common.done" = "Done";
+"common.back" = "Back";
+"common.clear" = "Clear";
+"common.add" = "Add";
+"common.continue" = "Continue";
+"common.saved" = "Saved";
+"common.limit" = "Limit";
+"common.test" = "Test";
+"common.teacher_short" = "Teacher";
+"common.teacher" = "Teacher";
+"common.ai" = "AI";
+"common.question" = "Question";
+"common.points" = "Points";
+"common.grade" = "Grade";
+"common.checked_by" = "Checked by";
+
+/* Errors */
+"error.load_questions" = "Failed to load questions.";
+"error.not_enough_questions" = "Not enough questions in the database.";
+"error.select_40_questions" = "You need to select exactly 40 questions!";
+"error.already_selected_40" = "You have already selected 40 questions. Deselect to choose another.";
+"error.cannot_select_more_40" = "Cannot select more than 40 questions.";
+
+/* Notifications */
+"notification.results_title" = "Results";
+"notification.test_checked" = "Your test has been checked!"; 
