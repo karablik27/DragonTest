@@ -9,4 +9,5 @@ protocol CurrentUserServiceProtocol {
     var userId: String? { get set }
     var role: Role? { get set }
     func clear()
+    func getCurrentUser() async throws -> User?
 }

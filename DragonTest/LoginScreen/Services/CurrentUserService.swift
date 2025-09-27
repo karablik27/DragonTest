@@ -31,4 +31,9 @@ final class CurrentUserService: CurrentUserServiceProtocol {
         defaults.removeObject(forKey: userIdKey)
         defaults.removeObject(forKey: userRoleKey)
     }
+    
+    func getCurrentUser() async throws -> User? {
+        guard let userId = userId else { return nil }
+        return try await DependencyInjection.shared.userService.fetchUser(uid: userId)
+    }
 }
