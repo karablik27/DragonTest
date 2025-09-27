@@ -2,11 +2,8 @@
 //  ResultService.swift
 //  DragonTest
 //
-//  Created by Верховный Маг on 25.09.2025.
+//  Created by Карабельников Степан on 25.09.2025.
 //
-
-// ResultService.swift
-// DragonTest
 
 import Foundation
 import FirebaseFirestore
