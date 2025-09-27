@@ -13,11 +13,6 @@ enum Role: String, Codable {
     case teacher = "Преподаватель"
 }
 
-enum Language: String, Codable {
-    case russian = "Русский"
-    case english = "English"
-}
-
 struct User: Codable {
     var id: String
     var image: String?
@@ -27,7 +22,6 @@ struct User: Codable {
     var email: String
     var telegramId: String
     var role: Role
-    var language: Language
     var isNotificationEnabled: Bool
     
     init(
@@ -37,7 +31,6 @@ struct User: Codable {
         lastname: String = "",
         telegramId: String = "",
         role: Role = .student,
-        language: Language = .russian,
         isNotificationEnabled: Bool = true
     ) {
         self.id = firebaseUser.uid
@@ -48,7 +41,6 @@ struct User: Codable {
         self.email = firebaseUser.email ?? ""
         self.telegramId = telegramId
         self.role = role
-        self.language = language
         self.isNotificationEnabled = isNotificationEnabled
     }
 }

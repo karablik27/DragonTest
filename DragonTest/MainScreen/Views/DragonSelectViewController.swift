@@ -42,7 +42,6 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
     private let testContainer = UIView()
     private let dragonsContainer = UIView()
 
-    // Фон теперь часть dragonsContainer
     private let gradientHost = UIView()
     private let bgLayer = CAGradientLayer()
 

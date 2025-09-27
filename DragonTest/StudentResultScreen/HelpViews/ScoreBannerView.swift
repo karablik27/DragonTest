@@ -66,10 +66,7 @@ final class ScoreBannerView: UIView {
 
     required init?(coder: NSCoder) { fatalError() }
 
-    /// Обновляем состояние баннера.
-    /// - Parameters:
-    ///   - aiScore: балл ИИ (если ещё нет проверки учителем)
-    ///   - teacherScore: итоговый балл (если есть)
+
     func configure(aiScore: Int?, teacherScore: Int?) {
         if let t = teacherScore {
             // Итог

@@ -17,6 +17,6 @@ protocol SignUpViewOutput: AnyObject {
     func viewDidLoad()
     func didTapSignUp(name: String, surname: String, lastname: String,
                       email: String, password: String, telegramId: String,
-                      role: Role, language: Language)
+                      role: Role)
     func didTapBack()
 }

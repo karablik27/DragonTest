@@ -6,16 +6,13 @@
 //
 
 protocol TestServiceProtocol {
-    /// Получить тесты, созданные текущим преподавателем
     func fetchTests() async throws -> [Test]
 
-    /// Создать тест и сохранить в Firestore
     func createTest(title: String,
                     dragon: DragonKind,
                     questions: [Questions],
                     studentIds: [String],
                     completion: @escaping (Result<Test, Error>) -> Void)
 
-    /// Сохранить готовый тест (если его уже собрали где-то ещё)
     func saveTest(_ test: Test, completion: @escaping (Result<Void, Error>) -> Void)
 }

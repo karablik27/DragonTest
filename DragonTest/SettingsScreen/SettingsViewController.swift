@@ -421,19 +421,6 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
         roleRow.axis = .vertical
         roleRow.spacing = 6
 
-        let langTitle = UILabel()
-        langTitle.text = "Язык"
-        langTitle.font = UIFont.systemFont(ofSize: 14, weight: .medium)
-
-        let langSegment = UISegmentedControl(items: ["Русский", "English"])
-        langSegment.selectedSegmentIndex = 0
-        langSegment.addTarget(self, action: #selector(languageChanged(_:)), for: .valueChanged)
-        self.langSegment = langSegment
-
-        let langRow = UIStackView(arrangedSubviews: [langTitle, langSegment])
-        langRow.axis = .vertical
-        langRow.spacing = 6
-
         let themeTitle = UILabel()
         themeTitle.text = "Тема"
         themeTitle.font = UIFont.systemFont(ofSize: 14, weight: .medium)
@@ -460,7 +447,7 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
         notifRow.alignment = .center
         notifRow.spacing = 12
 
-        [roleRow, langRow, themeRow, notifRow].forEach { settingsStack.addArrangedSubview($0) }
+        [roleRow, themeRow, notifRow].forEach { settingsStack.addArrangedSubview($0) }
 
         settingsCard.addSubview(settingsStack)
         settingsStack.translatesAutoresizingMaskIntoConstraints = false
@@ -499,7 +486,6 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
         emailField.text = user.email
 
         roleSegment?.selectedSegmentIndex  = (user.role == .student ? 0 : 1)
-        langSegment?.selectedSegmentIndex  = (user.language == .russian ? 0 : 1)
         themeSegment?.selectedSegmentIndex = ThemeManager.shared.current.rawValue
         notifSwitch?.isOn = user.isNotificationEnabled
     }
@@ -650,12 +636,6 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
         updateUser(with: UserUpdate(id: uid, role: newRole))
     }
 
-    @objc private func languageChanged(_ sender: UISegmentedControl) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        let newLanguage: Language = sender.selectedSegmentIndex == 0 ? .russian : .english
-        updateUser(with: UserUpdate(id: uid, language: newLanguage))
-    }
-
     @objc private func notificationChanged(_ sender: UISwitch) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         updateUser(with: UserUpdate(id: uid, isNotificationEnabled: sender.isOn))
@@ -777,10 +757,8 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
         
         guard let image = info[.editedImage] as? UIImage ?? info[.originalImage] as? UIImage else { return }
         
-        // Устанавливаем изображение сразу в UIImageView
         avatarImageView.image = image
         
-        // Сохраняем в Firebase (но НЕ загружаем снова)
         saveAvatarToFirestoreBase64(image)
     }
     

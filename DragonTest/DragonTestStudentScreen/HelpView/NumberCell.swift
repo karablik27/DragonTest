@@ -22,7 +22,6 @@ final class NumberCell: UICollectionViewCell {
         contentView.layer.cornerCurve = .continuous
         contentView.clipsToBounds = true
         
-        // Blur
         blur.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(blur)
         NSLayoutConstraint.activate([
@@ -32,7 +31,6 @@ final class NumberCell: UICollectionViewCell {
             blur.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
         
-        // Label
         label.font = .systemFont(ofSize: 14, weight: .semibold)
         label.textAlignment = .center
         label.textColor = .label
@@ -43,7 +41,6 @@ final class NumberCell: UICollectionViewCell {
             label.centerYAnchor.constraint(equalTo: blur.contentView.centerYAnchor)
         ])
         
-        // Border
         border.strokeColor = UIColor.white.withAlphaComponent(0.35).cgColor
         border.fillColor = UIColor.clear.cgColor
         border.lineWidth = 1.0 / UIScreen.main.scale

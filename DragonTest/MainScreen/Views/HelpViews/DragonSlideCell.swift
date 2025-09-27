@@ -49,20 +49,16 @@ final class DragonSlideCell: UICollectionViewCell {
     required init?(coder: NSCoder) { fatalError() }
     
     func configure(with test: Test) {
-        // фон у каждой карточки
         GradientBackground.attach(to: contentView, colors: test.dragonKind.gradientColors)
         
-        // дракон через кэш (без лагов)
         if let entity = DependencyInjection.shared.dragonCache.clone(for: test.dragonKind, scale: [0.8,0.8,0.8]) {
             preview.displayEntity(entity)
         }
         
         titleLabel.text = test.dragonKind.title
         
-        // количество вопросов
         let total = test.questions.count
         
-        // пока нет completed → можно показывать только общее число
         infoLabel.text = "Вопросов: \(total)"
     }
 

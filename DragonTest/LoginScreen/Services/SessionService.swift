@@ -16,7 +16,6 @@ final class SessionService: SessionServiceProtocol {
         if let data = snap.data(),
            let active = data["activeDeviceId"] as? String,
            active != deviceId {
-            // Уже занято другим устройством
             throw SessionError.conflict
         }
 
@@ -27,14 +26,14 @@ final class SessionService: SessionServiceProtocol {
             ], merge: true)
         } catch {
             let ns = error as NSError
-            // Firestore permission-denied = код 7
+            
             if ns.code == 7 {
                 throw SessionError.conflict
             }
             throw error
         }
 
-        return deviceId // в этой схеме используем deviceId как sessionId
+        return deviceId 
     }
 
     func endSession(uid: String, deviceId: String) async {
