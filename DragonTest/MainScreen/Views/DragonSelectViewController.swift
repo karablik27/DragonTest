@@ -148,13 +148,27 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
                 vc.didMove(toParent: self)
             }
         } else {
-            let vc = TeacherReviewViewController(test: test)
-            addChild(vc)
-            testContainer.addSubview(vc.view)
-            vc.view.frame = testContainer.bounds
-            vc.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-            vc.didMove(toParent: self)
-            teacherVC = vc
+            if teacherVC == nil {
+                let vc = TeacherReviewViewController(
+                    test: test,
+                    colors: test.dragonKind.gradientColors
+                )
+                vc.onClose = { [weak self] in self?.closeTest() }
+                teacherVC = vc
+                
+                // если хотим, чтобы данные начали грузиться ещё до показа
+                _ = vc.view
+                vc.view.layoutIfNeeded()
+            }
+            
+            if let vc = teacherVC {
+                let nav = UINavigationController(rootViewController: vc)
+                addChild(nav)
+                testContainer.addSubview(nav.view)
+                nav.view.frame = testContainer.bounds
+                nav.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                nav.didMove(toParent: self)
+            }
         }
 
         testContainer.alpha = 1
@@ -314,6 +328,25 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
                 _ = self.testVC?.view
                 self.testVC?.view.layoutIfNeeded()
             }
+            
+            // --- PRELOAD: TeacherReview (для учителя) ---
+            if DependencyInjection.shared.currentUser.role == .teacher,
+               percent >= 0.30,
+               self.teacherVC == nil,
+               case let .test(test) = self.items[self.currentIndex] {
+
+                let vc = TeacherReviewViewController(
+                    test: test,
+                    colors: test.dragonKind.gradientColors
+                )
+                vc.onClose = { [weak self] in self?.closeTest() }
+                self.teacherVC = vc
+
+                // тёплый старт UI + запуск загрузок презентера
+                _ = vc.view
+                vc.view.layoutIfNeeded()
+            }
+
 
             if percent >= 1.0 {
                 t.invalidate()
