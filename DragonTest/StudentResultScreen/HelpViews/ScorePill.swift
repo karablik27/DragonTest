@@ -1,5 +1,9 @@
+//
 //  ScorePill.swift
 //  DragonTest
+//
+//  Created by Карабельников Степан on 27.09.2025.
+//
 
 import UIKit
 

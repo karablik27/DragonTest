@@ -2,7 +2,7 @@
 //  AuthenticationServiceProtocol.swift
 //  DragonTest
 //
-//  Created by Верховный Маг on 22.09.2025.
+//  Created by Карабельников Степан on 22.09.2025.
 //
 
 protocol AuthenticationServiceProtocol {

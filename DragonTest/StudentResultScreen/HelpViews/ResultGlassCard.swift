@@ -2,10 +2,9 @@
 //  ResultGlassCard.swift
 //  DragonTest
 //
-//  Created by Верховный Маг on 27.09.2025.
+//  Created by Карабельников Степан on 27.09.2025.
 //
 
-// ResultGlassCard.swift
 import UIKit
 
 final class ResultGlassCard: UIView {

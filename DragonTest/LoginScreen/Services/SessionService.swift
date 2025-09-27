@@ -1,3 +1,10 @@
+//
+//  SessionService.swift
+//  DragonTest
+//
+//  Created by Крючков Сергей on 22.09.2025.
+//
+
 import Foundation
 import FirebaseFirestore
 import FirebaseAuth
@@ -44,8 +51,6 @@ final class SessionService: SessionServiceProtocol {
             if active == deviceId {
                 try await ref.delete()
             }
-        } catch {
-            // no-op
-        }
+        } catch {}
     }
 }

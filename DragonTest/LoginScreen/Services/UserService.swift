@@ -2,7 +2,7 @@
 //  UserService.swift
 //  DragonTest
 //
-//  Created by Sergey on 21.09.2025.
+//  Created by Крючков Сергей on 21.09.2025.
 //
 
 import FirebaseFirestore

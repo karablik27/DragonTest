@@ -47,7 +47,6 @@ final class DragonSelectPresenter: DragonSelectPresenterProtocol {
                             self.view?.updateUI(items: self.items, currentIndex: self.currentIndex)
                         }
                     }
-                    // запрос статуса уедет из updateUI -> requestStatus
                     return
                 }
 
@@ -55,7 +54,6 @@ final class DragonSelectPresenter: DragonSelectPresenterProtocol {
                 await MainActor.run {
                     self.view?.updateUI(items: self.items, currentIndex: self.currentIndex)
                 }
-                // статус — по требованию из view.updateUI
             } catch {
                 print("Ошибка загрузки тестов: \(error)")
             }
@@ -81,7 +79,6 @@ final class DragonSelectPresenter: DragonSelectPresenterProtocol {
                         await MainActor.run { self.view?.updateStatus("Статус: неизвестно") }
                     }
                 } else {
-                    // учитель: сколько учеников прошли (уникальные studentId с попытками)
                     do {
                         let attempts = try await di.answerService.fetchAttempts(for: test.id)
                         let unique = Set(attempts.map { $0.studentId })

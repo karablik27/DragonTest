@@ -2,7 +2,7 @@
 //  RootTabBarController.swift
 //  DragonTest
 //
-//  Created by Верховный Маг on 17.09.2025.
+//  Created by Карабельников Степан on 17.09.2025.
 //
 
 import UIKit
@@ -59,11 +59,9 @@ final class RootTabBarController: UITabBarController {
         appearance.stackedLayoutAppearance.normal.iconColor = normalColor
         appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: normalColor]
         
-        if #available(iOS 15.0, *) {
-            appearance.backgroundEffect = UIBlurEffect(style: .regular)
-            appearance.backgroundColor = UIColor.clear
-            tabBar.scrollEdgeAppearance = appearance
-        }
+        appearance.backgroundEffect = UIBlurEffect(style: .regular)
+        appearance.backgroundColor = UIColor.clear
+        tabBar.scrollEdgeAppearance = appearance
         
         tabBar.standardAppearance = appearance
     }

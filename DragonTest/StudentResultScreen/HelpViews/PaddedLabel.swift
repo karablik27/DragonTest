@@ -2,11 +2,9 @@
 //  PaddedLabel.swift
 //  DragonTest
 //
-//  Created by Верховный Маг on 27.09.2025.
+//  Created by Карабельников Степан on 27.09.2025.
 //
 
-//  PaddedLabel.swift
-//  DragonTest
 
 import UIKit
 

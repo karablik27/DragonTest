@@ -2,7 +2,7 @@
 //  DragonKind.swift
 //  DragonTest
 //
-//  Created by Верховный Маг on 17.09.2025.
+//  Created by Карабельников Степан on 17.09.2025.
 //
 
 import UIKit

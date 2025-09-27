@@ -18,13 +18,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         let window = UIWindow(windowScene: windowScene)
 
-        // Экран загрузки
         let launchVC = LaunchViewController()
         window.rootViewController = launchVC
         self.window = window
         window.makeKeyAndVisible()
 
-        // Предзагрузка драконов (строго на главном потоке)
+        // Предзагрузка драконов
         DispatchQueue.main.async {
             let preloadView = DragonPreviewView(frame: .zero)
             window.addSubview(preloadView)
@@ -39,7 +38,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
             preloadView.removeFromSuperview()
 
-            // Через 2 сек переключаемся на основной root
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
                 guard let self = self else { return }
 

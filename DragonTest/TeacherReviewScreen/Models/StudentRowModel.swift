@@ -2,7 +2,7 @@
 //  StudentRowModel.swift
 //  DragonTest
 //
-//  Created by Верховный Маг on 23.09.2025.
+//  Created by Карабельников Степан on 23.09.2025.
 //
 
 struct StudentRowModel {

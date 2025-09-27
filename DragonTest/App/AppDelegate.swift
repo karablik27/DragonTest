@@ -18,7 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
-        // Предзагрузка всех .usdz в память (один раз на старте)
+        // Предзагрузка всех .usdz в память
         Task { @MainActor in
             await DependencyInjection.shared.dragonCache.preload()
         }
@@ -94,7 +94,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         scheduleLocalNotification(title: "Ios зовет ботать...", body: "Вас добавили в новый тест!")
     }
 
-    @objc func handleNewResultNotification() { // + добавить
+    @objc func handleNewResultNotification() {
         scheduleLocalNotification(title: "Результаты", body: "Ваш тест проверен!")
     }
     
