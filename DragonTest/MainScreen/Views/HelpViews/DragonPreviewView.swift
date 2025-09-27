@@ -1,3 +1,4 @@
+
 //
 //  DragonPreviewView.swift
 //  DragonTest
@@ -54,12 +55,18 @@ final class DragonPreviewView: UIView {
     // Новый метод — принимает уже готовый entity из кэша
     func displayEntity(_ entity: Entity) {
         if let a = modelAnchor { arView.scene.removeAnchor(a) }
+        
         let anchor = AnchorEntity(world: .zero)
-        anchor.addChild(entity)
+        let copy = entity.clone(recursive: true) // гарантированно новый экземпляр
+        anchor.addChild(copy)
         arView.scene.addAnchor(anchor)
         modelAnchor = anchor
-        DependencyInjection.shared.dragonCache.loopFirstAnimation(on: entity, in: arView.scene)
+        
+        if copy.availableAnimations.isEmpty == false {
+            DependencyInjection.shared.dragonCache.loopFirstAnimation(on: copy, in: arView.scene)
+        }
     }
+
 
     func celebrateBounce() {
         guard let e = modelAnchor?.children.first else { return }

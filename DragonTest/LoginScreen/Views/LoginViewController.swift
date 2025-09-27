@@ -85,11 +85,16 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
         var config = UIButton.Configuration.plain()
         config.title = "Регистрация"
         config.baseForegroundColor = .white
-        config.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 0)
+        config.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 150, bottom: 0, trailing: 0)
+
+        let title = AttributedString("Регистрация", attributes: AttributeContainer([
+            .font: UIFont.systemFont(ofSize: 14, weight: .semibold)
+        ]))
+        config.attributedTitle = title
 
         let btn = UIButton(configuration: config, primaryAction: nil)
-        btn.titleLabel?.font = .systemFont(ofSize: 14, weight: .semibold)
         btn.addTarget(self, action: #selector(signUpTapped), for: .touchUpInside)
+        
         return btn
     }()
 
