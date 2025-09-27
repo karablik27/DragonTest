@@ -79,19 +79,18 @@ final class DragonSelectPresenter: DragonSelectPresenterProtocol {
 
     func didHoldStartTest() {
         guard case let .test(test) = items[currentIndex] else { return }
-
         let studentId = di.currentUser.userId ?? ""
         Task { @MainActor in
             do {
                 if let attempt = try await di.resultService.fetchAttempt(testId: test.id, studentId: studentId) {
+                    let colors = view?.currentGradientColors() ?? [UIColor.darkGray.cgColor, UIColor.black.cgColor]
                     let vc = StudentResultViewController(
                         test: test,
                         attempt: attempt,
-                        resultService: di.resultService
+                        resultService: di.resultService,
+                        colors: colors
                     )
-                    (view as? UIViewController)?
-                        .navigationController?
-                        .pushViewController(vc, animated: true)
+                    view?.openResult(vc)
                 } else {
                     view?.openTest(test)
                 }
@@ -100,6 +99,8 @@ final class DragonSelectPresenter: DragonSelectPresenterProtocol {
             }
         }
     }
+
+
 
 
     func didFinishTest(completed: Int) {
