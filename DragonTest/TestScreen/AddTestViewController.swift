@@ -62,7 +62,7 @@ final class AddTestViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Создание теста"
+        title = "addtest.title".localized
         view.backgroundColor = .systemBackground
 
         setupUI()
@@ -72,8 +72,40 @@ final class AddTestViewController: UIViewController {
         searchResultsTable.isHidden = true
         searchResultsTable.delegate = self
         searchResultsTable.dataSource = self
+        
+        setupAutoLocalization()
 
         currentStep = .details
+    }
+    
+    override func updateLocalization() {
+        super.updateLocalization()
+        updateLocalizedTexts()
+    }
+    
+    private func updateLocalizedTexts() {
+        title = "addtest.title".localized
+        backButton.setTitle("addtest.back".localized, for: .normal)
+        nextButton.setTitle("addtest.next".localized, for: .normal)
+        titleLabel.text = "addtest.title_label".localized
+        titleTextField.placeholder = "addtest.title_placeholder".localized
+        participantsLabel.text = "addtest.participants_label".localized
+        participantTextField.placeholder = "addtest.participants_placeholder".localized
+        randomButton.setTitle("addtest.random_button".localized, for: .normal)
+        manualButton.setTitle("addtest.manual_button".localized, for: .normal)
+        step2HintLabel.text = "addtest.step2_hint".localized
+        
+        // Обновляем stepLabel в зависимости от текущего шага
+        switch currentStep {
+        case .details:
+            stepLabel.text = "addtest.step1".localized
+        case .mode:
+            stepLabel.text = "addtest.step2".localized
+        }
+    }
+    
+    deinit {
+        removeLocalizationObserver()
         updateNextButtonState()
         refreshParticipantsChips()
     }
@@ -84,8 +116,8 @@ final class AddTestViewController: UIViewController {
         stepLabel.textColor = .secondaryLabel
         stepLabel.textAlignment = .center
 
-        backButton.setTitle("Назад", for: .normal)
-        nextButton.setTitle("Далее", for: .normal)
+        backButton.setTitle("addtest.back".localized, for: .normal)
+        nextButton.setTitle("addtest.next".localized, for: .normal)
         nextButton.backgroundColor = .systemBlue
         nextButton.tintColor = .white
         nextButton.layer.cornerRadius = 10
@@ -113,16 +145,16 @@ final class AddTestViewController: UIViewController {
         ])
 
         // Step 1
-        titleLabel.text = "Название теста"
+        titleLabel.text = "addtest.title_label".localized
         titleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
 
-        titleTextField.placeholder = "Введите название теста"
+        titleTextField.placeholder = "addtest.title_placeholder".localized
         titleTextField.borderStyle = .roundedRect
 
-        participantsLabel.text = "Участники"
+        participantsLabel.text = "addtest.participants_label".localized
         participantsLabel.font = .systemFont(ofSize: 16, weight: .semibold)
 
-        participantTextField.placeholder = "Начните вводить имя или почту"
+        participantTextField.placeholder = "addtest.participants_placeholder".localized
         participantTextField.borderStyle = .roundedRect
         participantTextField.autocapitalizationType = .none
 
@@ -152,13 +184,13 @@ final class AddTestViewController: UIViewController {
          participantsLabel, participantTextField,
          searchResultsTable, participantsContainer].forEach { step1Stack.addArrangedSubview($0) }
 
-        randomButton.setTitle("Случайные 40 вопросов", for: .normal)
+        randomButton.setTitle("addtest.random_button".localized, for: .normal)
         randomButton.backgroundColor = .systemBlue
         randomButton.tintColor = .white
         randomButton.layer.cornerRadius = 12
         randomButton.heightAnchor.constraint(equalToConstant: 56).isActive = true
 
-        manualButton.setTitle("Выбрать вручную", for: .normal)
+        manualButton.setTitle("addtest.manual_button".localized, for: .normal)
         manualButton.backgroundColor = .systemGreen
         manualButton.tintColor = .white
         manualButton.layer.cornerRadius = 12
@@ -168,7 +200,7 @@ final class AddTestViewController: UIViewController {
         buttonsStack.axis = .vertical
         buttonsStack.spacing = 12
 
-        step2HintLabel.text = "Выберите способ сформировать список вопросов"
+        step2HintLabel.text = "addtest.step2_hint".localized
         step2HintLabel.numberOfLines = 0
 
         step2Stack.axis = .vertical
@@ -259,7 +291,7 @@ final class AddTestViewController: UIViewController {
 
         if addedUsers.isEmpty {
             let label = UILabel()
-            label.text = "Список пуст"
+            label.text = "addtest.empty_list".localized
             label.textColor = .secondaryLabel
             label.font = .systemFont(ofSize: 15)
             participantsStack.addArrangedSubview(label)
@@ -327,12 +359,12 @@ final class AddTestViewController: UIViewController {
         let apply = {
             switch self.currentStep {
             case .details:
-                self.stepLabel.text = "Шаг 1 из 2"
+                self.stepLabel.text = "addtest.step1".localized
                 self.step1Stack.isHidden = false
                 self.step2Stack.isHidden = true
                 self.nextButton.isHidden = false
             case .mode:
-                self.stepLabel.text = "Шаг 2 из 2"
+                self.stepLabel.text = "addtest.step2".localized
                 self.step1Stack.isHidden = true
                 self.step2Stack.isHidden = false
                 self.nextButton.isHidden = true
@@ -502,7 +534,7 @@ final class SearchResultCell: UITableViewCell {
         vStack.axis = .vertical
         vStack.spacing = 2
 
-        addButton.setTitle("Добавить", for: .normal)
+        addButton.setTitle("addtest.add_button".localized, for: .normal)
         addButton.tintColor = .systemBlue
         addButton.addAction(UIAction { [weak self] _ in self?.onAdd?() }, for: .touchUpInside)
 

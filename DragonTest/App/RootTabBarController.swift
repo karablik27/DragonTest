@@ -8,27 +8,35 @@
 import UIKit
 
 final class RootTabBarController: UITabBarController {
+    
+    private var profileTab: UINavigationController!
+    private var testTab: UINavigationController!
+    private var settingsTab: UINavigationController!
+    
+    private let appearance = UITabBarAppearance()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let profile = UINavigationController(rootViewController: ProfileViewController())
-        profile.tabBarItem = UITabBarItem(title: "Профиль",
+        profileTab = UINavigationController(rootViewController: ProfileViewController())
+        profileTab.tabBarItem = UITabBarItem(title: "tabbar.profile".localized,
                                           image: UIImage(systemName: "person.crop.circle"),
                                           tag: 0)
         
-        let test = UINavigationController(rootViewController: DragonSelectViewController())
-        test.tabBarItem = UITabBarItem(title: "Тесты",
+        testTab = UINavigationController(rootViewController: DragonSelectViewController())
+        testTab.tabBarItem = UITabBarItem(title: "tabbar.tests".localized,
                                        image: UIImage(named: "dragon.icon"),
                                        tag: 1)
         
-        let settings = UINavigationController(rootViewController: SettingsViewController())
-        settings.tabBarItem = UITabBarItem(title: "Настройки",
+        settingsTab = UINavigationController(rootViewController: SettingsViewController())
+        settingsTab.tabBarItem = UITabBarItem(title: "tabbar.settings".localized,
                                            image: UIImage(systemName: "gearshape"),
                                            tag: 2)
 
-        viewControllers = [profile, test, settings]
+        viewControllers = [profileTab, testTab, settingsTab]
         
         setupTabBarAppearance()
+        setupAutoLocalization()
         
         registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (vc: RootTabBarController, previous: UITraitCollection) in
             vc.setupTabBarAppearance()
@@ -63,6 +71,19 @@ final class RootTabBarController: UITabBarController {
         }
         
         tabBar.standardAppearance = appearance
+    }
+    
+    override func updateLocalization() {
+        super.updateLocalization()
+        
+        profileTab.tabBarItem.title = "tabbar.profile".localized
+        testTab.tabBarItem.title = "tabbar.tests".localized  
+        settingsTab.tabBarItem.title = "tabbar.settings".localized
+        
+    }
+    
+    deinit {
+        removeLocalizationObserver()
     }
 }
 

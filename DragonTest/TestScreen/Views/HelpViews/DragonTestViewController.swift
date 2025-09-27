@@ -51,7 +51,7 @@ final class DragonTestViewController: UIViewController {
     private let textField = NoPasteTextField()
     private let nextButton: UIButton = {
         let b = UIButton(type: .system)
-        b.setTitle("Продолжить", for: .normal)
+        b.setTitle("test.continue".localized, for: .normal)
         b.setTitleColor(.white, for: .normal)
         b.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.9)
         b.layer.cornerRadius = 10
@@ -233,7 +233,7 @@ final class DragonTestViewController: UIViewController {
         textField.borderStyle = .roundedRect
         textField.backgroundColor = .white
         textField.textColor = .black
-        textField.placeholder = "Ваш ответ..."
+        textField.placeholder = "test.answer_placeholder".localized
         textField.isHidden = true
         textField.addDoneButtonOnKeyboard()
         view.addSubview(textField)

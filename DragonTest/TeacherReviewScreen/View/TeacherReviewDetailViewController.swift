@@ -147,7 +147,7 @@ extension TeacherReviewDetailViewController: UITableViewDataSource, UITableViewD
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ReviewAnswerCell", for: indexPath) as! ReviewAnswerCell
         let answer = answers[indexPath.row]
-        let questionText = questions.first(where: { $0.id == answer.questionId })?.text ?? "Вопрос не найден"
+        let questionText = questions.first(where: { $0.id == answer.questionId })?.text ?? "teacher.question_not_found".localized
         cell.configure(answer: answer, questionText: questionText) { [weak self] updated in
             self?.answers[indexPath.row] = updated
         }
@@ -187,7 +187,7 @@ private final class ReviewAnswerCell: UITableViewCell, UITextFieldDelegate {
         teacherLabel.textColor = .systemBlue
         teacherLabel.numberOfLines = 0
         
-        scoreField.placeholder = "Балл учителя (0–10)"
+        scoreField.placeholder = "teacher.score_placeholder".localized
         scoreField.borderStyle = .roundedRect
         scoreField.keyboardType = .numberPad
         scoreField.widthAnchor.constraint(equalToConstant: 120).isActive = true
@@ -195,7 +195,7 @@ private final class ReviewAnswerCell: UITableViewCell, UITextFieldDelegate {
         scoreField.delegate = self
         scoreField.inputAccessoryView = makeDoneToolbar()
         
-        commentField.placeholder = "Комментарий учителя"
+        commentField.placeholder = "teacher.comment_placeholder".localized
         commentField.borderStyle = .roundedRect
         commentField.addTarget(self, action: #selector(commentChanged), for: .editingChanged)
         commentField.delegate = self
@@ -221,21 +221,21 @@ private final class ReviewAnswerCell: UITableViewCell, UITextFieldDelegate {
         self.currentAnswer = answer
         self.onUpdate = onUpdate
         
-        questionLabel.text = "Вопрос: \(questionText)"
-        answerLabel.text = "Ответ ученика: " + (answer.textAnswer ?? (answer.selectedIndex.map { "Вариант №\($0+1)" } ?? "—"))
+        questionLabel.text = "teacher.question_label".localized + questionText
+        answerLabel.text = "teacher.student_answer".localized + (answer.textAnswer ?? (answer.selectedIndex.map { "result.option_number".localized + "\($0+1)" } ?? "—"))
         
         // ⚡️ ИИ
         if let score = answer.llmScore, let comment = answer.llmComment {
-            llmLabel.text = "ИИ → Балл: \(score)\nКомментарий: \(comment)"
+            llmLabel.text = "teacher.ai_score_comment".localized + "\(score)" + "teacher.ai_comment".localized + comment
         } else {
-            llmLabel.text = "ИИ ещё не проверял"
+            llmLabel.text = "teacher.ai_not_checked".localized
         }
         
         // ⚡️ Учитель
         if let score = answer.teacherScore {
-            teacherLabel.text = "Учитель → Балл: \(score)"
+            teacherLabel.text = "teacher.teacher_score".localized + "\(score)"
         } else {
-            teacherLabel.text = "Учитель ещё не оценил"
+            teacherLabel.text = "teacher.teacher_not_graded".localized
         }
         
         scoreField.text = answer.teacherScore.map { "\($0)" }

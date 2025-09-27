@@ -51,6 +51,7 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
     private var processedResultIds = Set<String>()
     private var didEmitInitialTests = false
     private var didEmitInitialResults = false
+    private var currentUser: User?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -66,6 +67,198 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
         
         fetchNotifications()
         fetchResultNotifications()
+        
+        setupAutoLocalization()
+        loadUserData()
+    }
+    
+    override func updateLocalization() {
+        super.updateLocalization()
+        print("🔄 ProfileViewController: updateLocalization вызван")
+        updateLocalizedTexts()
+    }
+    
+    private func updateLocalizedTexts() {
+        print("📝 ProfileViewController: updateLocalizedTexts начал выполнение")
+        
+        // Обновляем заголовки и лейблы через рекурсивный поиск по тегам
+        if let welcomeLabel = findViewWithTag(10, in: view) as? UILabel {
+            welcomeLabel.text = "profile.welcome".localized
+            print("✅ welcomeLabel обновлен: \(welcomeLabel.text ?? "nil")")
+        } else {
+            print("❌ welcomeLabel не найден по тегу 10")
+        }
+        
+        if let nameLabel = findViewWithTag(11, in: view) as? UILabel {
+            nameLabel.text = currentUser?.name ?? "Username"
+            print("✅ nameLabel обновлен: \(nameLabel.text ?? "nil")")
+        } else {
+            print("❌ nameLabel не найден по тегу 11")
+        }
+        
+        // Обновляем статистику - ищем по тегу и обновляем тексты напрямую
+        updateStatsLocalization()
+        
+        // Обновляем календарь
+        if let calendarContainer = findViewWithTag(100, in: view) {
+            // Ищем лейбл "Календарь активности"
+            if let calendarLabel = findLabelInView(calendarContainer, containing: "Календарь") ?? findLabelInView(calendarContainer, containing: "Calendar") {
+                calendarLabel.text = "profile.calendar".localized
+                print("✅ calendarLabel обновлен: \(calendarLabel.text ?? "nil")")
+            } else {
+                print("❌ calendarLabel не найден")
+            }
+            
+            // Ищем сегментированный контрол
+            if let segment = findSegmentedControlInView(calendarContainer) {
+                segment.setTitle("profile.period_week".localized, forSegmentAt: 0)
+                segment.setTitle("profile.period_month".localized, forSegmentAt: 1)
+                print("✅ segment обновлен: \(segment.titleForSegment(at: 0) ?? "nil") / \(segment.titleForSegment(at: 1) ?? "nil")")
+            } else {
+                print("❌ segment не найден")
+            }
+        } else {
+            print("❌ calendarContainer не найден по тегу 100")
+        }
+        
+        // Обновляем рейтинг
+        if let ratingContainer = findViewWithTag(200, in: view) {
+            if let titleLabel = findLabelInView(ratingContainer, containing: "Рейтинг") ?? findLabelInView(ratingContainer, containing: "Rating") {
+                titleLabel.text = "profile.rating_title".localized
+                print("✅ ratingLabel обновлен: \(titleLabel.text ?? "nil")")
+            } else {
+                print("❌ ratingLabel не найден")
+            }
+        } else {
+            print("❌ ratingContainer не найден по тегу 200")
+        }
+        
+        // Обновляем плейсхолдеры
+        if let textField = findTextFieldInView(view) {
+            textField.placeholder = "profile.test_placeholder".localized
+            print("✅ textField placeholder обновлен")
+        }
+        
+        if let searchBar = findViewWithTag(300, in: view) as? UISearchBar {
+            searchBar.placeholder = "profile.search_placeholder".localized
+            print("✅ searchBar placeholder обновлен")
+        } else {
+            print("❌ searchBar не найден по тегу 300")
+        }
+    }
+    
+    // Рекурсивный поиск view по тегу
+    private func findViewWithTag(_ tag: Int, in view: UIView) -> UIView? {
+        if view.tag == tag {
+            return view
+        }
+        
+        for subview in view.subviews {
+            if let found = findViewWithTag(tag, in: subview) {
+                return found
+            }
+        }
+        
+        return nil
+    }
+    
+    // Поиск лейбла содержащего определенный текст
+    private func findLabelInView(_ view: UIView, containing text: String) -> UILabel? {
+        if let label = view as? UILabel,
+           let labelText = label.text,
+           labelText.contains(text) {
+            return label
+        }
+        
+        for subview in view.subviews {
+            if let found = findLabelInView(subview, containing: text) {
+                return found
+            }
+        }
+        
+        return nil
+    }
+    
+    // Поиск сегментированного контрола
+    private func findSegmentedControlInView(_ view: UIView) -> UISegmentedControl? {
+        if let segment = view as? UISegmentedControl {
+            return segment
+        }
+        
+        for subview in view.subviews {
+            if let found = findSegmentedControlInView(subview) {
+                return found
+            }
+        }
+        
+        return nil
+    }
+    
+    // Поиск текстового поля
+    private func findTextFieldInView(_ view: UIView) -> UITextField? {
+        if let textField = view as? UITextField {
+            return textField
+        }
+        
+        for subview in view.subviews {
+            if let found = findTextFieldInView(subview) {
+                return found
+            }
+        }
+        
+        return nil
+    }
+    
+    private func updateStatsLocalization() {
+        // Ищем статистические элементы по тегам и обновляем их тексты
+        if let statsGrid = findViewWithTag(50, in: view) as? UIStackView {
+            print("✅ statsGrid найден")
+            
+            // Обновляем все статистические элементы
+            let statTitles = ["profile.stat_dragons".localized, "profile.stat_tests".localized, 
+                             "profile.stat_teachers".localized, "profile.stat_average_score".localized]
+            var titleIndex = 0
+            
+            for row in statsGrid.arrangedSubviews {
+                if let rowStack = row as? UIStackView {
+                    for statView in rowStack.arrangedSubviews {
+                        // Ищем лейбл с заголовком статистики рекурсивно
+                        if let titleLabel = findStatTitleLabel(in: statView),
+                           titleIndex < statTitles.count {
+                            titleLabel.text = statTitles[titleIndex]
+                            print("✅ Статистика \(titleIndex) обновлена: \(titleLabel.text ?? "nil")")
+                            titleIndex += 1
+                        }
+                    }
+                }
+            }
+        } else {
+            print("❌ statsGrid не найден по тегу 50")
+        }
+    }
+    
+    // Поиск лейбла заголовка статистики
+    private func findStatTitleLabel(in view: UIView) -> UILabel? {
+        // Ищем UIStackView внутри статистического элемента
+        if let stackView = view.subviews.first(where: { $0 is UIStackView }) as? UIStackView {
+            // Заголовок обычно последний элемент в вертикальном стеке
+            if let titleLabel = stackView.arrangedSubviews.last as? UILabel {
+                return titleLabel
+            }
+        }
+        
+        // Если не нашли, ищем рекурсивно
+        for subview in view.subviews {
+            if let found = findStatTitleLabel(in: subview) {
+                return found
+            }
+        }
+        
+        return nil
+    }
+    
+    deinit {
+        removeLocalizationObserver()
     }
     
     override func viewDidLayoutSubviews() {
@@ -107,14 +300,16 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
         headerView.layer.shadowRadius = 12
 
         let welcomeLabel = UILabel()
-        welcomeLabel.text = "Welcome,"
+        welcomeLabel.text = "profile.welcome".localized
         welcomeLabel.font = .systemFont(ofSize: 14, weight: .regular)
         welcomeLabel.textColor = .secondaryLabel
+        welcomeLabel.tag = 10 // Тег для поиска при обновлении локализации
         
         let nameLabel = UILabel()
-        nameLabel.text = "Username"
+        nameLabel.text = currentUser?.name ?? "Username"
         nameLabel.font = .systemFont(ofSize: 20, weight: .semibold)
         nameLabel.textColor = .label
+        nameLabel.tag = 11 // Тег для поиска при обновлении локализации
         
         nameStack.axis = .vertical
         nameStack.spacing = 2
@@ -238,10 +433,10 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
             return container
         }
         
-        let dragons = makeStat(icon: "dragon.icon", value: "5", title: "Драконов")
-        let tests = makeStat(icon: "📚", value: "12", title: "Тестов")
-        let teachers = makeStat(icon: "👑", value: "3", title: "Учителя")
-        let score = makeStat(icon: "⭐️", value: "87%", title: "Средний балл")
+        let dragons = makeStat(icon: "dragon.icon", value: "5", title: "profile.stat_dragons".localized)
+        let tests = makeStat(icon: "📚", value: "12", title: "profile.stat_tests".localized)
+        let teachers = makeStat(icon: "👑", value: "3", title: "profile.stat_teachers".localized)
+        let score = makeStat(icon: "⭐️", value: "87%", title: "profile.stat_average_score".localized)
         
         let row1 = UIStackView(arrangedSubviews: [dragons, tests])
         row1.axis = .horizontal
@@ -256,6 +451,7 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
         let grid = UIStackView(arrangedSubviews: [row1, row2])
         grid.axis = .vertical
         grid.spacing = 12
+        grid.tag = 50 // Тег для поиска при обновлении локализации
         
         contentStack.addArrangedSubview(grid)
     }
@@ -271,12 +467,13 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
         container.layer.shadowRadius = 4
         container.translatesAutoresizingMaskIntoConstraints = false
         container.heightAnchor.constraint(equalToConstant: 260).isActive = true
+        container.tag = 100 // Тег для поиска при обновлении локализации
         
-        let segment = UISegmentedControl(items: ["Неделя", "Месяц"])
+        let segment = UISegmentedControl(items: ["profile.period_week".localized, "profile.period_month".localized])
         segment.selectedSegmentIndex = 1
         
         let calendarLabel = UILabel()
-        calendarLabel.text = "Календарь активности"
+        calendarLabel.text = "profile.calendar".localized
         calendarLabel.font = .systemFont(ofSize: 16, weight: .medium)
         calendarLabel.textAlignment = .center
         calendarLabel.textColor = .secondaryLabel
@@ -307,9 +504,10 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
         container.layer.shadowRadius = 4
         container.translatesAutoresizingMaskIntoConstraints = false
         container.heightAnchor.constraint(equalToConstant: 450).isActive = true
+        container.tag = 200 // Тег для поиска при обновлении локализации
      
         let titleLabel = UILabel()
-        titleLabel.text = "Рейтинг прохождения тестов"
+        titleLabel.text = "profile.rating_title".localized
         titleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
         
         testNames = ["Коллоквиум №1", "Коллоквиум №2", "Итоговый тест", "Практика iOS"]
@@ -320,12 +518,13 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
         self.pickerView = picker
 
         let textField = UITextField()
-        textField.placeholder = "Выберите тест"
+        textField.placeholder = "profile.test_placeholder".localized
         textField.borderStyle = .roundedRect
         textField.inputView = picker
       
         let search = UISearchBar()
-        search.placeholder = "Поиск по названию"
+        search.placeholder = "profile.search_placeholder".localized
+        search.tag = 300 // Тег для поиска при обновлении локализации
         
         let filterStack = UIStackView(arrangedSubviews: [titleLabel, textField, search])
         filterStack.axis = .vertical
@@ -685,6 +884,21 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
             return UIColor(white: 0.95, alpha: 1)
         }
     }
+    private func loadUserData() {
+        guard let userId = DependencyInjection.shared.currentUser.userId else { return }
+        
+        Task {
+            do {
+                let user = try await DependencyInjection.shared.userService.fetchUser(uid: userId)
+                await MainActor.run {
+                    self.currentUser = user
+                    self.updateLocalizedTexts()
+                }
+            } catch {
+                print("Ошибка загрузки пользователя: \(error)")
+            }
+        }
+    }
 }
 
 // MARK: - Правая панель уведомлений
@@ -724,11 +938,11 @@ private extension ProfileViewController {
         panelGrabber.layer.cornerRadius = 2
         
         let title = UILabel()
-        title.text = "Уведомления"
+        title.text = "profile.notifications".localized
         title.font = .systemFont(ofSize: 20, weight: .semibold)
         
         let closeBtn = UIButton(type: .system)
-        closeBtn.setTitle("Закрыть", for: .normal)
+        closeBtn.setTitle("profile.close".localized, for: .normal)
         closeBtn.addTarget(self, action: #selector(hidePanel), for: .touchUpInside)
         
         let header = UIStackView(arrangedSubviews: [title, UIView(), closeBtn])

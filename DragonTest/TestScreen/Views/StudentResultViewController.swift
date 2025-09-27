@@ -39,7 +39,7 @@ final class StudentResultViewController: UIViewController {
         statusLabel.font = .systemFont(ofSize: 18, weight: .semibold)
         statusLabel.textAlignment = .center
         statusLabel.numberOfLines = 0
-        statusLabel.text = "Загрузка результата..."
+        statusLabel.text = "result.loading".localized
 
         teacherLabel.font = .systemFont(ofSize: 16, weight: .medium)
         teacherLabel.textAlignment = .center
@@ -92,25 +92,25 @@ final class StudentResultViewController: UIViewController {
                 if let result = try await resultService.fetchResult(testId: test.id, studentId: attempt.studentId) {
                     self.result = result
                     await MainActor.run {
-                        self.statusLabel.text = "✅ Проверено. Балл: \(result.totalScore)"
+                        self.statusLabel.text = "result.checked".localized + "\(result.totalScore)"
                         if let teacherComment = result.teacherComment {
                             self.teacherLabel.isHidden = false
-                            self.teacherLabel.text = "Комментарий учителя: \(teacherComment)"
+                            self.teacherLabel.text = "result.teacher_comment".localized + teacherComment
                         }
                         if let llmComment = result.llmComment {
                             self.llmSummaryLabel.isHidden = false
-                            self.llmSummaryLabel.text = "ИИ: \(llmComment)"
+                            self.llmSummaryLabel.text = "result.ai_comment".localized + llmComment
                         }
                         self.tableView.reloadData()
                     }
                 } else {
                     await MainActor.run {
-                        self.statusLabel.text = "⏳ Работа на проверке..."
+                        self.statusLabel.text = "result.pending".localized
                     }
                 }
             } catch {
                 await MainActor.run {
-                    self.statusLabel.text = "Ошибка загрузки результата"
+                    self.statusLabel.text = "result.error".localized
                 }
             }
         }
@@ -188,23 +188,23 @@ private final class ResultAnswerCell: UITableViewCell {
     required init?(coder: NSCoder) { fatalError() }
 
     func configure(answer: StudentAnswer, questionText: String) {
-        questionLabel.text = "Вопрос: \(questionText)"
-        studentAnswerLabel.text = "Ваш ответ: " + (answer.textAnswer ?? (answer.selectedIndex.map { "Вариант №\($0+1)" } ?? "—"))
+        questionLabel.text = "result.question".localized + questionText
+        studentAnswerLabel.text = "result.your_answer".localized + (answer.textAnswer ?? (answer.selectedIndex.map { "result.option_number".localized + "\($0+1)" } ?? "—"))
 
         // ⚡️ ИИ-оценка
         if let llmScore = answer.llmScore {
-            llmScoreLabel.text = "ИИ → Балл: \(llmScore)"
+            llmScoreLabel.text = "result.ai_score".localized + "\(llmScore)"
         } else {
-            llmScoreLabel.text = "ИИ → ещё не проверял"
+            llmScoreLabel.text = "result.ai_not_checked".localized
         }
-        llmCommentLabel.text = answer.llmComment != nil ? "ИИ-комментарий: \(answer.llmComment!)" : nil
+        llmCommentLabel.text = answer.llmComment != nil ? "result.ai_comment_label".localized + answer.llmComment! : nil
 
         // ⚡️ Учительская оценка
         if let teacherScore = answer.teacherScore {
-            teacherScoreLabel.text = "Учитель → Балл: \(teacherScore)"
+            teacherScoreLabel.text = "result.teacher_score".localized + "\(teacherScore)"
         } else {
-            teacherScoreLabel.text = "Учитель → ещё не оценил"
+            teacherScoreLabel.text = "result.teacher_not_graded".localized
         }
-        teacherCommentLabel.text = answer.teacherComment != nil ? "Учитель: \(answer.teacherComment!)" : nil
+        teacherCommentLabel.text = answer.teacherComment != nil ? "result.teacher_comment_label".localized + answer.teacherComment! : nil
     }
 }

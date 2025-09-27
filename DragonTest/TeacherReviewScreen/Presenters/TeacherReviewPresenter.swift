@@ -42,7 +42,7 @@ final class TeacherReviewPresenter: TeacherReviewPresenterProtocol {
                 }
             } catch {
                 await MainActor.run {
-                    self.view?.showError("Не удалось загрузить данные")
+                    self.view?.showError("teacher.error.load_failed".localized)
                 }
             }
         }

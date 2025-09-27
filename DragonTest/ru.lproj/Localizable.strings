@@ -1,0 +1,167 @@
+/* Settings Screen */
+"settings.title" = "Настройки";
+"settings.username" = "Имя пользователя";
+"settings.username.placeholder" = "Введите имя";
+"settings.telegram" = "Телеграмм";
+"settings.telegram.placeholder" = "Введите телеграмм";
+"settings.email" = "Логин";
+"settings.email.placeholder" = "example@mail.com";
+"settings.password" = "Пароль";
+"settings.password.placeholder" = "Введите новый пароль";
+"settings.role" = "Роль";
+"settings.role.student" = "Студент";
+"settings.role.teacher" = "Преподаватель";
+"settings.language" = "Язык";
+"settings.language.russian" = "Русский";
+"settings.language.english" = "English";
+"settings.theme" = "Тема";
+"settings.theme.light" = "Светлая";
+"settings.theme.dark" = "Темная";
+"settings.notifications" = "Уведомления";
+"settings.logout" = "Выйти";
+
+/* Tab Bar */
+"tabbar.profile" = "Профиль";
+"tabbar.tests" = "Тесты";
+"tabbar.settings" = "Настройки";
+
+/* Alerts */
+"alert.error" = "Ошибка";
+"alert.success" = "Успешно";
+"alert.ok" = "OK";
+"alert.profile.load.error" = "Не удалось загрузить данные профиля";
+"alert.save.error" = "Не удалось сохранить изменения";
+"alert.email.success" = "Email обновлен";
+"alert.email.error" = "Не удалось обновить email: %@";
+"alert.password.success" = "Пароль обновлен";
+"alert.password.error" = "Не удалось обновить пароль: %@";
+
+/* Sign Up Errors */
+"signup.error.empty_fields" = "Заполните почту и пароль";
+"signup.error.session_active" = "Аккаунт уже активен на другом устройстве. Пожалуйста, завершите сессию на другом устройстве.";
+"signup.error.email_in_use" = "Email уже используется.";
+"signup.error.invalid_email" = "Неверный формат email.";
+"signup.error.weak_password" = "Слабый пароль (минимум 6 символов).";
+"signup.error.network" = "Ошибка сети. Проверьте интернет.";
+
+/* Login Errors */
+"login.error.empty_fields" = "Введите почту и пароль";
+"login.error.session_active" = "Аккаунт используется на другом устройстве. Пожалуйста, выйдите из прошлой сессии.";
+
+/* Teacher Review Errors */
+"teacher.error.load_failed" = "Не удалось загрузить данные";
+
+/* Login Auth Errors */
+"login.error.wrong_password" = "Неверный пароль.";
+"login.error.email_already_registered" = "Пользователь с таким e-mail уже зарегистрирован.";
+"login.error.invalid_email_format" = "Неверный формат email.";
+"login.error.invalid_credentials" = "Некорректные учетные данные.";
+"login.error.user_not_found" = "Пользователь с такие e-mail не найден.";
+"login.error.network_no_internet" = "Ошибка сети (нет интернета).";
+
+/* Login Screen */
+"login.title" = "Вход в\nаккаунт";
+"login.email.placeholder" = "Почта";
+"login.password.placeholder" = "Пароль";
+"login.remember_me" = "Запомнить меня";
+"login.button" = "Войти";
+"login.no_account" = "Нет аккаунта?";
+
+/* Sign Up Screen */
+"signup.title" = "Регистрация";
+"signup.button" = "Зарегистрироваться";
+
+/* Profile Screen */
+"profile.welcome" = "Добро пожаловать,";
+"profile.username" = "Username";
+"profile.calendar" = "Календарь активности";
+"profile.rating_title" = "Рейтинг прохождения тестов";
+"profile.notifications" = "Уведомления";
+"profile.close" = "Закрыть";
+"profile.test_placeholder" = "Выберите тест";
+"profile.search_placeholder" = "Поиск по названию";
+
+/* Test Screen */
+"test.loading" = "Пройдено 0 из 40";
+"test.hold_to_start" = "Удерживай, чтобы начать";
+"test.continue" = "Продолжить";
+"test.answer_placeholder" = "Ваш ответ...";
+
+/* Add Test Screen */
+"addtest.back" = "Назад";
+"addtest.next" = "Далее";
+"addtest.title_label" = "Название теста";
+"addtest.title_placeholder" = "Введите название теста";
+"addtest.participants_label" = "Участники";
+"addtest.participants_placeholder" = "Начните вводить имя или почту";
+"addtest.step1" = "Шаг 1 из 2";
+"addtest.step2" = "Шаг 2 из 2";
+"addtest.step2_hint" = "Выберите способ сформировать список вопросов";
+"addtest.random_button" = "Случайные 40 вопросов";
+"addtest.manual_button" = "Выбрать вручную";
+"addtest.empty_list" = "Список пуст";
+"addtest.add_button" = "Добавить";
+"addtest.remove_button" = "✕";
+
+/* Student Result Screen */
+"result.loading" = "Загрузка результата...";
+"result.checked" = "✅ Проверено. Балл: ";
+"result.teacher_comment" = "Комментарий учителя: ";
+"result.ai_comment" = "ИИ: ";
+"result.pending" = "⏳ Работа на проверке...";
+"result.error" = "Ошибка загрузки результата";
+"result.question" = "Вопрос: ";
+"result.your_answer" = "Ваш ответ: ";
+"result.option_number" = "Вариант №";
+"result.ai_score" = "ИИ → Балл: ";
+"result.ai_not_checked" = "ИИ → ещё не проверял";
+"result.teacher_score" = "Учитель → Балл: ";
+"result.teacher_not_graded" = "Учитель → ещё не оценил";
+
+/* Teacher Review Screen */
+"teacher.checked_by_teacher" = " – ✅ Проверен (учитель)";
+"teacher.checked_by_ai" = " – 🤖 Проверен ИИ, ждёт учителя";
+"teacher.under_review" = " – ⏳ На проверке (ИИ)";
+"teacher.not_passed" = " – ❌ Не прошёл";
+"teacher.save_result" = "💾 Сохранить результат";
+"teacher.score_placeholder" = "Балл учителя (0–10)";
+"teacher.comment_placeholder" = "Комментарий учителя";
+"teacher.question_label" = "Вопрос: ";
+"teacher.student_answer" = "Ответ ученика: ";
+"teacher.ai_score_comment" = "ИИ → Балл: ";
+"teacher.ai_comment" = "\nКомментарий: ";
+"teacher.ai_not_checked" = "ИИ ещё не проверял";
+"teacher.teacher_score" = "Учитель → Балл: ";
+"teacher.teacher_not_graded" = "Учитель ещё не оценил";
+
+/* Additional Result Screen */
+"result.ai_comment_label" = "ИИ-комментарий: ";
+"result.teacher_comment_label" = "Учитель: ";
+
+/* Teacher Review Screen */
+"teacher.question_label" = "Вопрос: ";
+"teacher.student_answer" = "Ответ ученика: ";
+"teacher.ai_score_comment" = "ИИ → Балл: ";
+"teacher.ai_comment" = "\nКомментарий: ";
+"teacher.ai_not_checked" = "ИИ ещё не проверял";
+"teacher.teacher_score" = "Учитель → Балл: ";
+"teacher.teacher_not_graded" = "Учитель ещё не оценил";
+"teacher.status_checked_teacher" = "✅ Проверен (учитель)";
+"teacher.status_checked_ai_waiting" = "🤖 Проверен ИИ, ждёт учителя";
+"teacher.status_checking_ai" = "⏳ На проверке (ИИ)";
+"teacher.status_not_passed" = "❌ Не прошёл";
+"teacher.question_not_found" = "Вопрос не найден";
+
+/* Profile Statistics */
+"profile.stat_dragons" = "Драконов";
+"profile.stat_tests" = "Тестов";
+"profile.stat_teachers" = "Учителя";
+"profile.stat_average_score" = "Средний балл";
+
+/* Test Screen */
+"test.no_available_tests" = "Нет доступных тестов";
+
+/* Profile Time Period */
+"profile.period_week" = "Неделя";
+"profile.period_month" = "Месяц";
+"addtest.title" = "Создание теста";

@@ -13,7 +13,7 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
     // MARK: - UI
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Вход в\nаккаунт"
+        label.text = "login.title".localized
         label.numberOfLines = 2
         label.font = .systemFont(ofSize: 28, weight: .bold)
         label.textColor = .white
@@ -22,7 +22,7 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
 
     private lazy var emailTextField: UITextField = {
         let tf = UITextField()
-        tf.placeholder = "Почта"
+        tf.placeholder = "login.email.placeholder".localized
         tf.autocapitalizationType = .none
         tf.keyboardType = .emailAddress
         tf.borderStyle = .none
@@ -38,7 +38,7 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
 
     private lazy var passwordTextField: UITextField = {
         let tf = UITextField()
-        tf.placeholder = "Пароль"
+        tf.placeholder = "login.password.placeholder".localized
         tf.isSecureTextEntry = true
         tf.borderStyle = .none
         tf.backgroundColor = UIColor(white: 1.0, alpha: 0.2)
@@ -64,7 +64,7 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
 
     private let rememberLabel: UILabel = {
         let l = UILabel()
-        l.text = "Запомнить меня"
+        l.text = "login.remember_me".localized
         l.font = .systemFont(ofSize: 14)
         l.textColor = .white
         return l
@@ -72,7 +72,7 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
 
     private lazy var loginButton: UIButton = {
         let btn = UIButton(type: .system)
-        btn.setTitle("Войти", for: .normal)
+        btn.setTitle("login.button".localized, for: .normal)
         btn.setTitleColor(.white, for: .normal)
         btn.backgroundColor = .black
         btn.layer.cornerRadius = 12
@@ -173,7 +173,7 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
 
     private func makeSignUpStack() -> UIStackView {
         let lbl = UILabel()
-        lbl.text = "Нет аккаунта?"
+        lbl.text = "login.no_account".localized
         lbl.textColor = .white
         lbl.font = .systemFont(ofSize: 14)
 

@@ -22,7 +22,7 @@ final class LoginPresenter: LoginViewOutput {
     func didTapLogin(email: String, password: String) {
         let email = email.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !email.isEmpty, !password.isEmpty else {
-            view?.showError("Введите почту и пароль")
+            view?.showError("login.error.empty_fields".localized)
             return
         }
         view?.closeKeyboard()
@@ -43,12 +43,14 @@ final class LoginPresenter: LoginViewOutput {
                 } catch {
                     await MainActor.run {
                         self.view?.setLoading(false)
-                        self.view?.showError("Аккаунт используется на другом устройстве. Пожалуйста, выйдите из прошлой сессии.")
+                        self.view?.showError("login.error.session_active".localized)
                     }
                     return
                 }
                 
                 let fullUser = try await DependencyInjection.shared.userService.fetchUser(uid: firebaseUser.id)
+                
+                DependencyInjection.shared.localizationService.changeLanguage(to: fullUser.language)
                 
                 DependencyInjection.shared.currentUser.userId = fullUser.id
                 DependencyInjection.shared.currentUser.role = fullUser.role
@@ -73,12 +75,12 @@ final class LoginPresenter: LoginViewOutput {
     private func map(_ error: Error) -> String {
         let ns = error as NSError
         switch ns.code {
-        case 17004: return "Неверный пароль."
-        case 17007: return "Пользователь с таким e-mail уже зарегистрирован."
-        case 17008: return "Неверный формат email."
-        case 17009: return "Некорректные учетные данные."
-        case 17011: return "Пользователь с такие e-mail не найден."
-        case 17020: return "Ошибка сети (нет интернета)."
+        case 17004: return "login.error.wrong_password".localized
+        case 17007: return "login.error.email_already_registered".localized
+        case 17008: return "login.error.invalid_email_format".localized
+        case 17009: return "login.error.invalid_credentials".localized
+        case 17011: return "login.error.user_not_found".localized
+        case 17020: return "login.error.network_no_internet".localized
         default: return ns.localizedDescription
         }
     }

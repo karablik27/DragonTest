@@ -1,0 +1,167 @@
+/* Settings Screen */
+"settings.title" = "Settings";
+"settings.username" = "Username";
+"settings.username.placeholder" = "Enter username";
+"settings.telegram" = "Telegram";
+"settings.telegram.placeholder" = "Enter telegram";
+"settings.email" = "Email";
+"settings.email.placeholder" = "example@mail.com";
+"settings.password" = "Password";
+"settings.password.placeholder" = "Enter new password";
+"settings.role" = "Role";
+"settings.role.student" = "Student";
+"settings.role.teacher" = "Teacher";
+"settings.language" = "Language";
+"settings.language.russian" = "Russian";
+"settings.language.english" = "English";
+"settings.theme" = "Theme";
+"settings.theme.light" = "Light";
+"settings.theme.dark" = "Dark";
+"settings.notifications" = "Notifications";
+"settings.logout" = "Logout";
+
+/* Tab Bar */
+"tabbar.profile" = "Profile";
+"tabbar.tests" = "Tests";
+"tabbar.settings" = "Settings";
+
+/* Alerts */
+"alert.error" = "Error";
+"alert.success" = "Success";
+"alert.ok" = "OK";
+"alert.profile.load.error" = "Failed to load profile data";
+"alert.save.error" = "Failed to save changes";
+"alert.email.success" = "Email updated";
+"alert.email.error" = "Failed to update email: %@";
+"alert.password.success" = "Password updated";
+"alert.password.error" = "Failed to update password: %@";
+
+/* Sign Up Errors */
+"signup.error.empty_fields" = "Please fill in email and password";
+"signup.error.session_active" = "Account is already active on another device. Please end the session on the other device.";
+"signup.error.email_in_use" = "Email is already in use.";
+"signup.error.invalid_email" = "Invalid email format.";
+"signup.error.weak_password" = "Weak password (minimum 6 characters).";
+"signup.error.network" = "Network error. Check your internet connection.";
+
+/* Login Errors */
+"login.error.empty_fields" = "Enter email and password";
+"login.error.session_active" = "Account is being used on another device. Please log out from the previous session.";
+
+/* Teacher Review Errors */
+"teacher.error.load_failed" = "Failed to load data";
+
+/* Login Auth Errors */
+"login.error.wrong_password" = "Wrong password.";
+"login.error.email_already_registered" = "User with this email is already registered.";
+"login.error.invalid_email_format" = "Invalid email format.";
+"login.error.invalid_credentials" = "Invalid credentials.";
+"login.error.user_not_found" = "User with this email not found.";
+"login.error.network_no_internet" = "Network error (no internet).";
+
+/* Login Screen */
+"login.title" = "Sign In\nto Account";
+"login.email.placeholder" = "Email";
+"login.password.placeholder" = "Password";
+"login.remember_me" = "Remember me";
+"login.button" = "Sign In";
+"login.no_account" = "No account?";
+
+/* Sign Up Screen */
+"signup.title" = "Sign Up";
+"signup.button" = "Register";
+
+/* Profile Screen */
+"profile.welcome" = "Welcome,";
+"profile.username" = "Username";
+"profile.calendar" = "Activity Calendar";
+"profile.rating_title" = "Test Completion Rating";
+"profile.notifications" = "Notifications";
+"profile.close" = "Close";
+"profile.test_placeholder" = "Select test";
+"profile.search_placeholder" = "Search by title";
+
+/* Test Screen */
+"test.loading" = "Completed 0 of 40";
+"test.hold_to_start" = "Hold to start";
+"test.continue" = "Continue";
+"test.answer_placeholder" = "Your answer...";
+
+/* Add Test Screen */
+"addtest.back" = "Back";
+"addtest.next" = "Next";
+"addtest.title_label" = "Test Title";
+"addtest.title_placeholder" = "Enter test title";
+"addtest.participants_label" = "Participants";
+"addtest.participants_placeholder" = "Start typing name or email";
+"addtest.step1" = "Step 1 of 2";
+"addtest.step2" = "Step 2 of 2";
+"addtest.step2_hint" = "Choose how to form the question list";
+"addtest.random_button" = "Random 40 questions";
+"addtest.manual_button" = "Select manually";
+"addtest.empty_list" = "List is empty";
+"addtest.add_button" = "Add";
+"addtest.remove_button" = "✕";
+
+/* Student Result Screen */
+"result.loading" = "Loading result...";
+"result.checked" = "✅ Checked. Score: ";
+"result.teacher_comment" = "Teacher comment: ";
+"result.ai_comment" = "AI: ";
+"result.pending" = "⏳ Work under review...";
+"result.error" = "Error loading result";
+"result.question" = "Question: ";
+"result.your_answer" = "Your answer: ";
+"result.option_number" = "Option #";
+"result.ai_score" = "AI → Score: ";
+"result.ai_not_checked" = "AI → not checked yet";
+"result.teacher_score" = "Teacher → Score: ";
+"result.teacher_not_graded" = "Teacher → not graded yet";
+
+/* Teacher Review Screen */
+"teacher.checked_by_teacher" = " – ✅ Checked (teacher)";
+"teacher.checked_by_ai" = " – 🤖 Checked by AI, waiting for teacher";
+"teacher.under_review" = " – ⏳ Under review (AI)";
+"teacher.not_passed" = " – ❌ Did not pass";
+"teacher.save_result" = "💾 Save result";
+"teacher.score_placeholder" = "Teacher score (0–10)";
+"teacher.comment_placeholder" = "Teacher comment";
+"teacher.question_label" = "Question: ";
+"teacher.student_answer" = "Student answer: ";
+"teacher.ai_score_comment" = "AI → Score: ";
+"teacher.ai_comment" = "\nComment: ";
+"teacher.ai_not_checked" = "AI has not checked yet";
+"teacher.teacher_score" = "Teacher → Score: ";
+"teacher.teacher_not_graded" = "Teacher has not graded yet";
+
+/* Additional Result Screen */
+"result.ai_comment_label" = "AI comment: ";
+"result.teacher_comment_label" = "Teacher: ";
+
+/* Teacher Review Screen */
+"teacher.question_label" = "Question: ";
+"teacher.student_answer" = "Student answer: ";
+"teacher.ai_score_comment" = "AI → Score: ";
+"teacher.ai_comment" = "\nComment: ";
+"teacher.ai_not_checked" = "AI hasn't checked yet";
+"teacher.teacher_score" = "Teacher → Score: ";
+"teacher.teacher_not_graded" = "Teacher hasn't graded yet";
+"teacher.status_checked_teacher" = "✅ Checked (teacher)";
+"teacher.status_checked_ai_waiting" = "🤖 Checked by AI, waiting for teacher";
+"teacher.status_checking_ai" = "⏳ Checking (AI)";
+"teacher.status_not_passed" = "❌ Not passed";
+"teacher.question_not_found" = "Question not found";
+
+/* Profile Statistics */
+"profile.stat_dragons" = "Dragons";
+"profile.stat_tests" = "Tests";
+"profile.stat_teachers" = "Teachers";
+"profile.stat_average_score" = "Average Score";
+
+/* Test Screen */
+"test.no_available_tests" = "No available tests";
+
+/* Profile Time Period */
+"profile.period_week" = "Week";
+"profile.period_month" = "Month";
+"addtest.title" = "Create Test";

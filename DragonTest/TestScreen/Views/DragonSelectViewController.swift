@@ -54,7 +54,7 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
     private lazy var nextButton = makeArrowButton("▶︎", action: #selector(nextTap))
     private let hintView = SwipeUpHintView()
     
-    private let emptyStateView = EmptyStateView(message: "Нет доступных тестов")
+    private lazy var emptyStateView = EmptyStateView(message: "test.no_available_tests".localized)
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -66,6 +66,20 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
         presenter.viewDidLoad()
         
         addGestures()
+        setupAutoLocalization()
+    }
+    
+    override func updateLocalization() {
+        super.updateLocalization()
+        progressLabel.text = "test.loading".localized
+        // Обновляем сообщение в emptyStateView (если есть доступ к его лейблу)
+        if let messageLabel = emptyStateView.subviews.first(where: { $0 is UILabel }) as? UILabel {
+            messageLabel.text = "test.no_available_tests".localized
+        }
+    }
+    
+    deinit {
+        removeLocalizationObserver()
     }
     
     // MARK: - DragonSelectViewProtocol
@@ -90,7 +104,7 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
             progressView.isHidden = false
             progressLabel.isHidden = false
             progressView.setProgress(0, animated: false)
-            progressLabel.text = "Пройдено 0 из 40"
+            progressLabel.text = "test.loading".localized
             hintView.isHidden = false
         } else {
             progressView.isHidden = true

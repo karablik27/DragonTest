@@ -13,7 +13,7 @@ final class SignUpViewController: UIViewController, UITextFieldDelegate {
     // MARK: - UI
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Регистрация"
+        label.text = "signup.title".localized
         label.font = .systemFont(ofSize: 28, weight: .bold)
         label.textColor = .white
         return label
@@ -66,7 +66,7 @@ final class SignUpViewController: UIViewController, UITextFieldDelegate {
 
     private lazy var signUpButton: UIButton = {
         let btn = UIButton(type: .system)
-        btn.setTitle("Зарегистрироваться", for: .normal)
+        btn.setTitle("signup.button".localized, for: .normal)
         btn.setTitleColor(.white, for: .normal)
         btn.backgroundColor = .black
         btn.layer.cornerRadius = 12

@@ -73,15 +73,15 @@ extension TeacherReviewViewController: UITableViewDataSource, UITableViewDelegat
         
         if let attempt = attempt {
             if attempt.reviewed {
-                cell.textLabel?.text = "\(user.surname) \(user.name) – ✅ Проверен (учитель)"
+                cell.textLabel?.text = "\(user.surname) \(user.name) – " + "teacher.status_checked_teacher".localized
             } else if attempt.resultId != nil {
-                cell.textLabel?.text = "\(user.surname) \(user.name) – 🤖 Проверен ИИ, ждёт учителя"
+                cell.textLabel?.text = "\(user.surname) \(user.name) – " + "teacher.status_checked_ai_waiting".localized
             } else {
-                cell.textLabel?.text = "\(user.surname) \(user.name) – ⏳ На проверке (ИИ)"
+                cell.textLabel?.text = "\(user.surname) \(user.name) – " + "teacher.status_checking_ai".localized
             }
             cell.accessoryType = .disclosureIndicator
         } else {
-            cell.textLabel?.text = "\(user.surname) \(user.name) – ❌ Не прошёл"
+            cell.textLabel?.text = "\(user.surname) \(user.name) – " + "teacher.status_not_passed".localized
             cell.accessoryType = .none
         }
         

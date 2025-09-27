@@ -60,7 +60,7 @@ final class SwipeUpHintView: UIControl {
         }
         
         // текст под капсулой
-        label.text = "Удерживай, чтобы начать"
+        label.text = "test.hold_to_start".localized
         label.textColor = .white
         label.font = .systemFont(ofSize: 13, weight: .semibold)
         label.alpha = 0.9

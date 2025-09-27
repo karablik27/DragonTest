@@ -23,6 +23,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             let nav = UINavigationController(rootViewController: login)
             window.rootViewController = nav
         } else {
+            if let currentUser = Auth.auth().currentUser {
+                Task {
+                    do {
+                        let user = try await DependencyInjection.shared.userService.fetchUser(uid: currentUser.uid)
+                        await MainActor.run {
+                            DependencyInjection.shared.localizationService.changeLanguage(to: user.language)
+                        }
+                    } catch {
+                        print("❌ Failed to sync language on app launch: \(error)")
+                    }
+                }
+            }
             window.rootViewController = RootTabBarController()
         }
         
