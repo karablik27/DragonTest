@@ -1,0 +1,88 @@
+/* Settings Screen */
+"settings.title" = "Settings";
+"settings.username" = "Username";
+"settings.username.placeholder" = "Enter username";
+"settings.telegram" = "Telegram";
+"settings.telegram.placeholder" = "@username";
+"settings.email" = "Email";
+"settings.email.placeholder" = "example@mail.com";
+"settings.password" = "Password";
+"settings.password.placeholder" = "Enter new password";
+"settings.role" = "Role";
+"settings.role.student" = "Student";
+"settings.role.teacher" = "Teacher";
+"settings.language" = "Language";
+"settings.language.russian" = "Russian";
+"settings.language.english" = "English";
+"settings.theme" = "Theme";
+"settings.theme.system" = "System";
+"settings.theme.light" = "Light";
+"settings.theme.dark" = "Dark";
+"settings.notifications" = "Notifications";
+"settings.logout" = "Logout";
+"settings.avatar.choose" = "Choose Icon";
+"settings.avatar.take_photo" = "Take Photo";
+"settings.avatar.choose_gallery" = "Choose from Gallery";
+"settings.avatar.cancel" = "Cancel";
+"settings.camera.unavailable" = "Camera Unavailable";
+"settings.telegram.error" = "Please specify @username or t.me/… link";
+"settings.telegram.invalid_link" = "Invalid link.";
+"settings.telegram.open_error" = "Failed to open Telegram.";
+"settings.file.too_large" = "File too large: failed to compress to 1 MB";
+"settings.photo.save_error" = "Failed to save profile photo: %@";
+
+/* Tab Bar */
+"tabbar.profile" = "Profile";
+"tabbar.tests" = "Tests";
+"tabbar.settings" = "Settings";
+
+/* Alerts */
+"alert.error" = "Error";
+"alert.success" = "Success";
+"alert.ok" = "OK";
+"alert.profile.load.error" = "Failed to load profile";
+"alert.save.error" = "Failed to save changes";
+"alert.email.success" = "Email updated";
+"alert.email.error" = "Failed to update email: %@";
+"alert.password.success" = "Password updated";
+"alert.password.error" = "Failed to update password: %@";
+
+/* Add Test Screen */
+"addtest.title" = "Create Test";
+"addtest.back" = "Back";
+"addtest.next" = "Next";
+"addtest.title_label" = "Test Title";
+"addtest.title_placeholder" = "Enter test title";
+"addtest.participants_label" = "Participants";
+"addtest.participants_placeholder" = "Start typing name or email";
+"addtest.step1" = "Step 1 of 2";
+"addtest.step2" = "Step 2 of 2";
+"addtest.step2_hint" = "Choose how to form the question list";
+"addtest.random_button" = "Random 40 questions";
+"addtest.manual_button" = "Select manually";
+"addtest.empty_list" = "List is empty";
+"addtest.add_button" = "Add";
+"addtest.remove_button" = "✕";
+
+/* Profile Screen */
+"profile.welcome" = "Welcome,";
+"profile.username" = "Username";
+"profile.calendar" = "Activity Calendar";
+"profile.rating_title" = "Test Completion Rating";
+"profile.notifications" = "Notifications";
+"profile.close" = "Close";
+"profile.test_placeholder" = "Select test";
+"profile.search_placeholder" = "Search by title";
+"profile.stat_dragons" = "Dragons";
+"profile.stat_tests" = "Tests";
+"profile.stat_teachers" = "Teachers";
+"profile.stat_average_score" = "Average Score";
+"profile.period_week" = "Week";
+"profile.period_month" = "Month";
+
+/* Test Screen */
+"test.no_available_tests" = "No available tests";
+"test.loading" = "Completed 0 of 40";
+"test.hold_to_start" = "Hold to start";
+"test.continue" = "Continue";
+"test.answer_placeholder" = "Your answer..."; 

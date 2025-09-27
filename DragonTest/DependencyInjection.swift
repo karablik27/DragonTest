@@ -20,6 +20,7 @@ final class DependencyInjection {
     let sessionService: SessionServiceProtocol
     let resultService: ResultServiceProtocol
     let aiReviewService: AIReviewServiceProtocol
+    let localizationService: LocalizationService
     
     private init() {
         self.currentUser = CurrentUserService()
@@ -32,5 +33,6 @@ final class DependencyInjection {
         self.sessionService = SessionService(dataBase: self.dataBase)
         self.resultService = ResultService(dataBase: self.dataBase)
         self.aiReviewService = AIReviewService()
+        self.localizationService = LocalizationService()
     }
 }

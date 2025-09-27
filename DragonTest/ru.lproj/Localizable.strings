@@ -1,0 +1,88 @@
+/* Settings Screen */
+"settings.title" = "Настройки";
+"settings.username" = "Имя пользователя";
+"settings.username.placeholder" = "Введите имя";
+"settings.telegram" = "Телеграмм";
+"settings.telegram.placeholder" = "@username";
+"settings.email" = "Логин";
+"settings.email.placeholder" = "example@mail.com";
+"settings.password" = "Пароль";
+"settings.password.placeholder" = "Введите новый пароль";
+"settings.role" = "Роль";
+"settings.role.student" = "Студент";
+"settings.role.teacher" = "Преподаватель";
+"settings.language" = "Язык";
+"settings.language.russian" = "Русский";
+"settings.language.english" = "English";
+"settings.theme" = "Тема";
+"settings.theme.system" = "Система";
+"settings.theme.light" = "Светлая";
+"settings.theme.dark" = "Тёмная";
+"settings.notifications" = "Уведомления";
+"settings.logout" = "Выйти";
+"settings.avatar.choose" = "Выберите иконку";
+"settings.avatar.take_photo" = "Снять фото";
+"settings.avatar.choose_gallery" = "Выбрать из галереи";
+"settings.avatar.cancel" = "Отмена";
+"settings.camera.unavailable" = "Камера недоступна";
+"settings.telegram.error" = "Укажите @username или ссылку t.me/…";
+"settings.telegram.invalid_link" = "Некорректная ссылка.";
+"settings.telegram.open_error" = "Не удалось открыть Telegram.";
+"settings.file.too_large" = "Слишком большой файл: не удалось сжать до 1 МБ";
+"settings.photo.save_error" = "Не удалось сохранить фото профиля: %@";
+
+/* Tab Bar */
+"tabbar.profile" = "Профиль";
+"tabbar.tests" = "Тесты";
+"tabbar.settings" = "Настройки";
+
+/* Alerts */
+"alert.error" = "Ошибка";
+"alert.success" = "Успешно";
+"alert.ok" = "OK";
+"alert.profile.load.error" = "Не удалось загрузить профиль";
+"alert.save.error" = "Не удалось сохранить изменения";
+"alert.email.success" = "Email обновлен";
+"alert.email.error" = "Не удалось обновить email: %@";
+"alert.password.success" = "Пароль обновлен";
+"alert.password.error" = "Не удалось обновить пароль: %@";
+
+/* Add Test Screen */
+"addtest.title" = "Создание теста";
+"addtest.back" = "Назад";
+"addtest.next" = "Далее";
+"addtest.title_label" = "Название теста";
+"addtest.title_placeholder" = "Введите название теста";
+"addtest.participants_label" = "Участники";
+"addtest.participants_placeholder" = "Начните вводить имя или почту";
+"addtest.step1" = "Шаг 1 из 2";
+"addtest.step2" = "Шаг 2 из 2";
+"addtest.step2_hint" = "Выберите способ сформировать список вопросов";
+"addtest.random_button" = "Случайные 40 вопросов";
+"addtest.manual_button" = "Выбрать вручную";
+"addtest.empty_list" = "Список пуст";
+"addtest.add_button" = "Добавить";
+"addtest.remove_button" = "✕";
+
+/* Profile Screen */
+"profile.welcome" = "Добро пожаловать,";
+"profile.username" = "Username";
+"profile.calendar" = "Календарь активности";
+"profile.rating_title" = "Рейтинг прохождения тестов";
+"profile.notifications" = "Уведомления";
+"profile.close" = "Закрыть";
+"profile.test_placeholder" = "Выберите тест";
+"profile.search_placeholder" = "Поиск по названию";
+"profile.stat_dragons" = "Драконов";
+"profile.stat_tests" = "Тестов";
+"profile.stat_teachers" = "Учителя";
+"profile.stat_average_score" = "Средний балл";
+"profile.period_week" = "Неделя";
+"profile.period_month" = "Месяц";
+
+/* Test Screen */
+"test.no_available_tests" = "Нет доступных тестов";
+"test.loading" = "Пройдено 0 из 40";
+"test.hold_to_start" = "Удерживай, чтобы начать";
+"test.continue" = "Продолжить";
+"test.answer_placeholder" = "Ваш ответ..."; 
