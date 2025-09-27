@@ -100,7 +100,7 @@ final class ProfileViewController: UIViewController, UIPickerViewDataSource, UIP
         super.updateLocalization()
         
         welcomeLabel?.text = "profile.welcome".localized
-        nameLabel?.text = "profile.username".localized
+        nameLabel?.text = currentUser?.name.isEmpty == false ? currentUser?.name : "profile.username".localized
         dragonsStatTitle?.text = "profile.stat_dragons".localized
         testsStatTitle?.text = "profile.stat_tests".localized
         teachersStatTitle?.text = "profile.stat_teachers".localized
