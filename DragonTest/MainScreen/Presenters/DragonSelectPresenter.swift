@@ -5,7 +5,6 @@
 //  Created by Карабельников Степан on 22.09.2025.
 //
 
-// DragonSelectPresenter.swift
 import Foundation
 import UIKit
 
@@ -39,26 +38,65 @@ final class DragonSelectPresenter: DragonSelectPresenterProtocol {
                 } else {
                     let studentId = di.currentUser.userId ?? ""
                     let studentTests = tests.filter { $0.studentIds.contains(studentId) }
-                    if studentTests.isEmpty {
-                        await MainActor.run {
+                    await MainActor.run {
+                        if studentTests.isEmpty {
                             self.view?.showEmptyState()
+                        } else {
+                            self.items = studentTests.map { .test($0) }
+                            self.currentIndex = min(self.currentIndex, self.items.count - 1)
+                            self.view?.updateUI(items: self.items, currentIndex: self.currentIndex)
                         }
-                        return
-                    } else {
-                        self.items = studentTests.map { .test($0) }
                     }
+                    // запрос статуса уедет из updateUI -> requestStatus
+                    return
                 }
-                
+
                 self.currentIndex = min(self.currentIndex, self.items.count - 1)
                 await MainActor.run {
                     self.view?.updateUI(items: self.items, currentIndex: self.currentIndex)
                 }
+                // статус — по требованию из view.updateUI
             } catch {
                 print("Ошибка загрузки тестов: \(error)")
             }
         }
     }
 
+    // MARK: - Status
+    func requestStatus(for index: Int) {
+        guard index >= 0, index < items.count else { return }
+        let item = items[index]
+        switch item {
+        case .addButton:
+            view?.updateStatus("Создайте новый тест")
+        case .test(let test):
+            Task {
+                if di.currentUser.role == .student {
+                    let studentId = di.currentUser.userId ?? ""
+                    do {
+                        let attempt = try await di.resultService.fetchAttempt(testId: test.id, studentId: studentId)
+                        let text = (attempt != nil) ? "Статус: пройдено" : "Статус: не пройдено"
+                        await MainActor.run { self.view?.updateStatus(text) }
+                    } catch {
+                        await MainActor.run { self.view?.updateStatus("Статус: неизвестно") }
+                    }
+                } else {
+                    // учитель: сколько учеников прошли (уникальные studentId с попытками)
+                    do {
+                        let attempts = try await di.answerService.fetchAttempts(for: test.id)
+                        let unique = Set(attempts.map { $0.studentId })
+                        let total = test.studentIds.count
+                        let text = "Прошли: \(unique.count) из \(total)"
+                        await MainActor.run { self.view?.updateStatus(text) }
+                    } catch {
+                        await MainActor.run { self.view?.updateStatus("Прошли: —") }
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: - Navigation
     func didSelectNext() {
         guard currentIndex < items.count - 1 else { return }
         currentIndex += 1
@@ -100,11 +138,8 @@ final class DragonSelectPresenter: DragonSelectPresenterProtocol {
         }
     }
 
-
-
-
     func didFinishTest(completed: Int) {
-        if case let .test(test) = items[currentIndex] {
+        if case .test = items[currentIndex] {
             Task { @MainActor in
                 self.view?.updateUI(items: self.items, currentIndex: self.currentIndex)
             }

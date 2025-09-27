@@ -14,4 +14,6 @@ protocol DragonSelectPresenterProtocol: AnyObject {
     func didTapAdd()
     func didHoldStartTest()
     func didFinishTest(completed: Int)
+    func didCreateTest(_ test: Test)
+    func requestStatus(for index: Int)
 }
