@@ -32,6 +32,10 @@ final class ThemeManager {
 
     private init() { apply(current) }
 
+    func applyCurrentTheme() {
+        apply(current)
+    }
+
     private func apply(_ theme: AppTheme) {
         let style: UIUserInterfaceStyle
         switch theme {

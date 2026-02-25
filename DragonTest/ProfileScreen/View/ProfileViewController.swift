@@ -23,24 +23,32 @@ final class ProfileViewController: UIViewController {
     private let scrollView = UIScrollView()
     private let contentStack = UIStackView()
 
-    // MARK: - UI (правая панель)
-    private let dimView = UIView()
-    private let panelView = UIView()
-    private let panelGrabber = UIView()
-    private var panelLeadingConstraint: NSLayoutConstraint!
-    private let panelWidth: CGFloat = 320
-    private var panelIsVisible = false
-    private var panelPanStartX: CGFloat = 0
-    private let panelScrollView = UIScrollView()
-    private let panelListStack = UIStackView()
-
     // MARK: - Local state (только для UI)
     private var notifications: [String] = []
+    private weak var notificationsScreen: NotificationsScreenViewController?
     private var isWeekView = false
     private var currentDate = Date()
     private var studentActivityDates = Set<String>()
     private var teacherActivityDates = Set<String>()
     private var calendarCollectionView: UICollectionView?
+    private var statCards: [Int: ProfileStatCardView] = [:]
+    private var podiumViewsByPlace: [Int: ProfilePodiumCardView] = [:]
+    private var hasInitialStatsLoaded = false
+    private var hasInitialRatingLoaded = false
+    private var didNotifyInitialDataReady = false
+    private var shouldGateInitialContent = false
+    private var initialDataReadyHandler: (() -> Void)?
+    private let initialLoadingOverlay = UIVisualEffectView(effect: UIBlurEffect(style: .systemThinMaterial))
+    private let initialLoadingIndicator = UIActivityIndicatorView(style: .large)
+    private let initialLoadingLabel = UILabel()
+    private static let averageScoreFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.locale = Locale.current
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = 1
+        formatter.maximumFractionDigits = 1
+        return formatter
+    }()
     private var isStudentRole = true  // выставляется из setStats(_:), нужен для календаря и иконок
 
     // MARK: - Init
@@ -54,6 +62,20 @@ final class ProfileViewController: UIViewController {
         super.init(coder: coder)
     }
 
+    func prepareForInitialDataGate() {
+        shouldGateInitialContent = true
+        if isViewLoaded {
+            setInitialLoadingOverlayVisible(true, animated: false)
+        }
+    }
+
+    func setInitialDataReadyHandler(_ handler: @escaping () -> Void) {
+        initialDataReadyHandler = handler
+        if didNotifyInitialDataReady {
+            handler()
+        }
+    }
+
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -64,7 +86,10 @@ final class ProfileViewController: UIViewController {
         addStatsSection()
         addCalendarSection()
         addSudentsResultsSection()
-        setupRightPanel()
+        setupInitialLoadingOverlay()
+        if shouldGateInitialContent {
+            setInitialLoadingOverlayVisible(true, animated: false)
+        }
 
         presenter.attach(view: self)
         presenter.viewDidLoad()
@@ -215,108 +240,271 @@ private extension ProfileViewController {
         ])
     }
 
-    // Статистика (как была)
-    func addStatsSection() {
-        func makeStat(icon: String, value: String, title: String) -> UIView {
-            let container = SettingsGlassCard(radius: 12)
+    func setupInitialLoadingOverlay() {
+        initialLoadingOverlay.translatesAutoresizingMaskIntoConstraints = false
+        initialLoadingOverlay.isHidden = true
+        initialLoadingOverlay.alpha = 0
+        view.addSubview(initialLoadingOverlay)
+        NSLayoutConstraint.activate([
+            initialLoadingOverlay.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            initialLoadingOverlay.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            initialLoadingOverlay.topAnchor.constraint(equalTo: view.topAnchor),
+            initialLoadingOverlay.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
 
-            let avatar = UIImageView(image: UIImage(named: icon))
-            avatar.contentMode = .scaleAspectFit
-            avatar.translatesAutoresizingMaskIntoConstraints = false
-            NSLayoutConstraint.activate([
-                avatar.widthAnchor.constraint(equalToConstant: 25),
-                avatar.heightAnchor.constraint(equalToConstant: 25)
-            ])
+        let loadingCard = UIView()
+        loadingCard.translatesAutoresizingMaskIntoConstraints = false
+        loadingCard.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.55)
+        loadingCard.layer.cornerRadius = 16
+        loadingCard.layer.cornerCurve = .continuous
+        loadingCard.layer.borderWidth = 1
+        loadingCard.layer.borderColor = UIColor.white.withAlphaComponent(0.24).cgColor
+        initialLoadingOverlay.contentView.addSubview(loadingCard)
 
-            let valueLabel = UILabel()
-            valueLabel.text = value
-            valueLabel.font = .systemFont(ofSize: 20, weight: .bold)
-            valueLabel.textColor = .label
+        initialLoadingIndicator.hidesWhenStopped = false
+        initialLoadingIndicator.translatesAutoresizingMaskIntoConstraints = false
+        initialLoadingIndicator.startAnimating()
 
-            let titleLabel = UILabel()
-            titleLabel.text = title
-            titleLabel.font = .systemFont(ofSize: 14)
-            titleLabel.textColor = .secondaryLabel
+        initialLoadingLabel.text = "Загрузка профиля..."
+        initialLoadingLabel.font = .systemFont(ofSize: 15, weight: .semibold)
+        initialLoadingLabel.textColor = .label
+        initialLoadingLabel.translatesAutoresizingMaskIntoConstraints = false
 
-            let stack = UIStackView(arrangedSubviews: [avatar, valueLabel, titleLabel])
-            stack.axis = .vertical
-            stack.alignment = .center
-            stack.spacing = 4
-            stack.translatesAutoresizingMaskIntoConstraints = false
+        let stack = UIStackView(arrangedSubviews: [initialLoadingIndicator, initialLoadingLabel])
+        stack.axis = .vertical
+        stack.alignment = .center
+        stack.spacing = 12
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        loadingCard.addSubview(stack)
 
-            container.addSubview(stack)
-            NSLayoutConstraint.activate([
-                stack.centerXAnchor.constraint(equalTo: container.centerXAnchor),
-                stack.centerYAnchor.constraint(equalTo: container.centerYAnchor),
-                container.heightAnchor.constraint(equalToConstant: 100)
-            ])
+        NSLayoutConstraint.activate([
+            loadingCard.centerXAnchor.constraint(equalTo: initialLoadingOverlay.centerXAnchor),
+            loadingCard.centerYAnchor.constraint(equalTo: initialLoadingOverlay.centerYAnchor),
+            loadingCard.widthAnchor.constraint(equalToConstant: 190),
+            loadingCard.heightAnchor.constraint(equalToConstant: 140),
 
-            return container
+            stack.centerXAnchor.constraint(equalTo: loadingCard.centerXAnchor),
+            stack.centerYAnchor.constraint(equalTo: loadingCard.centerYAnchor)
+        ])
+    }
+
+    func setInitialLoadingOverlayVisible(_ visible: Bool, animated: Bool) {
+        guard shouldGateInitialContent else { return }
+        if visible {
+            initialLoadingOverlay.isHidden = false
         }
 
-        let dragons  = makeStat(icon: "dragon.icon", value: "5",   title: "Драконов")
-        let tests    = makeStat(icon: "📚",         value: "12",  title: "Пройдено тестов")
-        let teachers = makeStat(icon: "👥",         value: "3",   title: "Преподавателей")
-        let score    = makeStat(icon: "⭐️",         value: "87%", title: "Средний балл")
+        let changes = {
+            self.initialLoadingOverlay.alpha = visible ? 1 : 0
+        }
 
-        let row1 = UIStackView(arrangedSubviews: [dragons, tests])
+        let complete: (Bool) -> Void = { _ in
+            if !visible {
+                self.initialLoadingOverlay.isHidden = true
+            }
+        }
+
+        if animated {
+            UIView.animate(withDuration: 0.2, animations: changes, completion: complete)
+        } else {
+            changes()
+            complete(true)
+        }
+    }
+
+    func markInitialDataLoaded(stats: Bool = false, rating: Bool = false) {
+        if stats { hasInitialStatsLoaded = true }
+        if rating { hasInitialRatingLoaded = true }
+
+        guard hasInitialStatsLoaded, hasInitialRatingLoaded else { return }
+        guard !didNotifyInitialDataReady else { return }
+
+        didNotifyInitialDataReady = true
+        setInitialLoadingOverlayVisible(false, animated: true)
+        initialDataReadyHandler?()
+    }
+
+    func formatAverageScore(fromPercent percent: Double) -> String {
+        let clampedPercent = max(0, min(100, percent))
+        let score = clampedPercent / 10.0
+        if let localized = Self.averageScoreFormatter.string(from: NSNumber(value: score)) {
+            return localized
+        }
+        return String(format: "%.1f", score)
+    }
+
+    func makeSectionHeader(iconName: String, title: String, subtitle: String) -> UIStackView {
+        let iconWrap = UIView()
+        iconWrap.translatesAutoresizingMaskIntoConstraints = false
+        iconWrap.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.32)
+        iconWrap.layer.cornerRadius = 14
+        iconWrap.layer.cornerCurve = .continuous
+        NSLayoutConstraint.activate([
+            iconWrap.widthAnchor.constraint(equalToConstant: 28),
+            iconWrap.heightAnchor.constraint(equalToConstant: 28)
+        ])
+
+        let iconView = UIImageView(image: UIImage(systemName: iconName))
+        iconView.tintColor = .label
+        iconView.preferredSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: 14, weight: .semibold)
+        iconView.translatesAutoresizingMaskIntoConstraints = false
+        iconWrap.addSubview(iconView)
+        NSLayoutConstraint.activate([
+            iconView.centerXAnchor.constraint(equalTo: iconWrap.centerXAnchor),
+            iconView.centerYAnchor.constraint(equalTo: iconWrap.centerYAnchor)
+        ])
+
+        let titleLabel = UILabel()
+        titleLabel.text = title
+        titleLabel.font = .systemFont(ofSize: 18, weight: .bold)
+        titleLabel.textColor = .label
+
+        let subtitleLabel = UILabel()
+        subtitleLabel.text = subtitle
+        subtitleLabel.font = .systemFont(ofSize: 13, weight: .medium)
+        subtitleLabel.textColor = .secondaryLabel
+
+        let textStack = UIStackView(arrangedSubviews: [titleLabel, subtitleLabel])
+        textStack.axis = .vertical
+        textStack.spacing = 1
+
+        let header = UIStackView(arrangedSubviews: [iconWrap, textStack, UIView()])
+        header.axis = .horizontal
+        header.spacing = 10
+        header.alignment = .center
+        return header
+    }
+
+    // Статистика
+    func addStatsSection() {
+        let container = SettingsGlassCard(radius: 18)
+        container.translatesAutoresizingMaskIntoConstraints = false
+
+        let header = makeSectionHeader(
+            iconName: "chart.bar.fill",
+            title: "Статистика",
+            subtitle: "Ключевые показатели по вашему профилю"
+        )
+
+        let first = ProfileStatCardView(accentColor: UIColor(red: 0.95, green: 0.50, blue: 0.20, alpha: 1))
+        let second = ProfileStatCardView(accentColor: UIColor(red: 0.15, green: 0.55, blue: 0.95, alpha: 1))
+        let third = ProfileStatCardView(accentColor: UIColor(red: 0.18, green: 0.66, blue: 0.44, alpha: 1))
+        let fourth = ProfileStatCardView(accentColor: UIColor(red: 0.95, green: 0.75, blue: 0.16, alpha: 1))
+        [first, second, third, fourth].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            $0.heightAnchor.constraint(equalToConstant: 106).isActive = true
+        }
+
+        statCards = [1: first, 2: second, 3: third, 4: fourth]
+        first.configure(value: "0", title: "Драконов", iconName: "flame.fill")
+        second.configure(value: "0", title: "Пройдено тестов", iconName: "book.closed.fill")
+        third.configure(value: "0", title: "Преподавателей", iconName: "person.2.fill")
+        fourth.configure(value: formatAverageScore(fromPercent: 0), title: "Средний балл", iconName: "star.fill")
+
+        let row1 = UIStackView(arrangedSubviews: [first, second])
         row1.axis = .horizontal
-        row1.spacing = 12
+        row1.spacing = 10
         row1.distribution = .fillEqually
 
-        let row2 = UIStackView(arrangedSubviews: [teachers, score])
+        let row2 = UIStackView(arrangedSubviews: [third, fourth])
         row2.axis = .horizontal
-        row2.spacing = 12
+        row2.spacing = 10
         row2.distribution = .fillEqually
 
         let grid = UIStackView(arrangedSubviews: [row1, row2])
         grid.axis = .vertical
-        grid.spacing = 12
+        grid.spacing = 10
 
-        contentStack.addArrangedSubview(grid)
+        let stack = UIStackView(arrangedSubviews: [header, grid])
+        stack.axis = .vertical
+        stack.spacing = 14
+        stack.translatesAutoresizingMaskIntoConstraints = false
+
+        container.addSubview(stack)
+        NSLayoutConstraint.activate([
+            stack.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 14),
+            stack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -14),
+            stack.topAnchor.constraint(equalTo: container.topAnchor, constant: 14),
+            stack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -14)
+        ])
+
+        contentStack.addArrangedSubview(container)
     }
 
     // Календарь
     func addCalendarSection() {
-        let container = SettingsGlassCard(radius: 12)
+        let container = SettingsGlassCard(radius: 18)
         container.translatesAutoresizingMaskIntoConstraints = false
-        container.heightAnchor.constraint(equalToConstant: 300).isActive = true
+        container.heightAnchor.constraint(equalToConstant: 360).isActive = true
+
+        let header = makeSectionHeader(
+            iconName: "calendar",
+            title: "Календарь активности",
+            subtitle: "Отслеживайте регулярность занятий"
+        )
 
         let segment = UISegmentedControl(items: ["Неделя", "Месяц"])
         segment.selectedSegmentIndex = 1
+        segment.selectedSegmentTintColor = UIColor.white.withAlphaComponent(0.9)
+        segment.backgroundColor = UIColor.black.withAlphaComponent(0.10)
+        segment.layer.cornerRadius = 16
+        segment.layer.cornerCurve = .continuous
+        segment.clipsToBounds = true
+        segment.setTitleTextAttributes(
+            [.font: UIFont.systemFont(ofSize: 13, weight: .semibold)],
+            for: .normal
+        )
+        segment.setTitleTextAttributes(
+            [
+                .font: UIFont.systemFont(ofSize: 13, weight: .bold),
+                .foregroundColor: UIColor.black
+            ],
+            for: .selected
+        )
         segment.addTarget(self, action: #selector(calendarViewChanged(_:)), for: .valueChanged)
-
-        let calendarLabel = UILabel()
-        calendarLabel.text = "Календарь активности"
-        calendarLabel.font = .systemFont(ofSize: 16, weight: .medium)
-        calendarLabel.textAlignment = .center
-        calendarLabel.textColor = .secondaryLabel
+        segment.translatesAutoresizingMaskIntoConstraints = false
+        segment.heightAnchor.constraint(equalToConstant: 34).isActive = true
 
         let layout = UICollectionViewFlowLayout()
-        layout.minimumInteritemSpacing = 2
-        layout.minimumLineSpacing = 4
-        layout.sectionInset = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+        layout.minimumInteritemSpacing = 6
+        layout.minimumLineSpacing = 8
+        layout.sectionInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
 
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.heightAnchor.constraint(equalToConstant: 200).isActive = true
+        collectionView.heightAnchor.constraint(equalToConstant: 220).isActive = true
         collectionView.register(CalendarDayCell.self, forCellWithReuseIdentifier: "DayCell")
         collectionView.dataSource = self
         collectionView.delegate = self
         self.calendarCollectionView = collectionView
 
-        let stack = UIStackView(arrangedSubviews: [segment, calendarLabel, collectionView])
+        let collectionWrap = UIView()
+        collectionWrap.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.30)
+        collectionWrap.layer.cornerRadius = 16
+        collectionWrap.layer.cornerCurve = .continuous
+        collectionWrap.layer.borderWidth = 1
+        collectionWrap.layer.borderColor = UIColor.white.withAlphaComponent(0.18).cgColor
+        collectionWrap.translatesAutoresizingMaskIntoConstraints = false
+        collectionWrap.addSubview(collectionView)
+        NSLayoutConstraint.activate([
+            collectionView.leadingAnchor.constraint(equalTo: collectionWrap.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: collectionWrap.trailingAnchor),
+            collectionView.topAnchor.constraint(equalTo: collectionWrap.topAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: collectionWrap.bottomAnchor)
+        ])
+
+        let stack = UIStackView(arrangedSubviews: [header, segment, collectionWrap])
         stack.axis = .vertical
         stack.spacing = 12
         stack.translatesAutoresizingMaskIntoConstraints = false
 
         container.addSubview(stack)
         NSLayoutConstraint.activate([
-            stack.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
-            stack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
-            stack.topAnchor.constraint(equalTo: container.topAnchor, constant: 16),
-            stack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -16)
+            stack.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 14),
+            stack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -14),
+            stack.topAnchor.constraint(equalTo: container.topAnchor, constant: 14),
+            stack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -14)
         ])
 
         contentStack.addArrangedSubview(container)
@@ -324,287 +512,60 @@ private extension ProfileViewController {
 
     // Подиум
     func addSudentsResultsSection() {
-        let container = SettingsGlassCard(radius: 16)
+        let container = SettingsGlassCard(radius: 18)
         container.translatesAutoresizingMaskIntoConstraints = false
-        container.heightAnchor.constraint(equalToConstant: 450).isActive = true
+        container.heightAnchor.constraint(equalToConstant: 390).isActive = true
 
-        let titleLabel = UILabel()
-        titleLabel.text = "Рейтинг прохождения тестов"
-        titleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
-        titleLabel.textColor = .label
+        let header = makeSectionHeader(
+            iconName: "trophy.fill",
+            title: "Рейтинг прохождения",
+            subtitle: "Лучшие результаты среди студентов"
+        )
 
-        func makeStudentView(place: Int, name: String, score: String, imageName: String) -> UIView {
-            let column = UIView()
+        let first = ProfilePodiumCardView(place: 1)
+        let second = ProfilePodiumCardView(place: 2)
+        let third = ProfilePodiumCardView(place: 3)
+        [first, second, third].forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
+        podiumViewsByPlace = [1: first, 2: second, 3: third]
 
-            let avatar = UIImageView(image: UIImage(named: imageName))
-            avatar.contentMode = .scaleAspectFill
-            avatar.layer.cornerRadius = 30
-            avatar.clipsToBounds = true
-            avatar.translatesAutoresizingMaskIntoConstraints = false
-            NSLayoutConstraint.activate([
-                avatar.widthAnchor.constraint(equalToConstant: 60),
-                avatar.heightAnchor.constraint(equalToConstant: 60)
-            ])
-
-            let kind: DragonKind = {
-                switch place {
-                case 1: return .red
-                case 2: return .green
-                default: return .blue
-                }
-            }()
-
-            let podium = UIView()
-            podium.layer.cornerRadius = 12
-            podium.clipsToBounds = true
-            podium.translatesAutoresizingMaskIntoConstraints = false
-            NSLayoutConstraint.activate([
-                podium.heightAnchor.constraint(equalToConstant: place == 1 ? 140 : 100),
-                podium.widthAnchor.constraint(equalToConstant: 105)
-            ])
-
-            let gradient = GradientBackground.attach(to: podium, colors: kind.gradientColors)
-            DispatchQueue.main.async { gradient.frame = podium.bounds }
-
-            switch place {
-            case 1:
-                podium.layer.borderWidth = 2
-                podium.layer.borderColor = UIColor(red: 0.99, green: 0.84, blue: 0.33, alpha: 1).cgColor
-            case 2:
-                podium.layer.borderWidth = 2
-                podium.layer.borderColor = UIColor(white: 0.85, alpha: 1).cgColor
-            case 3:
-                podium.layer.borderWidth = 2
-                podium.layer.borderColor = UIColor(red: 0.80, green: 0.55, blue: 0.30, alpha: 1).cgColor
-            default: break
-            }
-
-            let placeLabel = UILabel()
-            placeLabel.text = {
-                switch place {
-                case 1: return "1 🏆"
-                case 2: return "2 🥈"
-                case 3: return "3 🥉"
-                default: return "\(place)"
-                }
-            }()
-            placeLabel.font = .systemFont(ofSize: 20, weight: .bold)
-            placeLabel.textColor = .white
-            placeLabel.textAlignment = .center
-
-            let nameLabel = UILabel()
-            nameLabel.text = name
-            nameLabel.font = .systemFont(ofSize: 14, weight: .medium)
-            nameLabel.textColor = .white
-            nameLabel.textAlignment = .center
-
-            let scoreLabel = UILabel()
-            scoreLabel.text = score
-            scoreLabel.font = .systemFont(ofSize: 12)
-            scoreLabel.textColor = .white
-            scoreLabel.textAlignment = .center
-
-            let vstack = UIStackView(arrangedSubviews: [placeLabel, nameLabel, scoreLabel])
-            vstack.axis = .vertical
-            vstack.alignment = .center
-            vstack.spacing = 4
-            vstack.translatesAutoresizingMaskIntoConstraints = false
-
-            podium.addSubview(vstack)
-            NSLayoutConstraint.activate([
-                vstack.centerXAnchor.constraint(equalTo: podium.centerXAnchor),
-                vstack.centerYAnchor.constraint(equalTo: podium.centerYAnchor)
-            ])
-
-            let stack = UIStackView(arrangedSubviews: [avatar, podium])
-            stack.axis = .vertical
-            stack.alignment = .center
-            stack.spacing = 8
-
-            column.addSubview(stack)
-            stack.translatesAutoresizingMaskIntoConstraints = false
-            NSLayoutConstraint.activate([
-                stack.leadingAnchor.constraint(equalTo: column.leadingAnchor),
-                stack.trailingAnchor.constraint(equalTo: column.trailingAnchor),
-                stack.topAnchor.constraint(equalTo: column.topAnchor),
-                stack.bottomAnchor.constraint(equalTo: column.bottomAnchor)
-            ])
-
-            return column
-        }
-
-        let first  = makeStudentView(place: 1, name: "Maxwell", score: "7,120", imageName: "teacher1")
-        let second = makeStudentView(place: 2, name: "Camelia", score: "6,500", imageName: "teacher2")
-        let third  = makeStudentView(place: 3, name: "Wilson", score: "4,800", imageName: "teacher3")
+        first.configure(name: "—", score: "0", avatar: nil)
+        second.configure(name: "—", score: "0", avatar: nil)
+        third.configure(name: "—", score: "0", avatar: nil)
 
         let podiumStack = UIStackView(arrangedSubviews: [second, first, third])
         podiumStack.axis = .horizontal
         podiumStack.alignment = .bottom
-        podiumStack.distribution = .equalSpacing
-        podiumStack.spacing = 12
+        podiumStack.distribution = .fillEqually
+        podiumStack.spacing = 8
+        podiumStack.translatesAutoresizingMaskIntoConstraints = false
 
-        let mainStack = UIStackView(arrangedSubviews: [titleLabel, podiumStack])
+        let mainStack = UIStackView(arrangedSubviews: [header, podiumStack])
         mainStack.axis = .vertical
-        mainStack.spacing = 32
+        mainStack.spacing = 18
 
         container.addSubview(mainStack)
         mainStack.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            mainStack.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
-            mainStack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
-            mainStack.topAnchor.constraint(equalTo: container.topAnchor, constant: 24),
+            mainStack.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 14),
+            mainStack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -14),
+            mainStack.topAnchor.constraint(equalTo: container.topAnchor, constant: 14),
             mainStack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -16)
         ])
 
         contentStack.addArrangedSubview(container)
     }
 
-    // Правая панель
-    func setupRightPanel() {
-        dimView.backgroundColor = UIColor.black.withAlphaComponent(0.2)
-        dimView.alpha = 0
-        dimView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(dimView)
-        NSLayoutConstraint.activate([
-            dimView.topAnchor.constraint(equalTo: view.topAnchor),
-            dimView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            dimView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            dimView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
-        dimView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(hidePanel)))
-
-        panelView.backgroundColor = .systemBackground
-        panelView.layer.cornerRadius = 20
-        panelView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMinXMaxYCorner]
-        panelView.layer.shadowColor = UIColor.black.cgColor
-        panelView.layer.shadowOpacity = 0.15
-        panelView.layer.shadowOffset = CGSize(width: -2, height: 0)
-        panelView.layer.shadowRadius = 8
-        panelView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(panelView)
-
-        panelLeadingConstraint = panelView.leadingAnchor.constraint(equalTo: view.trailingAnchor)
-        NSLayoutConstraint.activate([
-            panelLeadingConstraint,
-            panelView.topAnchor.constraint(equalTo: view.topAnchor),
-            panelView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            panelView.widthAnchor.constraint(equalToConstant: panelWidth)
-        ])
-
-        panelGrabber.backgroundColor = UIColor.secondaryLabel.withAlphaComponent(0.3)
-        panelGrabber.layer.cornerRadius = 2
-
-        let title = UILabel()
-        title.text = "Уведомления"
-        title.font = .systemFont(ofSize: 20, weight: .semibold)
-
-        let clearBtn = UIButton(type: .system)
-        clearBtn.setTitle("Очистить", for: .normal)
-        clearBtn.addTarget(self, action: #selector(clearAllNotifications), for: .touchUpInside)
-
-        let closeBtn = UIButton(type: .system)
-        closeBtn.setTitle("Закрыть", for: .normal)
-        closeBtn.addTarget(self, action: #selector(hidePanel), for: .touchUpInside)
-
-        let header = UIStackView(arrangedSubviews: [title, clearBtn, UIView(), closeBtn])
-        header.axis = .horizontal
-        header.alignment = .center
-        header.spacing = 9
-
-        panelListStack.axis = .vertical
-        panelListStack.spacing = 12
-        panelListStack.translatesAutoresizingMaskIntoConstraints = false
-
-        panelScrollView.alwaysBounceVertical = true
-        panelScrollView.showsVerticalScrollIndicator = true
-        panelScrollView.translatesAutoresizingMaskIntoConstraints = false
-        panelScrollView.addSubview(panelListStack)
-
-        NSLayoutConstraint.activate([
-            panelListStack.leadingAnchor.constraint(equalTo: panelScrollView.contentLayoutGuide.leadingAnchor),
-            panelListStack.trailingAnchor.constraint(equalTo: panelScrollView.contentLayoutGuide.trailingAnchor),
-            panelListStack.topAnchor.constraint(equalTo: panelScrollView.contentLayoutGuide.topAnchor),
-            panelListStack.bottomAnchor.constraint(equalTo: panelScrollView.contentLayoutGuide.bottomAnchor),
-            panelListStack.widthAnchor.constraint(equalTo: panelScrollView.frameLayoutGuide.widthAnchor)
-        ])
-
-        let panelStack = UIStackView(arrangedSubviews: [panelGrabber, header, panelScrollView])
-        panelStack.axis = .vertical
-        panelStack.spacing = 16
-        panelStack.translatesAutoresizingMaskIntoConstraints = false
-        panelView.addSubview(panelStack)
-
-        NSLayoutConstraint.activate([
-            panelGrabber.heightAnchor.constraint(equalToConstant: 4),
-            panelGrabber.widthAnchor.constraint(equalToConstant: 36),
-
-            panelStack.topAnchor.constraint(equalTo: panelView.safeAreaLayoutGuide.topAnchor, constant: 12),
-            panelStack.leadingAnchor.constraint(equalTo: panelView.leadingAnchor, constant: 16),
-            panelStack.trailingAnchor.constraint(equalTo: panelView.trailingAnchor, constant: -16),
-            panelStack.bottomAnchor.constraint(equalTo: panelView.safeAreaLayoutGuide.bottomAnchor, constant: -16)
-        ])
-
-        panelView.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handlePanelPan(_:))))
-    }
-
-    // MARK: - Panel helpers
-    func showPanel(animated: Bool = true) {
-        guard !panelIsVisible else { return }
-        panelIsVisible = true
-        panelLeadingConstraint.constant = -panelWidth
-        let animations = {
-            self.view.layoutIfNeeded()
-            self.dimView.alpha = 1
-        }
-        if animated {
-            UIView.animate(withDuration: 0.28, delay: 0, options: [.curveEaseOut]) { animations() }
-        } else {
-            animations()
-        }
-    }
-
-    @objc func hidePanel() {
-        guard panelIsVisible else { return }
-        panelIsVisible = false
-        panelLeadingConstraint.constant = 0
-        UIView.animate(withDuration: 0.26, delay: 0, options: [.curveEaseIn]) {
-            self.view.layoutIfNeeded()
-            self.dimView.alpha = 0
-        }
-    }
-
-    @objc func handlePanelPan(_ g: UIPanGestureRecognizer) {
-        let translation = g.translation(in: view).x
-        switch g.state {
-        case .began:
-            panelPanStartX = panelLeadingConstraint.constant
-        case .changed:
-            let next = min(0, panelPanStartX + translation)
-            panelLeadingConstraint.constant = next
-            let visibleRatio = 1 - abs(next) / panelWidth
-            dimView.alpha = max(0, min(1, visibleRatio))
-            view.layoutIfNeeded()
-        case .ended, .cancelled:
-            let velocityX = g.velocity(in: view).x
-            let shouldClose = (velocityX > 500) || (panelLeadingConstraint.constant > -panelWidth * 0.5)
-            if shouldClose { hidePanel() } else { showPanel() }
-        default: break
-        }
-    }
 }
 
 // MARK: - Actions
 private extension ProfileViewController {
     @objc func didTapBell() {
         presenter.didTapBell()
-        showPanel()
-    }
 
-    @objc func clearAllNotifications() {
-        // мгновенно чистим локальный UI, а затем просим презентер сбросить источник
-        self.notifications.removeAll()
-        updateNotificationList()
-        presenter.clearNotifications()
+        let vc = NotificationsScreenViewController(notifications: notifications)
+        vc.hidesBottomBarWhenPushed = true
+        notificationsScreen = vc
+        navigationController?.pushViewController(vc, animated: true)
     }
 
     @objc func calendarViewChanged(_ sender: UISegmentedControl) {
@@ -627,92 +588,23 @@ extension ProfileViewController: ProfileViewProtocol {
 
     func setNotifications(_ items: [String]) {
         self.notifications = items
-        updateNotificationList()
+        notificationsScreen?.updateNotifications(items)
     }
 
     func setStats(_ vm: ProfileStatsViewModel) {
         isStudentRole = vm.isStudent
-
-        // Найдём грид
-        guard let gridStack = contentStack.arrangedSubviews.first as? UIStackView,
-              let firstRow  = gridStack.arrangedSubviews.first as? UIStackView,
-              let secondRow = gridStack.arrangedSubviews.count > 1 ? gridStack.arrangedSubviews[1] as? UIStackView : nil
-        else { return }
-
-        let firstCard  = firstRow.arrangedSubviews.first
-        let secondCard = firstRow.arrangedSubviews.count > 1 ? firstRow.arrangedSubviews[1] : nil
-
-        func findValueLabel(in view: UIView) -> UILabel? {
-            if let label = view as? UILabel,
-               label.font?.pointSize == 20,
-               label.font?.fontDescriptor.symbolicTraits.contains(.traitBold) == true { return label }
-            for sub in view.subviews { if let f = findValueLabel(in: sub) { return f } }
-            return nil
+        if vm.isStudent {
+            statCards[1]?.configure(value: "\(vm.dragonsCount)", title: "Драконов", iconName: "flame.fill")
+            statCards[2]?.configure(value: "\(vm.studentTestsCount)", title: "Пройдено тестов", iconName: "book.closed.fill")
+            statCards[3]?.configure(value: "\(vm.studentTeachersCount)", title: "Преподавателей", iconName: "person.2.fill")
+            statCards[4]?.configure(value: formatAverageScore(fromPercent: vm.studentAveragePercent), title: "Средний балл", iconName: "star.fill")
+        } else {
+            statCards[1]?.configure(value: "\(vm.excellentStudentsCount)", title: "Отличников", iconName: "trophy.fill")
+            statCards[2]?.configure(value: "\(vm.teacherTestsCount)", title: "Тестов создано", iconName: "doc.text.fill")
+            statCards[3]?.configure(value: "\(vm.teacherStudentsCount)", title: "Студентов", iconName: "graduationcap.fill")
+            statCards[4]?.configure(value: formatAverageScore(fromPercent: vm.teacherStudentsAveragePercent), title: "Средний балл учеников", iconName: "chart.bar.fill")
         }
-
-        func findTitleLabel(in view: UIView) -> UILabel? {
-            if let label = view as? UILabel,
-               label.font?.pointSize == 14,
-               label.textColor == .secondaryLabel { return label }
-            for sub in view.subviews { if let f = findTitleLabel(in: sub) { return f } }
-            return nil
-        }
-
-        // 1
-        if let c = firstCard,
-           let v = findValueLabel(in: c),
-           let t = findTitleLabel(in: c) {
-            if vm.isStudent {
-                v.text = "\(vm.dragonsCount)"
-                t.text = "Драконов"
-            } else {
-                v.text = "\(vm.excellentStudentsCount)"
-                t.text = "Отличников"
-            }
-            updateIcons(in: c, forStudent: vm.isStudent, position: 1)
-        }
-
-        // 2
-        if let c = secondCard,
-           let v = findValueLabel(in: c),
-           let t = findTitleLabel(in: c) {
-            if vm.isStudent {
-                v.text = "\(vm.studentTestsCount)"
-                t.text = "Пройдено тестов"
-            } else {
-                v.text = "\(vm.teacherTestsCount)"
-                t.text = "Тестов создано"
-            }
-            updateIcons(in: c, forStudent: vm.isStudent, position: 2)
-        }
-
-        // 3
-        if let c = secondRow.arrangedSubviews.first,
-           let v = findValueLabel(in: c),
-           let t = findTitleLabel(in: c) {
-            if vm.isStudent {
-                v.text = "\(vm.studentTeachersCount)"
-                t.text = "Преподавателей"
-            } else {
-                v.text = "\(vm.teacherStudentsCount)"
-                t.text = "Студентов"
-            }
-            updateIcons(in: c, forStudent: vm.isStudent, position: 3)
-        }
-
-        // 4
-        if let c = secondRow.arrangedSubviews.count > 1 ? secondRow.arrangedSubviews[1] : nil,
-           let v = findValueLabel(in: c),
-           let t = findTitleLabel(in: c) {
-            if vm.isStudent {
-                v.text = String(format: "%.0f%%", vm.studentAveragePercent)
-                t.text = "Средний балл"
-            } else {
-                v.text = String(format: "%.0f%%", vm.teacherStudentsAveragePercent)
-                t.text = "Средний балл учеников"
-            }
-            updateIcons(in: c, forStudent: vm.isStudent, position: 4)
-        }
+        markInitialDataLoaded(stats: true)
     }
 
     func setActivityDates(student: Set<String>, teacher: Set<String>) {
@@ -723,30 +615,23 @@ extension ProfileViewController: ProfileViewProtocol {
     func reloadCalendar() { calendarCollectionView?.reloadData() }
 
     func setRating(_ items: [RatingItem], avatars: [String: UIImage]) {
-        guard let container = contentStack.arrangedSubviews.last as? SettingsGlassCard else { return }
-
-        func findPodiumStack(in view: UIView) -> UIStackView? {
-            if let stack = view as? UIStackView,
-               stack.axis == .horizontal,
-               stack.arrangedSubviews.count == 3 { return stack }
-            for sub in view.subviews { if let f = findPodiumStack(in: sub) { return f } }
-            return nil
-        }
-
-        guard let podiumStack = findPodiumStack(in: container) else { return }
-
-        let topThree = Array(items.prefix(3)) // уже с place
-        for (index, podiumView) in podiumStack.arrangedSubviews.enumerated() {
-            let place = index == 0 ? 2 : (index == 1 ? 1 : 3) // порядок 2-1-3
+        let topThree = Array(items.prefix(3))
+        for place in 1...3 {
             if let student = topThree.first(where: { $0.place == place }) {
-                updatePodiumView(podiumView,
-                                 name: student.displayName,
-                                 score: "\(student.totalScore)",
-                                 avatar: avatars[student.studentId])
+                podiumViewsByPlace[place]?.configure(
+                    name: student.displayName,
+                    score: "\(student.totalScore)",
+                    avatar: avatars[student.studentId]
+                )
             } else {
-                updatePodiumView(podiumView, name: "—", score: "0", avatar: UIImage(named: "avatar"))
+                podiumViewsByPlace[place]?.configure(
+                    name: "—",
+                    score: "0",
+                    avatar: nil
+                )
             }
         }
+        markInitialDataLoaded(rating: true)
     }
 
     func showAlert(title: String, message: String) {
@@ -756,136 +641,298 @@ extension ProfileViewController: ProfileViewProtocol {
     }
 }
 
-// MARK: - Helpers (icons, notifications, podium)
-private extension ProfileViewController {
+private final class ProfileStatCardView: UIView {
+    private let accentColor: UIColor
+    private let iconWrap = UIView()
+    private let iconView = UIImageView()
+    private let valueLabel = UILabel()
+    private let titleLabel = UILabel()
 
-    func updateIcons(in view: UIView?, forStudent: Bool, position: Int) {
-        guard let view = view else { return }
-
-        func findIconView(in v: UIView) -> UIImageView? {
-            if let stack = v as? UIStackView, stack.axis == .vertical {
-                if let first = stack.arrangedSubviews.first as? UIImageView { return first }
-            }
-            for sub in v.subviews { if let f = findIconView(in: sub) { return f } }
-            return nil
-        }
-
-        guard let iconView = findIconView(in: view) else { return }
-
-        let iconName: String
-        switch position {
-        case 1: iconName = forStudent ? "flame.fill" : "trophy.fill"
-        case 2: iconName = forStudent ? "book.fill" : "doc.text.fill"
-        case 3: iconName = forStudent ? "person.2.fill" : "graduationcap.fill"
-        case 4: iconName = forStudent ? "star.fill" : "chart.bar.fill"
-        default: iconName = "questionmark"
-        }
-
-        let config = UIImage.SymbolConfiguration(pointSize: 25, weight: .medium)
-        iconView.image = UIImage(systemName: iconName, withConfiguration: config)
-        iconView.tintColor = .black
+    init(accentColor: UIColor) {
+        self.accentColor = accentColor
+        super.init(frame: .zero)
+        setupUI()
     }
 
-    func updatePodiumView(_ view: UIView, name: String, score: String, avatar: UIImage?) {
-        func findTargets(in v: UIView) -> (name: UILabel?, score: UILabel?, avatar: UIImageView?) {
-            var nameLabel: UILabel?
-            var scoreLabel: UILabel?
-            var avatarView: UIImageView?
-            func scan(_ node: UIView) {
-                if let l = node as? UILabel {
-                    if l.font?.pointSize == 14 { nameLabel = l }
-                    else if l.font?.pointSize == 12 { scoreLabel = l }
-                } else if let img = node as? UIImageView, img.layer.cornerRadius == 30 {
-                    avatarView = img
-                }
-                node.subviews.forEach { scan($0) }
-            }
-            scan(v)
-            return (nameLabel, scoreLabel, avatarView)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    func configure(value: String, title: String, iconName: String) {
+        valueLabel.text = value
+        titleLabel.text = title
+        iconView.image = UIImage(systemName: iconName)
+        iconView.tintColor = accentColor
+    }
+
+    private func setupUI() {
+        layer.cornerRadius = 14
+        layer.cornerCurve = .continuous
+        layer.borderWidth = 1
+        layer.borderColor = UIColor.white.withAlphaComponent(0.22).cgColor
+        backgroundColor = UIColor.systemBackground.withAlphaComponent(0.32)
+
+        iconWrap.backgroundColor = accentColor.withAlphaComponent(0.18)
+        iconWrap.layer.cornerRadius = 12
+        iconWrap.layer.cornerCurve = .continuous
+        iconWrap.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            iconWrap.widthAnchor.constraint(equalToConstant: 28),
+            iconWrap.heightAnchor.constraint(equalToConstant: 28)
+        ])
+
+        iconView.preferredSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: 14, weight: .bold)
+        iconView.translatesAutoresizingMaskIntoConstraints = false
+        iconWrap.addSubview(iconView)
+        NSLayoutConstraint.activate([
+            iconView.centerXAnchor.constraint(equalTo: iconWrap.centerXAnchor),
+            iconView.centerYAnchor.constraint(equalTo: iconWrap.centerYAnchor)
+        ])
+
+        valueLabel.font = .systemFont(ofSize: 30, weight: .heavy)
+        valueLabel.textColor = .label
+        valueLabel.adjustsFontSizeToFitWidth = true
+        valueLabel.minimumScaleFactor = 0.65
+
+        titleLabel.font = .systemFont(ofSize: 13, weight: .semibold)
+        titleLabel.textColor = .secondaryLabel
+        titleLabel.numberOfLines = 2
+
+        let topRow = UIStackView(arrangedSubviews: [iconWrap, UIView()])
+        topRow.axis = .horizontal
+
+        let stack = UIStackView(arrangedSubviews: [topRow, valueLabel, titleLabel])
+        stack.axis = .vertical
+        stack.spacing = 6
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(stack)
+
+        NSLayoutConstraint.activate([
+            stack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
+            stack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12),
+            stack.topAnchor.constraint(equalTo: topAnchor, constant: 12),
+            stack.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -12)
+        ])
+    }
+}
+
+private final class ProfilePodiumCardView: UIView {
+    private let place: Int
+    private let placeColor: UIColor
+    private let secondaryColor: UIColor
+    private let pedestalHeight: CGFloat
+    private let pedestalWidth: CGFloat
+    private let badgeLabel = UILabel()
+    private let avatarView = UIImageView()
+    private let avatarPlaceholder = UIImageView()
+    private let pedestal = UIView()
+    private let pedestalGradient = CAGradientLayer()
+    private let nameLabel = UILabel()
+    private let scoreLabel = UILabel()
+
+    init(place: Int) {
+        self.place = place
+
+        switch place {
+        case 1:
+            self.placeColor = UIColor(red: 0.95, green: 0.72, blue: 0.12, alpha: 1)
+            self.secondaryColor = UIColor(red: 0.86, green: 0.50, blue: 0.08, alpha: 1)
+            self.pedestalHeight = 170
+            self.pedestalWidth = 126
+        case 2:
+            self.placeColor = UIColor(red: 0.66, green: 0.70, blue: 0.76, alpha: 1)
+            self.secondaryColor = UIColor(red: 0.42, green: 0.46, blue: 0.53, alpha: 1)
+            self.pedestalHeight = 142
+            self.pedestalWidth = 118
+        default:
+            self.placeColor = UIColor(red: 0.77, green: 0.55, blue: 0.36, alpha: 1)
+            self.secondaryColor = UIColor(red: 0.58, green: 0.39, blue: 0.24, alpha: 1)
+            self.pedestalHeight = 126
+            self.pedestalWidth = 112
         }
 
-        let (nameLabel, scoreLabel, avatarView) = findTargets(in: view)
-
-        // Разбиваем "Фамилия И.О." на две строки (как было)
-        let comps = name.components(separatedBy: " ")
-        let surname = comps.first ?? ""
-        let initials = comps.dropFirst().joined(separator: " ")
-        nameLabel?.text = "\(surname)\n\(initials)"
-        nameLabel?.numberOfLines = 2
-        nameLabel?.textAlignment = .center
-        nameLabel?.textColor = .black
-        nameLabel?.font = .systemFont(ofSize: 12, weight: .medium)
-
-        scoreLabel?.text = score
-        scoreLabel?.textColor = .black
-
-        avatarView?.image = avatar ?? UIImage(named: "avatar")
+        super.init(frame: .zero)
+        setupUI()
     }
 
-    func updateNotificationList() {
-        panelListStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
-
-        notifications.forEach { notification in
-            let container = UIView()
-            let score = scoreFromNotification(notification)
-            container.backgroundColor = backgroundColor(for: score)
-            container.layer.cornerRadius = 12
-            container.layer.shadowColor = UIColor.black.cgColor
-            container.layer.shadowOpacity = 0.5
-            container.layer.shadowOffset = CGSize(width: 0, height: 3)
-            container.layer.shadowRadius = 6
-
-            let icon = UIImageView(image: UIImage(systemName: "book.fill"))
-            icon.tintColor = .systemBlue
-            icon.contentMode = .scaleAspectFit
-            icon.translatesAutoresizingMaskIntoConstraints = false
-            icon.heightAnchor.constraint(equalToConstant: 40).isActive = true
-            icon.widthAnchor.constraint(equalToConstant: 40).isActive = true
-
-            let label = UILabel()
-            label.text = notification
-            label.font = .systemFont(ofSize: 16, weight: .semibold)
-            label.textColor = .label
-            label.numberOfLines = 0
-
-            let stack = UIStackView(arrangedSubviews: [icon, label])
-            stack.axis = .horizontal
-            stack.spacing = 10
-            stack.alignment = .center
-            stack.translatesAutoresizingMaskIntoConstraints = false
-
-            container.addSubview(stack)
-            NSLayoutConstraint.activate([
-                stack.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
-                stack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
-                stack.topAnchor.constraint(equalTo: container.topAnchor, constant: 8),
-                stack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -8)
-            ])
-
-            panelListStack.addArrangedSubview(container)
-        }
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 
-    func scoreFromNotification(_ text: String) -> Int? {
-        let pattern = #"Ваш балл:\s*(\d+)"#
-        guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { return nil }
-        let range = NSRange(location: 0, length: (text as NSString).length)
-        guard let match = regex.firstMatch(in: text, options: [], range: range), match.numberOfRanges >= 2 else { return nil }
-        let nsText = text as NSString
-        let valueString = nsText.substring(with: match.range(at: 1))
-        return Int(valueString)
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        pedestal.layoutIfNeeded()
+        pedestalGradient.frame = pedestal.bounds
     }
 
-    func backgroundColor(for score: Int?) -> UIColor {
-        guard let score = score else { return UIColor(white: 0.95, alpha: 1) }
-        if score < 160 {
-            return UIColor(red: 1.0, green: 0.90, blue: 0.90, alpha: 1.0)
-        } else if score < 300 {
-            return UIColor(red: 1.0, green: 0.97, blue: 0.85, alpha: 1.0)
-        } else if score <= 400 {
-            return UIColor(red: 0.90, green: 1.0, blue: 0.90, alpha: 1.0)
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        guard previousTraitCollection?.userInterfaceStyle != traitCollection.userInterfaceStyle else { return }
+        applyTheme()
+    }
+
+    func configure(name: String, score: String, avatar: UIImage?) {
+        nameLabel.text = compactDisplayName(name)
+        scoreLabel.text = "Балл: \(score)"
+
+        if name == "—" || avatar == nil {
+            avatarView.image = nil
+            avatarPlaceholder.isHidden = false
         } else {
-            return UIColor(white: 0.95, alpha: 1)
+            avatarView.image = avatar
+            avatarPlaceholder.isHidden = true
+        }
+    }
+
+    private func setupUI() {
+        let badgeText: String = {
+            switch place {
+            case 1: return "1 место"
+            case 2: return "2 место"
+            default: return "3 место"
+            }
+        }()
+
+        badgeLabel.text = badgeText
+        badgeLabel.font = .systemFont(ofSize: 12, weight: .bold)
+        badgeLabel.textAlignment = .center
+        badgeLabel.layer.cornerRadius = 10
+        badgeLabel.layer.cornerCurve = .continuous
+        badgeLabel.clipsToBounds = true
+        badgeLabel.translatesAutoresizingMaskIntoConstraints = false
+        badgeLabel.heightAnchor.constraint(equalToConstant: 22).isActive = true
+        badgeLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 84).isActive = true
+
+        avatarView.contentMode = .scaleAspectFill
+        avatarView.layer.cornerRadius = 30
+        avatarView.layer.cornerCurve = .continuous
+        avatarView.layer.borderWidth = 2
+        avatarView.clipsToBounds = true
+        avatarView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            avatarView.widthAnchor.constraint(equalToConstant: 60),
+            avatarView.heightAnchor.constraint(equalToConstant: 60)
+        ])
+
+        avatarPlaceholder.image = UIImage(systemName: "person.fill")
+        avatarPlaceholder.preferredSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: 24, weight: .bold)
+        avatarPlaceholder.contentMode = .scaleAspectFit
+        avatarPlaceholder.translatesAutoresizingMaskIntoConstraints = false
+        avatarView.addSubview(avatarPlaceholder)
+        NSLayoutConstraint.activate([
+            avatarPlaceholder.centerXAnchor.constraint(equalTo: avatarView.centerXAnchor),
+            avatarPlaceholder.centerYAnchor.constraint(equalTo: avatarView.centerYAnchor)
+        ])
+
+        pedestal.layer.cornerRadius = 16
+        pedestal.layer.cornerCurve = .continuous
+        pedestal.layer.borderWidth = 1.5
+        pedestal.clipsToBounds = true
+        pedestal.translatesAutoresizingMaskIntoConstraints = false
+        pedestal.heightAnchor.constraint(equalToConstant: pedestalHeight).isActive = true
+        pedestal.widthAnchor.constraint(equalToConstant: pedestalWidth).isActive = true
+        pedestalGradient.startPoint = CGPoint(x: 0, y: 0)
+        pedestalGradient.endPoint = CGPoint(x: 1, y: 1)
+        pedestal.layer.insertSublayer(pedestalGradient, at: 0)
+
+        nameLabel.font = .systemFont(ofSize: 12, weight: .bold)
+        nameLabel.numberOfLines = 3
+        nameLabel.lineBreakMode = .byWordWrapping
+        nameLabel.textAlignment = .center
+
+        scoreLabel.font = .systemFont(ofSize: 12, weight: .semibold)
+        scoreLabel.textAlignment = .center
+
+        let pedestalText = UIStackView(arrangedSubviews: [nameLabel, scoreLabel])
+        pedestalText.axis = .vertical
+        pedestalText.spacing = 6
+        pedestalText.translatesAutoresizingMaskIntoConstraints = false
+        pedestal.addSubview(pedestalText)
+        NSLayoutConstraint.activate([
+            pedestalText.leadingAnchor.constraint(equalTo: pedestal.leadingAnchor, constant: 8),
+            pedestalText.trailingAnchor.constraint(equalTo: pedestal.trailingAnchor, constant: -8),
+            pedestalText.centerYAnchor.constraint(equalTo: pedestal.centerYAnchor)
+        ])
+
+        let stack = UIStackView(arrangedSubviews: [badgeLabel, avatarView, pedestal])
+        stack.axis = .vertical
+        stack.spacing = 10
+        stack.alignment = .center
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(stack)
+
+        NSLayoutConstraint.activate([
+            stack.leadingAnchor.constraint(equalTo: leadingAnchor),
+            stack.trailingAnchor.constraint(equalTo: trailingAnchor),
+            stack.topAnchor.constraint(equalTo: topAnchor),
+            stack.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
+
+        applyTheme()
+    }
+
+    private func compactDisplayName(_ name: String) -> String {
+        guard name != "—" else { return "—" }
+
+        let parts = name.split(separator: " ")
+        guard let firstPart = parts.first else { return name }
+
+        var surname = String(firstPart)
+        if surname.count > 11 {
+            let prefix = surname.prefix(10)
+            surname = "\(prefix)…"
+        }
+
+        let rest = parts.dropFirst().joined(separator: " ")
+        if rest.isEmpty { return surname }
+        return "\(surname)\n\(rest)"
+    }
+
+    private func applyTheme() {
+        let isDark = traitCollection.userInterfaceStyle == .dark
+        if isDark {
+            badgeLabel.textColor = placeColor
+            badgeLabel.backgroundColor = placeColor.withAlphaComponent(0.18)
+            avatarView.layer.borderColor = placeColor.cgColor
+            avatarView.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.45)
+            avatarPlaceholder.tintColor = placeColor.withAlphaComponent(0.95)
+            pedestal.layer.borderColor = placeColor.withAlphaComponent(0.9).cgColor
+            pedestalGradient.colors = [
+                placeColor.withAlphaComponent(0.86).cgColor,
+                secondaryColor.withAlphaComponent(0.92).cgColor
+            ]
+            nameLabel.textColor = .white
+            scoreLabel.textColor = UIColor.white.withAlphaComponent(0.92)
+        } else {
+            badgeLabel.textColor = placeColor.withAlphaComponent(0.95)
+            badgeLabel.backgroundColor = placeColor.withAlphaComponent(0.24)
+            avatarView.layer.borderColor = placeColor.withAlphaComponent(0.85).cgColor
+            avatarView.backgroundColor = UIColor.white.withAlphaComponent(0.88)
+            avatarPlaceholder.tintColor = placeColor.withAlphaComponent(0.85)
+            pedestal.layer.borderColor = placeColor.withAlphaComponent(0.65).cgColor
+            pedestalGradient.colors = pastelGradientColors()
+            nameLabel.textColor = UIColor(red: 0.16, green: 0.17, blue: 0.20, alpha: 1)
+            scoreLabel.textColor = UIColor(red: 0.24, green: 0.25, blue: 0.30, alpha: 0.92)
+        }
+    }
+
+    private func pastelGradientColors() -> [CGColor] {
+        switch place {
+        case 1:
+            return [
+                UIColor(red: 1.00, green: 0.91, blue: 0.62, alpha: 1).cgColor,
+                UIColor(red: 0.98, green: 0.83, blue: 0.43, alpha: 1).cgColor
+            ]
+        case 2:
+            return [
+                UIColor(red: 0.89, green: 0.92, blue: 0.97, alpha: 1).cgColor,
+                UIColor(red: 0.76, green: 0.81, blue: 0.90, alpha: 1).cgColor
+            ]
+        default:
+            return [
+                UIColor(red: 0.93, green: 0.85, blue: 0.76, alpha: 1).cgColor,
+                UIColor(red: 0.86, green: 0.74, blue: 0.61, alpha: 1).cgColor
+            ]
         }
     }
 }
@@ -931,9 +978,11 @@ extension ProfileViewController: UICollectionViewDataSource, UICollectionViewDel
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let width = collectionView.frame.width
-        let availableWidth = width - 16
+        let horizontalInsets: CGFloat = 20
+        let spacing: CGFloat = 6
         let columns: CGFloat = 7
-        let cellWidth = (availableWidth - (columns - 1) * 2) / columns
+        let availableWidth = width - horizontalInsets
+        let cellWidth = (availableWidth - (columns - 1) * spacing) / columns
         return CGSize(width: cellWidth, height: cellWidth)
     }
 }

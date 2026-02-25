@@ -22,6 +22,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.rootViewController = launchVC
         self.window = window
         window.makeKeyAndVisible()
+        ThemeManager.shared.applyCurrentTheme()
 
         // Предзагрузка драконов
         DispatchQueue.main.async {
@@ -41,23 +42,43 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
                 guard let self = self else { return }
 
-                let rootVC: UIViewController
                 if Auth.auth().currentUser == nil {
                     let login = LoginViewController()
                     let nav = UINavigationController(rootViewController: login)
-                    rootVC = nav
+                    self.transitionRoot(to: nav, duration: 0.8)
                 } else {
-                    rootVC = RootTabBarController()
+                    self.transitionToMain(preloadData: true, duration: 0.8)
                 }
-
-                UIView.transition(with: window,
-                                  duration: 0.8,
-                                  options: .transitionCrossDissolve,
-                                  animations: {
-                    window.rootViewController = rootVC
-                })
             }
         }
+    }
+
+    func transitionToMain(preloadData: Bool = true, duration: TimeInterval = 0.35) {
+        guard window != nil else { return }
+        let root = RootTabBarController()
+        let showRoot = { [weak self] in
+            self?.transitionRoot(to: root, duration: duration)
+        }
+
+        if preloadData {
+            root.preloadInitialData {
+                showRoot()
+            }
+        } else {
+            showRoot()
+        }
+    }
+
+    private func transitionRoot(to rootVC: UIViewController, duration: TimeInterval) {
+        guard let window else { return }
+        UIView.transition(with: window,
+                          duration: duration,
+                          options: .transitionCrossDissolve,
+                          animations: {
+            window.rootViewController = rootVC
+        }, completion: { _ in
+            ThemeManager.shared.applyCurrentTheme()
+        })
     }
 
     func sceneDidDisconnect(_ scene: UIScene) { }

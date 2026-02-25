@@ -24,61 +24,53 @@ class CalendarDayCell: UICollectionViewCell {
     
     private func setupUI() {
         backgroundColor = .clear
-        layer.cornerRadius = 8
-        
+        contentView.layer.cornerRadius = 10
+        contentView.layer.cornerCurve = .continuous
+        contentView.layer.masksToBounds = true
+        contentView.layer.borderWidth = 1
+
         dayLabel.textAlignment = .center
-        dayLabel.font = .systemFont(ofSize: 14, weight: .medium)
+        dayLabel.font = .systemFont(ofSize: 14, weight: .semibold)
         dayLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        activityIndicator.backgroundColor = .systemBlue
-        activityIndicator.layer.cornerRadius = 3
+
+        activityIndicator.layer.cornerRadius = 2.5
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
-        
-        addSubview(dayLabel)
-        addSubview(activityIndicator)
-        
+
+        contentView.addSubview(dayLabel)
+        contentView.addSubview(activityIndicator)
+
         NSLayoutConstraint.activate([
-            dayLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
-            dayLabel.centerYAnchor.constraint(equalTo: centerYAnchor, constant: -4),
-            
-            activityIndicator.centerXAnchor.constraint(equalTo: centerXAnchor),
-            activityIndicator.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -4),
-            activityIndicator.widthAnchor.constraint(equalToConstant: 6),
-            activityIndicator.heightAnchor.constraint(equalToConstant: 6)
+            dayLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            dayLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor, constant: -2),
+
+            activityIndicator.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            activityIndicator.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
+            activityIndicator.widthAnchor.constraint(equalToConstant: 5),
+            activityIndicator.heightAnchor.constraint(equalToConstant: 5)
         ])
     }
-    
+
     func configure(hasActivity: Bool, isToday: Bool) {
         activityIndicator.isHidden = !hasActivity
-        
+
         if isToday {
-            // Сегодняшний день - яркий синий фон
-            backgroundColor = UIColor.systemBlue
+            contentView.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.9)
             dayLabel.textColor = .white
             dayLabel.font = .systemFont(ofSize: 14, weight: .bold)
-            layer.borderWidth = 0
+            contentView.layer.borderColor = UIColor.white.withAlphaComponent(0.4).cgColor
+            activityIndicator.backgroundColor = .white
         } else if hasActivity {
-            // День с активностью - светло-зеленый фон
-            backgroundColor = UIColor.systemGreen.withAlphaComponent(0.3)
+            contentView.backgroundColor = UIColor.systemGreen.withAlphaComponent(0.20)
             dayLabel.textColor = .label
             dayLabel.font = .systemFont(ofSize: 14, weight: .semibold)
-            layer.borderWidth = 1
-            layer.borderColor = UIColor.systemGreen.cgColor
+            contentView.layer.borderColor = UIColor.systemGreen.withAlphaComponent(0.7).cgColor
+            activityIndicator.backgroundColor = UIColor.systemGreen
         } else {
-            // Обычный день - легкий белый фон с границей
-            backgroundColor = UIColor.systemBackground.withAlphaComponent(0.7)
+            contentView.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.58)
             dayLabel.textColor = .label
             dayLabel.font = .systemFont(ofSize: 14, weight: .medium)
-            layer.borderWidth = 0.5
-            layer.borderColor = UIColor.separator.cgColor
-        }
-        
-        if hasActivity {
-            if isToday {
-                activityIndicator.backgroundColor = .white
-            } else {
-                activityIndicator.backgroundColor = .systemGreen
-            }
+            contentView.layer.borderColor = UIColor.separator.withAlphaComponent(0.55).cgColor
+            activityIndicator.backgroundColor = .clear
         }
     }
 }
