@@ -8,21 +8,24 @@
 import UIKit
 
 final class RootTabBarController: UITabBarController {
+    private let profileVC = ProfileViewController()
+    private let dragonSelectVC = DragonSelectViewController()
+    private let settingsVC = SettingsViewController()
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let profile = UINavigationController(rootViewController: ProfileViewController())
+        let profile = UINavigationController(rootViewController: profileVC)
         profile.tabBarItem = UITabBarItem(title: "Профиль",
                                           image: UIImage(systemName: "person.crop.circle"),
                                           tag: 0)
-        
-        let dragonSelectVC = DragonSelectViewController()
+
         let test = UINavigationController(rootViewController: dragonSelectVC)
         test.tabBarItem = UITabBarItem(title: "Тесты",
                                        image: UIImage(named: "dragon.icon"),
                                        tag: 1)
-        
-        let settings = UINavigationController(rootViewController: SettingsViewController())
+
+        let settings = UINavigationController(rootViewController: settingsVC)
         settings.tabBarItem = UITabBarItem(title: "Настройки",
                                            image: UIImage(systemName: "gearshape"),
                                            tag: 2)
@@ -37,6 +40,27 @@ final class RootTabBarController: UITabBarController {
 
         _ = dragonSelectVC.view
         dragonSelectVC.view.layoutIfNeeded()
+    }
+
+    func preloadInitialData(timeout: TimeInterval = 2.2, completion: @escaping () -> Void) {
+        var didComplete = false
+        let finish: () -> Void = {
+            guard !didComplete else { return }
+            didComplete = true
+            completion()
+        }
+
+        profileVC.prepareForInitialDataGate()
+        profileVC.setInitialDataReadyHandler {
+            finish()
+        }
+
+        profileVC.loadViewIfNeeded()
+        _ = dragonSelectVC.view
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + timeout) {
+            finish()
+        }
     }
     
     private func setupTabBarAppearance() {

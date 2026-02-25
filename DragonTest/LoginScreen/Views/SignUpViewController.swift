@@ -241,11 +241,11 @@ extension SignUpViewController: SignUpViewInput {
             .compactMap({ $0 as? UIWindowScene })
             .first?.delegate as? SceneDelegate,
            let window = sceneDelegate.window {
-            let root = RootTabBarController()
-            UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve) {
-                window.rootViewController = root
-            }
+            setLoading(true)
+            sceneDelegate.transitionToMain(preloadData: true, duration: 0.35)
             window.makeKeyAndVisible()
+        } else {
+            setLoading(false)
         }
     }
 

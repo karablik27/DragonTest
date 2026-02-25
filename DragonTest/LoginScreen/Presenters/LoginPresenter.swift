@@ -54,7 +54,6 @@ final class LoginPresenter: LoginViewOutput {
                 DependencyInjection.shared.currentUser.role = fullUser.role
                 
                 await MainActor.run {
-                    self.view?.setLoading(false)
                     self.view?.openMain()
                 }
             } catch {
