@@ -18,11 +18,20 @@ protocol AIReviewServiceProtocol {
 }
 
 final class AIReviewService: AIReviewServiceProtocol {
-    private let apiKey = "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"
+    private let apiKey: String = {
+        let env = ProcessInfo.processInfo.environment
+        return env["AI_API_KEY"] ?? ""
+    }()
 
     func reviewAnswers(_ answers: [StudentAnswer], questions: [Questions]) async throws -> [StudentAnswer] {
-        let url = URL(string: "https://openrouter.ai/api/v1/chat/completions")!
+        let envUrl: String = {
+            let env = ProcessInfo.processInfo.environment
+            return env["AI_URL_KEY"] ?? ""
+        }()
+        
+        let url = URL(string: envUrl)!
         var req = URLRequest(url: url)
+        
         req.httpMethod = "POST"
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
