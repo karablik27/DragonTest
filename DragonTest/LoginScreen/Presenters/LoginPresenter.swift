@@ -69,6 +69,30 @@ final class LoginPresenter: LoginViewOutput {
         view?.openSignUp()
     }
     
+    func didTapForgotPassword(email: String) {
+        let email = email.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard !email.isEmpty else {
+            view?.showError("Введите почту для сброса пароля")
+            return
+        }
+
+        Task { [weak self] in
+            guard let self else { return }
+
+            do {
+                try await self.authService.resetPassword(email: email)
+                await MainActor.run {
+                    self.view?.showError("Ссылка для сброса пароля отправлена на почту")
+                }
+            } catch {
+                await MainActor.run {
+                    self.view?.showError("Не удалось отправить письмо для сброса пароля")
+                }
+            }
+        }
+    }
+    
     private func map(_ error: Error) -> String {
         let ns = error as NSError
         switch ns.code {

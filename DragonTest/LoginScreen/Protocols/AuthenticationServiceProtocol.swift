@@ -8,4 +8,5 @@
 protocol AuthenticationServiceProtocol {
     func createUser(email: String, password: String) async throws -> User
     func signInUser(email: String, password: String) async throws -> User
+    func resetPassword(email: String) async throws -> Void
 }

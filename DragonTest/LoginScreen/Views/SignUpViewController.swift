@@ -214,15 +214,6 @@ final class SignUpViewController: UIViewController, UITextFieldDelegate {
     }
 }
 
-// MARK: - Padding for TextField
-private extension UITextField {
-    func setLeftPaddingPoints(_ amount: CGFloat) {
-        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: amount, height: self.frame.size.height))
-        self.leftView = paddingView
-        self.leftViewMode = .always
-    }
-}
-
 extension SignUpViewController: SignUpViewInput {
     func setLoading(_ isLoading: Bool) {
         signUpButton.isEnabled = !isLoading
