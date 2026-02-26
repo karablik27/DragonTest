@@ -17,4 +17,5 @@ protocol LoginViewOutput: AnyObject {
     func viewDidLoad()
     func didTapLogin(email: String, password: String)
     func didTapSignUp()
+    func didTapForgotPassword(email: String)
 }

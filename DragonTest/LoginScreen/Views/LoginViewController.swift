@@ -97,6 +97,22 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
         
         return btn
     }()
+    
+    private lazy var resetPasswordButton: UIButton = {
+        var config = UIButton.Configuration.plain()
+        config.title = "Сброс пароля"
+        config.baseForegroundColor = .white
+        config.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 130, bottom: 0, trailing: 0)
+
+        let title = AttributedString("Сброс пароля", attributes: AttributeContainer([
+            .font: UIFont.systemFont(ofSize: 14, weight: .semibold)
+        ]))
+        config.attributedTitle = title
+
+        let btn = UIButton(configuration: config, primaryAction: nil)
+        btn.addTarget(self, action: #selector(resetPasswordTapped), for: .touchUpInside)
+        return btn
+    }()
 
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -174,17 +190,34 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
     }
 
     private func makeSignUpStack() -> UIStackView {
-        let lbl = UILabel()
-        lbl.text = "Нет аккаунта?"
-        lbl.textColor = .white
-        lbl.font = .systemFont(ofSize: 14)
+        let noAccountLabel = UILabel()
+        noAccountLabel.text = "Нет аккаунта?"
+        noAccountLabel.textColor = .white
+        noAccountLabel.font = .systemFont(ofSize: 14)
 
-        let s = UIStackView(arrangedSubviews: [lbl, signUpButton])
-        s.axis = .horizontal
-        s.alignment = .center
-        s.spacing = 6
-        s.distribution = .fillProportionally
-        return s
+        let noAccountRow = UIStackView(arrangedSubviews: [noAccountLabel, signUpButton])
+        noAccountRow.axis = .horizontal
+        noAccountRow.alignment = .center
+        noAccountRow.spacing = 6
+        noAccountRow.distribution = .fillProportionally
+
+        let forgotLabel = UILabel()
+        forgotLabel.text = "Забыли пароль?"
+        forgotLabel.textColor = .white
+        forgotLabel.font = .systemFont(ofSize: 14)
+
+        let forgotRow = UIStackView(arrangedSubviews: [forgotLabel, resetPasswordButton])
+        forgotRow.axis = .horizontal
+        forgotRow.alignment = .center
+        forgotRow.spacing = 6
+        forgotRow.distribution = .fillProportionally
+
+        let vertical = UIStackView(arrangedSubviews: [noAccountRow, forgotRow])
+        vertical.axis = .vertical
+        vertical.alignment = .leading
+        vertical.spacing = 8
+
+        return vertical
     }
     
     private func addTapToDismissKeyboard() {
@@ -214,10 +247,17 @@ final class LoginViewController: UIViewController, UITextFieldDelegate {
     @objc private func handleTapToDismiss() {
         view.endEditing(true)
     }
+    
+    @objc private func resetPasswordTapped() {
+        let vc = ResetPasswordViewController()
+        let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
+    }
 }
 
 // MARK: - Padding for TextField
-private extension UITextField {
+extension UITextField {
     func setLeftPaddingPoints(_ amount: CGFloat) {
         let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: amount, height: self.frame.size.height))
         self.leftView = paddingView

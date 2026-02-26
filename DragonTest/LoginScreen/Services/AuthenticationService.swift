@@ -19,4 +19,8 @@ final class AuthenticationService: AuthenticationServiceProtocol {
         let authDataResult = try await Auth.auth().signIn(withEmail: email, password: password)
         return User(firebaseUser: authDataResult.user)
     }
+    
+    func resetPassword(email: String) async throws {
+        try await Auth.auth().sendPasswordReset(withEmail: email)
+    }
 }
