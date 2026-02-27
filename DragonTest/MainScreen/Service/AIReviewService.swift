@@ -18,18 +18,10 @@ protocol AIReviewServiceProtocol {
 }
 
 final class AIReviewService: AIReviewServiceProtocol {
-    private let apiKey: String = {
-        let env = ProcessInfo.processInfo.environment
-        return env["AI_API_KEY"] ?? ""
-    }()
+    private let apiKey = Secrets.aiApiKey
 
     func reviewAnswers(_ answers: [StudentAnswer], questions: [Questions]) async throws -> [StudentAnswer] {
-        let envUrl: String = {
-            let env = ProcessInfo.processInfo.environment
-            return env["AI_URL_KEY"] ?? ""
-        }()
-        
-        let url = URL(string: envUrl)!
+        let url = URL(string: Secrets.aiUrlKey)!
         var req = URLRequest(url: url)
         
         req.httpMethod = "POST"
