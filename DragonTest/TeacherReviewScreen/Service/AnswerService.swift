@@ -52,6 +52,46 @@ final class AnswerService: AnswerServiceProtocol {
         return attempts
     }
 
+    // MARK: - Лёгкая агрегация статусов учителя (без догрузки results)
+    func fetchTeacherStatusSummary(for testIds: [String]) async throws -> [String: TeacherTestStatusSummary] {
+        guard !testIds.isEmpty else { return [:] }
+
+        let uniqueTestIds = Array(Set(testIds))
+        var uniqueStudentsByTestId: [String: Set<String>] = [:]
+        var pendingStudentsByTestId: [String: Set<String>] = [:]
+
+        for chunk in uniqueTestIds.chunked(into: 10) {
+            let snapshot = try await dataBase.collection("attempts")
+                .whereField("testId", in: chunk)
+                .getDocuments()
+
+            for document in snapshot.documents {
+                let data = document.data()
+                guard let testId = data["testId"] as? String,
+                      let studentId = data["studentId"] as? String else { continue }
+
+                let reviewed = data["reviewed"] as? Bool ?? false
+                uniqueStudentsByTestId[testId, default: []].insert(studentId)
+
+                if !reviewed {
+                    pendingStudentsByTestId[testId, default: []].insert(studentId)
+                }
+            }
+        }
+
+        var summaryByTestId: [String: TeacherTestStatusSummary] = [:]
+        for testId in uniqueTestIds {
+            let uniqueCount = uniqueStudentsByTestId[testId]?.count ?? 0
+            let pendingCount = pendingStudentsByTestId[testId]?.count ?? 0
+            summaryByTestId[testId] = TeacherTestStatusSummary(
+                uniqueStudentsCount: uniqueCount,
+                pendingStudentsCount: pendingCount
+            )
+        }
+
+        return summaryByTestId
+    }
+
     // MARK: - Учитель/ИИ сохраняет проверку
     func reviewAttempt(_ attemptId: String, result: TestResult) async throws {
         try dataBase.collection("results")

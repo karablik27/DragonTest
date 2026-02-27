@@ -26,6 +26,7 @@ final class ResultAnswerCell: UITableViewCell {
     private let aiChip   = PillLabel(text: "ИИ", style: .neutral)
     private let aiScorePill  = ScorePill(color: ResultStyle.aiScoreFill)
     private let aiComment = PaddedLabel()
+    private let aiBlock = UIStackView()
 
     // Teacher
     private let teacherHeader = UIStackView()
@@ -33,8 +34,12 @@ final class ResultAnswerCell: UITableViewCell {
     private let teacherChip   = PillLabel(text: "Учитель", style: .neutral)
     private let teacherScorePill  = ScorePill(color: ResultStyle.teacherScoreFill)
     private let teacherComment = PaddedLabel()
+    private let teacherBlock = UIStackView()
 
     private let vStack = UIStackView()
+    private let sepAfterHeader = UIView()
+    private let sepAfterAnswer = UIView()
+    private let sepAfterAI = UIView()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -99,7 +104,9 @@ final class ResultAnswerCell: UITableViewCell {
         aiComment.contentInsets = UIEdgeInsets(top: 10, left: 14, bottom: 10, right: 14)
         aiComment.lineBreakMode = .byWordWrapping
 
-        let aiBlock = UIStackView(arrangedSubviews: [aiHeader, aiScorePill, aiComment])
+        aiBlock.addArrangedSubview(aiHeader)
+        aiBlock.addArrangedSubview(aiScorePill)
+        aiBlock.addArrangedSubview(aiComment)
         aiBlock.axis = .vertical
         aiBlock.spacing = 8
 
@@ -124,19 +131,24 @@ final class ResultAnswerCell: UITableViewCell {
         teacherComment.contentInsets = UIEdgeInsets(top: 10, left: 14, bottom: 10, right: 14)
         teacherComment.lineBreakMode = .byWordWrapping
 
-        let teacherBlock = UIStackView(arrangedSubviews: [teacherHeader, teacherScorePill, teacherComment])
+        teacherBlock.addArrangedSubview(teacherHeader)
+        teacherBlock.addArrangedSubview(teacherScorePill)
+        teacherBlock.addArrangedSubview(teacherComment)
         teacherBlock.axis = .vertical
         teacherBlock.spacing = 8
 
         // MAIN STACK
         vStack.axis = .vertical
-        vStack.spacing = 16
+        vStack.spacing = 12
         vStack.addArrangedSubview(headerH)
-        vStack.addArrangedSubview(makeSeparator())
+        configureSeparator(sepAfterHeader)
+        vStack.addArrangedSubview(sepAfterHeader)
         vStack.addArrangedSubview(answerV)
-        vStack.addArrangedSubview(makeSeparator())
+        configureSeparator(sepAfterAnswer)
+        vStack.addArrangedSubview(sepAfterAnswer)
         vStack.addArrangedSubview(aiBlock)
-        vStack.addArrangedSubview(makeSeparator())
+        configureSeparator(sepAfterAI)
+        vStack.addArrangedSubview(sepAfterAI)
         vStack.addArrangedSubview(teacherBlock)
 
         contentView.addSubview(card)
@@ -164,12 +176,10 @@ final class ResultAnswerCell: UITableViewCell {
 
     required init?(coder: NSCoder) { fatalError() }
 
-    private func makeSeparator() -> UIView {
-        let v = UIView()
-        v.backgroundColor = ResultStyle.separator
-        v.translatesAutoresizingMaskIntoConstraints = false
-        v.heightAnchor.constraint(equalToConstant: 1.0 / UIScreen.main.scale).isActive = true
-        return v
+    private func configureSeparator(_ view: UIView) {
+        view.backgroundColor = ResultStyle.separator
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.heightAnchor.constraint(equalToConstant: 1.0 / UIScreen.main.scale).isActive = true
     }
 
     // Configure без изменений по логике
@@ -185,12 +195,19 @@ final class ResultAnswerCell: UITableViewCell {
             answerBox.text = "—"
         }
 
+        let hasAI = answer.llmScore != nil || ((answer.llmComment ?? "").isEmpty == false)
         if let s = answer.llmScore { aiScorePill.setText("\(s)") } else { aiScorePill.setText("—") }
         if let c = answer.llmComment, !c.isEmpty { aiComment.text = "  \(c)  "; aiComment.isHidden = false }
         else { aiComment.text = nil; aiComment.isHidden = true }
 
+        let hasTeacher = answer.teacherScore != nil || ((answer.teacherComment ?? "").isEmpty == false)
         if let s = answer.teacherScore { teacherScorePill.setText("\(s)") } else { teacherScorePill.setText("—") }
         if let c = answer.teacherComment, !c.isEmpty { teacherComment.text = "  \(c)  "; teacherComment.isHidden = false }
         else { teacherComment.text = nil; teacherComment.isHidden = true }
+
+        aiBlock.isHidden = !hasAI
+        teacherBlock.isHidden = !hasTeacher
+        sepAfterAnswer.isHidden = !hasAI && !hasTeacher
+        sepAfterAI.isHidden = !hasAI || !hasTeacher
     }
 }

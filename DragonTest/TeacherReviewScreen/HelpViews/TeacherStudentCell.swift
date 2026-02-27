@@ -12,9 +12,11 @@ final class TeacherStudentCell: UITableViewCell {
 
     let avatarView = UIImageView()
     private let nameLabel = UILabel()
+    private let subtitleLabel = UILabel()
     private let statusGlass = FieldGlass(radius: 10)
     private let statusLabel = InsetLabel()
     private let card = ResultGlassCard(radius: 22)
+    private let chevronView = UIImageView(image: UIImage(systemName: "chevron.right"))
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -37,14 +39,18 @@ final class TeacherStudentCell: UITableViewCell {
         ])
 
         // Name
-        nameLabel.font = .systemFont(ofSize: 20, weight: .semibold)
+        nameLabel.font = .systemFont(ofSize: 18, weight: .semibold)
         nameLabel.textColor = .white
         nameLabel.numberOfLines = 1
 
+        subtitleLabel.font = .systemFont(ofSize: 13, weight: .regular)
+        subtitleLabel.textColor = UIColor.white.withAlphaComponent(0.78)
+        subtitleLabel.numberOfLines = 1
+
         // Status
-        statusLabel.font = .systemFont(ofSize: 15, weight: .semibold)
+        statusLabel.font = .systemFont(ofSize: 14, weight: .semibold)
         statusLabel.textColor = .white
-        statusLabel.contentInsets = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
+        statusLabel.contentInsets = UIEdgeInsets(top: 7, left: 10, bottom: 7, right: 10)
         statusLabel.numberOfLines = 1
 
         statusGlass.addSubview(statusLabel)
@@ -54,15 +60,22 @@ final class TeacherStudentCell: UITableViewCell {
             statusLabel.leadingAnchor.constraint(equalTo: statusGlass.leadingAnchor, constant: 4),
             statusLabel.trailingAnchor.constraint(equalTo: statusGlass.trailingAnchor, constant: -4),
             statusLabel.bottomAnchor.constraint(equalTo: statusGlass.bottomAnchor, constant: -2),
-            statusGlass.heightAnchor.constraint(greaterThanOrEqualToConstant: 36)
+            statusGlass.heightAnchor.constraint(greaterThanOrEqualToConstant: 34)
         ])
 
-        let textStack = UIStackView(arrangedSubviews: [nameLabel, statusGlass])
+        chevronView.tintColor = UIColor.white.withAlphaComponent(0.65)
+        chevronView.contentMode = .scaleAspectFit
+        chevronView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            chevronView.widthAnchor.constraint(equalToConstant: 12)
+        ])
+
+        let textStack = UIStackView(arrangedSubviews: [nameLabel, subtitleLabel, statusGlass])
         textStack.axis = .vertical
-        textStack.spacing = 8
+        textStack.spacing = 6
         textStack.alignment = .fill
 
-        let h = UIStackView(arrangedSubviews: [avatarView, textStack])
+        let h = UIStackView(arrangedSubviews: [avatarView, textStack, chevronView])
         h.axis = .horizontal
         h.alignment = .center
         h.spacing = 12
@@ -87,21 +100,34 @@ final class TeacherStudentCell: UITableViewCell {
 
     required init?(coder: NSCoder) { fatalError() }
 
-    func configure(name: String, status: Status) {
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        avatarView.image = UIImage(systemName: "person.crop.circle")?.withRenderingMode(.alwaysTemplate)
+        avatarView.tintColor = .white.withAlphaComponent(0.6)
+        avatarView.accessibilityIdentifier = nil
+        chevronView.isHidden = false
+        card.alpha = 1.0
+    }
+
+    func configure(name: String, subtitle: String, status: Status, canOpen: Bool) {
         nameLabel.text = name
+        subtitleLabel.text = subtitle
+        chevronView.isHidden = !canOpen
+        card.alpha = canOpen ? 1.0 : 0.82
+
         switch status {
         case .teacherDone:
-            statusLabel.text = "✅ Проверено учителем"
+            statusLabel.text = "Проверено учителем"
             statusGlass.backgroundColor = ResultStyle.okAccent.withAlphaComponent(0.28)
         case .llmDoneWaitTeacher:
-            statusLabel.text = "🤖 Проверено ИИ, ждёт учителя"
+            statusLabel.text = "Ждет проверки учителем"
             statusGlass.backgroundColor = ResultStyle.aiAccent.withAlphaComponent(0.28)
         case .llmPending:
-            statusLabel.text = "⏳ На проверке (ИИ)"
-            statusGlass.backgroundColor = UIColor.white.withAlphaComponent(0.18)
+            statusLabel.text = "Проверяется ИИ"
+            statusGlass.backgroundColor = UIColor.systemOrange.withAlphaComponent(0.26)
         case .notPassed:
-            statusLabel.text = "❌ Не прошёл"
-            statusGlass.backgroundColor = UIColor.red.withAlphaComponent(0.30)
+            statusLabel.text = "Ответ не отправлен"
+            statusGlass.backgroundColor = UIColor.systemRed.withAlphaComponent(0.24)
         }
     }
 }

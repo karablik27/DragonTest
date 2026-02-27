@@ -36,6 +36,7 @@ final class SettingsPresenter: SettingsPresenterProtocol {
 
     func viewDidLoad() {
         view?.applyBackground()
+        view?.setLoading(true)
         Task { await loadUserAndAvatar() }
     }
 
@@ -158,7 +159,10 @@ final class SettingsPresenter: SettingsPresenterProtocol {
     }
 
     private func loadUserAndAvatar() async {
-        guard let uid = auth.currentUser?.uid else { return }
+        guard let uid = auth.currentUser?.uid else {
+            await MainActor.run { self.view?.setLoading(false) }
+            return
+        }
 
         // user
         do {
@@ -170,9 +174,11 @@ final class SettingsPresenter: SettingsPresenterProtocol {
                 self.view?.setThemeIndex(ThemeManager.shared.current.rawValue)
                 self.view?.setNotifications(user.isNotificationEnabled)
                 self.view?.reloadLayoutIfNeeded()
+                self.view?.setLoading(false)
             }
         } catch {
             await MainActor.run {
+                self.view?.setLoading(false)
                 self.view?.showAlert(title: "Ошибка", message: "Не удалось загрузить профиль")
             }
         }

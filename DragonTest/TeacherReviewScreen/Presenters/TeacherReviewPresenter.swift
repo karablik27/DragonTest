@@ -24,10 +24,22 @@ final class TeacherReviewPresenter: TeacherReviewPresenterProtocol {
             do {
                 let users = try await di.userService.fetchStudentsForTests(for: test)
                 let attempts = try await di.answerService.fetchAttempts(for: test.id)
-                let rows = users.map { user in
-                    let attempt = attempts.first { $0.studentId == user.id }
-                    return StudentRowModel(user: user, attempt: attempt)
+
+                var latestAttemptByStudentId: [String: StudentAttempt] = [:]
+                for attempt in attempts {
+                    if let existing = latestAttemptByStudentId[attempt.studentId] {
+                        if attempt.submittedAt > existing.submittedAt {
+                            latestAttemptByStudentId[attempt.studentId] = attempt
+                        }
+                    } else {
+                        latestAttemptByStudentId[attempt.studentId] = attempt
+                    }
                 }
+
+                let rows = users.map { user in
+                    StudentRowModel(user: user, attempt: latestAttemptByStudentId[user.id])
+                }
+
                 await MainActor.run {
                     self.view?.showStudents(rows)
                 }
@@ -39,4 +51,3 @@ final class TeacherReviewPresenter: TeacherReviewPresenterProtocol {
         }
     }
 }
-

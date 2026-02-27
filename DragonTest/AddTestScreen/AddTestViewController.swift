@@ -22,6 +22,7 @@ final class AddTestViewController: UIViewController {
     // MARK: - State
     private var participants: [String] = []
     private var addedUsers: [User] = []
+    private var allStudents: [User] = []
     private var searchResults: [User] = []
     private var currentTitle: String {
         titleField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
@@ -38,7 +39,11 @@ final class AddTestViewController: UIViewController {
     private let titleLabel = UILabel()
     private let titleField = GlassTextField(placeholder: "Введите название теста")
     private let participantsLabel = UILabel()
-    private let participantField = GlassTextField(placeholder: "Начните вводить имя или почту")
+    private let participantField = GlassTextField(placeholder: "Поиск ученика по имени или почте")
+    private let participantsHeaderRow = UIStackView()
+    private let addAllStudentsButton = UIButton(type: .system)
+    private let clearParticipantsButton = UIButton(type: .system)
+    private let emptySearchLabel = UILabel()
 
     // Таблица результатов поиска
     private let searchResultsTable = UITableView(frame: .zero, style: .plain)
@@ -77,13 +82,16 @@ final class AddTestViewController: UIViewController {
         setupActions()
 
         searchResultsTable.register(SearchResultCell.self, forCellReuseIdentifier: SearchResultCell.reuseId)
-        searchResultsTable.isHidden = true
+        searchResultsTable.isHidden = false
         searchResultsTable.delegate = self
         searchResultsTable.dataSource = self
+        configureSearchEmptyState()
 
         currentStep = .details
         updateNextButtonState()
         refreshParticipantsChips()
+        updateParticipantsActionButtons()
+        loadAllStudents()
     }
 
     override func viewDidLayoutSubviews() {
@@ -160,6 +168,33 @@ final class AddTestViewController: UIViewController {
         participantsLabel.text = "Ученики"
         participantsLabel.font = .systemFont(ofSize: 16, weight: .semibold)
 
+        participantsHeaderRow.axis = .horizontal
+        participantsHeaderRow.alignment = .center
+        participantsHeaderRow.spacing = 8
+
+        var addAllConfig = UIButton.Configuration.tinted()
+        addAllConfig.title = "Добавить всех"
+        addAllConfig.baseForegroundColor = .white
+        addAllConfig.baseBackgroundColor = UIColor.systemBlue.withAlphaComponent(0.35)
+        addAllConfig.cornerStyle = .medium
+        addAllConfig.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 10, bottom: 6, trailing: 10)
+        addAllStudentsButton.configuration = addAllConfig
+        addAllStudentsButton.titleLabel?.font = .systemFont(ofSize: 13, weight: .semibold)
+
+        var clearConfig = UIButton.Configuration.tinted()
+        clearConfig.title = "Очистить"
+        clearConfig.baseForegroundColor = .white
+        clearConfig.baseBackgroundColor = UIColor.systemGray.withAlphaComponent(0.30)
+        clearConfig.cornerStyle = .medium
+        clearConfig.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 10, bottom: 6, trailing: 10)
+        clearParticipantsButton.configuration = clearConfig
+        clearParticipantsButton.titleLabel?.font = .systemFont(ofSize: 13, weight: .semibold)
+
+        participantsHeaderRow.addArrangedSubview(participantsLabel)
+        participantsHeaderRow.addArrangedSubview(UIView())
+        participantsHeaderRow.addArrangedSubview(addAllStudentsButton)
+        participantsHeaderRow.addArrangedSubview(clearParticipantsButton)
+
         // Таблица поиска — полностью прозрачная
         searchResultsTable.layer.cornerRadius = 12
         searchResultsTable.clipsToBounds = true
@@ -168,6 +203,7 @@ final class AddTestViewController: UIViewController {
         searchResultsTable.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         searchResultsTable.tableHeaderView = UIView(frame: .init(x: 0, y: 0, width: 1, height: 0.01))
         searchResultsTable.tableFooterView = UIView(frame: .init(x: 0, y: 0, width: 1, height: 0.01))
+        searchResultsTable.keyboardDismissMode = .onDrag
 
         searchGlassWrapper.addSubview(searchResultsTable)
         searchGlassWrapper.translatesAutoresizingMaskIntoConstraints = false
@@ -177,7 +213,7 @@ final class AddTestViewController: UIViewController {
             searchResultsTable.leadingAnchor.constraint(equalTo: searchGlassWrapper.leadingAnchor),
             searchResultsTable.trailingAnchor.constraint(equalTo: searchGlassWrapper.trailingAnchor),
             searchResultsTable.bottomAnchor.constraint(equalTo: searchGlassWrapper.bottomAnchor),
-            searchGlassWrapper.heightAnchor.constraint(equalToConstant: 200)
+            searchGlassWrapper.heightAnchor.constraint(equalToConstant: 260)
         ])
 
         participantsStack.axis = .vertical
@@ -196,7 +232,7 @@ final class AddTestViewController: UIViewController {
         step1Stack.spacing = 12
         step1Stack.backgroundColor = .clear
         [titleLabel, titleField,
-         participantsLabel, participantField,
+         participantsHeaderRow, participantField,
          searchGlassWrapper, participantsContainer].forEach { step1Stack.addArrangedSubview($0) }
 
         // Круг кнопок шага 2
@@ -294,50 +330,148 @@ final class AddTestViewController: UIViewController {
 
         titleField.textField.addTarget(self, action: #selector(titleChanged), for: .editingChanged)
         participantField.textField.addTarget(self, action: #selector(searchTextChanged), for: .editingChanged)
+        addAllStudentsButton.addTarget(self, action: #selector(addAllStudentsTapped), for: .touchUpInside)
+        clearParticipantsButton.addTarget(self, action: #selector(clearParticipantsTapped), for: .touchUpInside)
     }
 
     @objc private func titleChanged() { updateNextButtonState() }
 
     @objc private func searchTextChanged() {
-        let query = participantField.textField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        if query.count < 2 {
-            searchResults = []
-            searchResultsTable.isHidden = true
-            searchResultsTable.reloadData()
-            return
+        applySearchFilter()
+    }
+
+    @objc private func addAllStudentsTapped() {
+        guard !allStudents.isEmpty else { return }
+        var didAppend = false
+        for user in allStudents where participants.contains(user.id) == false {
+            addedUsers.append(user)
+            didAppend = true
         }
-        searchStudents(query: query) { [weak self] users in
-            DispatchQueue.main.async {
-                self?.searchResults = users
-                self?.searchResultsTable.isHidden = users.isEmpty
-                self?.searchResultsTable.reloadData()
+        guard didAppend else { return }
+        syncParticipantsState()
+    }
+
+    @objc private func clearParticipantsTapped() {
+        guard !addedUsers.isEmpty else { return }
+        addedUsers.removeAll()
+        participants.removeAll()
+        syncParticipantsState()
+    }
+
+    private func loadAllStudents() {
+        Firestore.firestore().collection("users")
+            .whereField("role", isEqualTo: Role.student.rawValue)
+            .getDocuments { [weak self] snapshot, error in
+                guard let self else { return }
+                DispatchQueue.main.async {
+                    guard error == nil, let docs = snapshot?.documents else {
+                        self.allStudents = []
+                        self.searchResults = []
+                        self.searchResultsTable.reloadData()
+                        self.updateSearchEmptyState()
+                        self.updateParticipantsActionButtons()
+                        return
+                    }
+
+                    let users = docs.compactMap { self.decodeUser(from: $0) }
+                    self.allStudents = self.sortedUsers(users)
+                    self.applySearchFilter()
+                    self.updateParticipantsActionButtons()
+                }
             }
+    }
+
+    private func decodeUser(from document: QueryDocumentSnapshot) -> User? {
+        let data = document.data()
+        guard let json = try? JSONSerialization.data(withJSONObject: data),
+              var user = try? JSONDecoder().decode(User.self, from: json) else { return nil }
+        user.id = document.documentID
+        return user
+    }
+
+    private func applySearchFilter() {
+        let query = participantField.textField.text?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased() ?? ""
+
+        if query.isEmpty {
+            searchResults = allStudents
+        } else {
+            searchResults = allStudents.filter { user in
+                let fullName = "\(user.surname) \(user.name) \(user.lastname)".lowercased()
+                let email = user.email.lowercased()
+                return fullName.contains(query) || email.contains(query)
+            }
+        }
+        searchResults = sortedUsers(searchResults)
+        searchResultsTable.reloadData()
+        updateSearchEmptyState()
+    }
+
+    private func sortedUsers(_ users: [User]) -> [User] {
+        users.sorted { lhs, rhs in
+            let lhsName = "\(lhs.surname) \(lhs.name) \(lhs.lastname)".trimmingCharacters(in: .whitespaces)
+            let rhsName = "\(rhs.surname) \(rhs.name) \(rhs.lastname)".trimmingCharacters(in: .whitespaces)
+            let nameOrder = lhsName.localizedCaseInsensitiveCompare(rhsName)
+            if nameOrder != .orderedSame { return nameOrder == .orderedAscending }
+            return lhs.email.localizedCaseInsensitiveCompare(rhs.email) == .orderedAscending
         }
     }
 
-    private func searchStudents(query: String, completion: @escaping ([User]) -> Void) {
-        Firestore.firestore().collection("users")
-            .whereField("role", isEqualTo: Role.student.rawValue)
-            .getDocuments { snapshot, error in
-                guard error == nil, let docs = snapshot?.documents else {
-                    completion([])
-                    return
-                }
-                let all = docs.compactMap { doc -> User? in
-                    let data = doc.data()
-                    guard let json = try? JSONSerialization.data(withJSONObject: data),
-                          var user = try? JSONDecoder().decode(User.self, from: json) else { return nil }
-                    user.id = doc.documentID
-                    return user
-                }
-                let filtered = all.filter { u in
-                    let fullName = "\(u.name.lowercased()) \(u.surname.lowercased())"
-                    let email = u.email.lowercased()
-                    let q = query.lowercased()
-                    return fullName.contains(q) || email.contains(q)
-                }
-                completion(filtered)
-            }
+    private func configureSearchEmptyState() {
+        emptySearchLabel.textAlignment = .center
+        emptySearchLabel.numberOfLines = 0
+        emptySearchLabel.font = .systemFont(ofSize: 14, weight: .medium)
+        emptySearchLabel.textColor = .secondaryLabel
+        searchResultsTable.backgroundView = emptySearchLabel
+        updateSearchEmptyState()
+    }
+
+    private func updateSearchEmptyState() {
+        let query = participantField.textField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if allStudents.isEmpty {
+            emptySearchLabel.text = "Учеников пока нет"
+            emptySearchLabel.isHidden = false
+            return
+        }
+
+        if searchResults.isEmpty {
+            emptySearchLabel.text = query.isEmpty ? "Список пуст" : "Ничего не найдено"
+            emptySearchLabel.isHidden = false
+        } else {
+            emptySearchLabel.isHidden = true
+        }
+    }
+
+    private func updateParticipantsActionButtons() {
+        let canAddAll = !allStudents.isEmpty && addedUsers.count < allStudents.count
+        addAllStudentsButton.isEnabled = canAddAll
+        addAllStudentsButton.alpha = canAddAll ? 1.0 : 0.55
+
+        let canClear = !addedUsers.isEmpty
+        clearParticipantsButton.isEnabled = canClear
+        clearParticipantsButton.alpha = canClear ? 1.0 : 0.55
+    }
+
+    private func syncParticipantsState() {
+        addedUsers = sortedUsers(addedUsers)
+        participants = addedUsers.map(\.id)
+        refreshParticipantsChips()
+        applySearchFilter()
+        updateParticipantsActionButtons()
+    }
+
+    private func addParticipant(_ user: User) {
+        guard participants.contains(user.id) == false else { return }
+        addedUsers.append(user)
+        syncParticipantsState()
+    }
+
+    private func removeParticipant(withId userId: String) {
+        guard participants.contains(userId) else { return }
+        participants.removeAll { $0 == userId }
+        addedUsers.removeAll { $0.id == userId }
+        syncParticipantsState()
     }
 
     // MARK: - Participants UI
@@ -346,22 +480,28 @@ final class AddTestViewController: UIViewController {
 
         if addedUsers.isEmpty {
             let label = UILabel()
-            label.text = "Список пуст"
+            label.text = "Никто не добавлен"
             label.textColor = .secondaryLabel
             label.font = .systemFont(ofSize: 15)
             participantsStack.addArrangedSubview(label)
-        } else {
-            for (index, user) in addedUsers.enumerated() {
-                let chip = makeParticipantChip(user: user, index: index)
-                participantsStack.addArrangedSubview(chip)
-            }
+            return
+        }
+
+        for user in addedUsers {
+            let chip = makeParticipantChip(user: user)
+            participantsStack.addArrangedSubview(chip)
         }
     }
 
-    private func makeParticipantChip(user: User, index: Int) -> UIView {
+    private func makeParticipantChip(user: User) -> UIView {
+        let card = UIView()
+        card.backgroundColor = UIColor.white.withAlphaComponent(0.10)
+        card.layer.cornerRadius = 12
+        card.clipsToBounds = true
+
         let nameLabel = UILabel()
-        nameLabel.text = "\(user.name) \(user.surname)"
-        nameLabel.font = .systemFont(ofSize: 14)
+        nameLabel.text = "\(user.surname) \(user.name)"
+        nameLabel.font = .systemFont(ofSize: 14, weight: .semibold)
 
         let emailLabel = UILabel()
         emailLabel.text = user.email
@@ -373,14 +513,10 @@ final class AddTestViewController: UIViewController {
         vStack.spacing = 2
 
         let removeButton = UIButton(type: .system)
-        removeButton.setTitle("✕", for: .normal)
-        removeButton.tintColor = .systemRed
+        removeButton.setImage(UIImage(systemName: "xmark.circle.fill"), for: .normal)
+        removeButton.tintColor = UIColor.systemRed.withAlphaComponent(0.9)
         removeButton.addAction(UIAction { [weak self] _ in
-            guard let self else { return }
-            guard index < self.participants.count, index < self.addedUsers.count else { return }
-            self.participants.remove(at: index)
-            self.addedUsers.remove(at: index)
-            self.refreshParticipantsChips()
+            self?.removeParticipant(withId: user.id)
         }, for: .touchUpInside)
 
         let hStack = UIStackView(arrangedSubviews: [vStack, removeButton])
@@ -388,7 +524,16 @@ final class AddTestViewController: UIViewController {
         hStack.alignment = .center
         hStack.spacing = 8
         hStack.distribution = .equalSpacing
-        return hStack
+        hStack.translatesAutoresizingMaskIntoConstraints = false
+
+        card.addSubview(hStack)
+        NSLayoutConstraint.activate([
+            hStack.topAnchor.constraint(equalTo: card.topAnchor, constant: 10),
+            hStack.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 10),
+            hStack.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -10),
+            hStack.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -10)
+        ])
+        return card
     }
 
     // MARK: - Navigation
@@ -548,23 +693,16 @@ extension AddTestViewController: UITableViewDelegate, UITableViewDataSource {
         cell.selectionStyle = .none
 
         let user = searchResults[indexPath.row]
-        cell.configure(with: user) { [weak self] in
-            guard let self else { return }
-            if !participants.contains(user.id) {
-                participants.append(user.id)
-                addedUsers.append(user)
-                refreshParticipantsChips()
-            }
-            participantField.textField.text = ""
-            searchResults = []
-            searchResultsTable.reloadData()
-            searchResultsTable.isHidden = true
+        let isAdded = participants.contains(user.id)
+        cell.configure(with: user, isAdded: isAdded) { [weak self] in
+            self?.addParticipant(user)
         }
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        let user = searchResults[indexPath.row]
+        addParticipant(user)
     }
 }
-

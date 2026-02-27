@@ -10,4 +10,5 @@ import Foundation
 protocol ResultServiceProtocol {
     func fetchAttempt(testId: String, studentId: String) async throws -> StudentAttempt?
     func fetchResult(testId: String, studentId: String) async throws -> TestResult?
+    func fetchAttempts(studentId: String) async throws -> [StudentAttempt]
 }

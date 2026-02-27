@@ -34,4 +34,12 @@ final class ResultService: ResultServiceProtocol {
         guard let doc = snapshot.documents.first else { return nil }
         return try doc.data(as: TestResult.self)
     }
+
+    func fetchAttempts(studentId: String) async throws -> [StudentAttempt] {
+        let snapshot = try await dataBase.collection("attempts")
+            .whereField("studentId", isEqualTo: studentId)
+            .getDocuments()
+
+        return try snapshot.documents.compactMap { try $0.data(as: StudentAttempt.self) }
+    }
 }

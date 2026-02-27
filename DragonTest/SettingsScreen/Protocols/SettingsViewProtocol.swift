@@ -9,6 +9,7 @@ import UIKit
 
 protocol SettingsViewProtocol: AnyObject {
     func applyBackground()
+    func setLoading(_ isLoading: Bool)
     func setFields(name: String?, tg: String?, email: String?)
     func setRoleIndex(_ index: Int)
     func setThemeIndex(_ index: Int)
