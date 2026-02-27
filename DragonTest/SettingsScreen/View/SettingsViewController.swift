@@ -20,6 +20,10 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
     private let scrollView = UIScrollView()
     private let contentStack = UIStackView()
     private var headerView: UIView!
+    private let loadingOverlay = UIView()
+    private let loadingIndicator = UIActivityIndicatorView(style: .large)
+    private let loadingCard = UIVisualEffectView(effect: UIBlurEffect(style: .systemThickMaterialDark))
+    private let loadingLabel = UILabel()
 
     private let avatarImageView = UIImageView()
 
@@ -57,6 +61,7 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
         setupLayout()
         buildForm()
         setupTelegramInteractions()
+        setLoading(true)
 
         NotificationCenter.default.addObserver(self, selector: #selector(themeDidChange), name: .appThemeDidChange, object: nil)
 
@@ -104,12 +109,39 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
         headerView = buildHeader()
         view.addSubview(headerView)
         view.addSubview(scrollView)
+        view.addSubview(loadingOverlay)
 
         scrollView.backgroundColor = .clear
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.alwaysBounceVertical = true
         headerView.translatesAutoresizingMaskIntoConstraints = false
         contentStack.translatesAutoresizingMaskIntoConstraints = false
+        loadingOverlay.translatesAutoresizingMaskIntoConstraints = false
+        loadingOverlay.backgroundColor = UIColor.black.withAlphaComponent(0.14)
+        loadingOverlay.isHidden = true
+        loadingOverlay.alpha = 0
+
+        loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
+        loadingIndicator.color = .white
+
+        loadingCard.translatesAutoresizingMaskIntoConstraints = false
+        loadingCard.layer.cornerRadius = 16
+        loadingCard.layer.cornerCurve = .continuous
+        loadingCard.clipsToBounds = true
+
+        loadingLabel.translatesAutoresizingMaskIntoConstraints = false
+        loadingLabel.text = "Загрузка профиля..."
+        loadingLabel.textColor = .white
+        loadingLabel.font = .systemFont(ofSize: 15, weight: .semibold)
+
+        let loadingStack = UIStackView(arrangedSubviews: [loadingIndicator, loadingLabel])
+        loadingStack.translatesAutoresizingMaskIntoConstraints = false
+        loadingStack.axis = .horizontal
+        loadingStack.alignment = .center
+        loadingStack.spacing = 10
+
+        loadingOverlay.addSubview(loadingCard)
+        loadingCard.contentView.addSubview(loadingStack)
 
         NSLayoutConstraint.activate([
             headerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -24),
@@ -119,7 +151,22 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
             scrollView.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 16),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            loadingOverlay.topAnchor.constraint(equalTo: view.topAnchor),
+            loadingOverlay.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            loadingOverlay.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            loadingOverlay.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            loadingCard.centerXAnchor.constraint(equalTo: loadingOverlay.centerXAnchor),
+            loadingCard.centerYAnchor.constraint(equalTo: loadingOverlay.centerYAnchor),
+            loadingCard.leadingAnchor.constraint(greaterThanOrEqualTo: loadingOverlay.leadingAnchor, constant: 32),
+            loadingCard.trailingAnchor.constraint(lessThanOrEqualTo: loadingOverlay.trailingAnchor, constant: -32),
+
+            loadingStack.topAnchor.constraint(equalTo: loadingCard.contentView.topAnchor, constant: 14),
+            loadingStack.leadingAnchor.constraint(equalTo: loadingCard.contentView.leadingAnchor, constant: 18),
+            loadingStack.trailingAnchor.constraint(equalTo: loadingCard.contentView.trailingAnchor, constant: -18),
+            loadingStack.bottomAnchor.constraint(equalTo: loadingCard.contentView.bottomAnchor, constant: -14)
         ])
 
         scrollView.addSubview(contentStack)
@@ -223,7 +270,7 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
         roleTitle.font = .systemFont(ofSize: 14, weight: .medium)
 
         let roleSegment = UISegmentedControl(items: ["Студент", "Преподаватель"])
-        roleSegment.selectedSegmentIndex = 0
+        roleSegment.selectedSegmentIndex = UISegmentedControl.noSegment
         roleSegment.isEnabled = false // как и было
         roleSegment.addTarget(self, action: #selector(roleChanged(_:)), for: .valueChanged)
         self.roleSegment = roleSegment
@@ -443,6 +490,23 @@ final class SettingsViewController: UIViewController, UITextFieldDelegate, UIIma
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) { picker.dismiss(animated: true) }
 
     // MARK: - SettingsViewProtocol impl
+    func setLoading(_ isLoading: Bool) {
+        contentStack.isUserInteractionEnabled = !isLoading
+        scrollView.isScrollEnabled = !isLoading
+
+        loadingOverlay.isHidden = !isLoading
+        if isLoading {
+            contentStack.alpha = 0
+            loadingIndicator.startAnimating()
+            UIView.animate(withDuration: 0.15) { self.loadingOverlay.alpha = 1 }
+        } else {
+            loadingIndicator.stopAnimating()
+            UIView.animate(withDuration: 0.2) { self.contentStack.alpha = 1 }
+            UIView.animate(withDuration: 0.15, animations: { self.loadingOverlay.alpha = 0 }) { _ in
+                self.loadingOverlay.isHidden = true
+            }
+        }
+    }
 
     func setFields(name: String?, tg: String?, email: String?) {
         nameField.text  = name

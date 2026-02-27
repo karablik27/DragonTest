@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 protocol DragonSelectPresenterProtocol: AnyObject {
     func viewDidLoad()
     func didSelectNext()
@@ -16,4 +17,5 @@ protocol DragonSelectPresenterProtocol: AnyObject {
     func didFinishTest(completed: Int)
     func didCreateTest(_ test: Test)
     func requestStatus(for index: Int)
+    func didChangeStatusFilter(index: Int)
 }

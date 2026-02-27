@@ -7,6 +7,7 @@
 
 import UIKit
 
+@MainActor
 protocol DragonSelectViewProtocol: AnyObject {
     func updateUI(items: [CarouselItem], currentIndex: Int)
     func showEmptyState()
@@ -17,4 +18,3 @@ protocol DragonSelectViewProtocol: AnyObject {
     func currentGradientColors() -> [CGColor]
     func updateStatus(_ text: String)
 }
-

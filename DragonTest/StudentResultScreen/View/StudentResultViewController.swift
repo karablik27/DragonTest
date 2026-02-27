@@ -13,7 +13,9 @@ final class StudentResultViewController: UIViewController, StudentResultViewProt
     private let colors: [CGColor]
 
     // MARK: - UI
-    private let tableView = UITableView(frame: .zero, style: .insetGrouped)
+    private let closeButton = UIButton(type: .system)
+    private let tableView = UITableView(frame: .zero, style: .plain)
+    private var tableTopConstraint: NSLayoutConstraint?
 
     // summary (glass) header
     private let summaryCard = ResultGlassCard()
@@ -46,7 +48,7 @@ final class StudentResultViewController: UIViewController, StudentResultViewProt
     override func viewDidLoad() {
         super.viewDidLoad()
         setupBackground()
-        setupNavigation()
+        setupTopBar()
         setupTable()
 
         presenter.attach(view: self)
@@ -55,18 +57,34 @@ final class StudentResultViewController: UIViewController, StudentResultViewProt
         recomputeSummary()
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: animated)
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
+
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        guard let header = tableView.tableHeaderView else { return }
-        let target = header.systemLayoutSizeFitting(
-            CGSize(width: view.bounds.width, height: UIView.layoutFittingCompressedSize.height),
-            withHorizontalFittingPriority: .required,
-            verticalFittingPriority: .fittingSizeLevel
-        )
-        if header.frame.height != target.height {
-            header.frame.size.height = target.height
-            tableView.tableHeaderView = header
+        applyTopLayout()
+
+        if let header = tableView.tableHeaderView {
+            let width = effectiveTableWidth()
+            let target = header.systemLayoutSizeFitting(
+                CGSize(width: width, height: UIView.layoutFittingCompressedSize.height),
+                withHorizontalFittingPriority: .required,
+                verticalFittingPriority: .fittingSizeLevel
+            )
+            if header.frame.height != target.height || header.frame.width != width {
+                header.frame.size.width = width
+                header.frame.size.height = target.height
+                tableView.tableHeaderView = header
+            }
         }
+        updateScrollBehavior()
     }
 
     // MARK: - Background (same as DragonTest)
@@ -74,19 +92,15 @@ final class StudentResultViewController: UIViewController, StudentResultViewProt
         GradientBackground.attach(to: view, colors: colors)
     }
 
-    // MARK: - Navigation
-    private func setupNavigation() {
-        let back = UIBarButtonItem(
-            image: UIImage(systemName: "chevron.up"),
-            style: .plain,
-            target: self,
-            action: #selector(closeTapped)
-        )
-        navigationItem.leftBarButtonItem = back
-        navigationController?.navigationBar.tintColor = .label
-        navigationItem.largeTitleDisplayMode = .never
-        navigationItem.title = nil
-        title = nil
+    // MARK: - Top Bar
+    private func setupTopBar() {
+        closeButton.translatesAutoresizingMaskIntoConstraints = false
+        closeButton.setImage(UIImage(systemName: "chevron.up"), for: .normal)
+        closeButton.tintColor = .white
+        closeButton.backgroundColor = UIColor.white.withAlphaComponent(0.14)
+        closeButton.layer.cornerRadius = 15
+        closeButton.clipsToBounds = true
+        closeButton.addTarget(self, action: #selector(closeTapped), for: .touchUpInside)
     }
 
     @objc private func closeTapped() {
@@ -99,9 +113,12 @@ final class StudentResultViewController: UIViewController, StudentResultViewProt
         view.backgroundColor = .clear
         tableView.backgroundColor = .clear
         tableView.separatorStyle = .none
-        tableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 28, right: 0)
+        tableView.contentInsetAdjustmentBehavior = .never
+        tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 28, right: 0)
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 180
+        tableView.sectionHeaderTopPadding = 0
+        tableView.bounces = false
 
         tableView.dataSource = self
         tableView.delegate   = self
@@ -109,8 +126,9 @@ final class StudentResultViewController: UIViewController, StudentResultViewProt
 
         view.addSubview(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableTopConstraint = tableView.topAnchor.constraint(equalTo: view.topAnchor, constant: 48)
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            tableTopConstraint!,
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
@@ -125,10 +143,14 @@ final class StudentResultViewController: UIViewController, StudentResultViewProt
         card.translatesAutoresizingMaskIntoConstraints = false
 
         testTitlePill.setText(cachedTestTitle ?? "Тест")
-        let topRow = UIStackView(arrangedSubviews: [testTitlePill, UIView()])
+        let topRow = UIStackView(arrangedSubviews: [testTitlePill, UIView(), closeButton])
         topRow.axis = .horizontal
         topRow.alignment = .center
         topRow.spacing = 10
+        NSLayoutConstraint.activate([
+            closeButton.widthAnchor.constraint(equalToConstant: 30),
+            closeButton.heightAnchor.constraint(equalToConstant: 30)
+        ])
 
         metricsRow.axis = .horizontal
         metricsRow.alignment = .fill
@@ -145,10 +167,10 @@ final class StudentResultViewController: UIViewController, StudentResultViewProt
         card.addSubview(stack)
 
         NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: card.topAnchor, constant: 18),
+            stack.topAnchor.constraint(equalTo: card.topAnchor, constant: 12),
             stack.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 18),
             stack.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -18),
-            stack.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -18)
+            stack.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -12)
         ])
 
         let container = UIView()
@@ -157,22 +179,22 @@ final class StudentResultViewController: UIViewController, StudentResultViewProt
         card.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            card.topAnchor.constraint(equalTo: container.topAnchor, constant: 12),
+            card.topAnchor.constraint(equalTo: container.topAnchor),
             card.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
             card.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
-            card.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -8),
-            container.widthAnchor.constraint(equalToConstant: view.bounds.width)
+            card.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -8)
         ])
 
         recomputeSummary()
 
         container.layoutIfNeeded()
+        let width = effectiveTableWidth()
         let target = container.systemLayoutSizeFitting(
-            CGSize(width: view.bounds.width, height: UIView.layoutFittingCompressedSize.height),
+            CGSize(width: width, height: UIView.layoutFittingCompressedSize.height),
             withHorizontalFittingPriority: .required,
             verticalFittingPriority: .fittingSizeLevel
         )
-        container.frame = CGRect(origin: .zero, size: CGSize(width: view.bounds.width, height: target.height))
+        container.frame = CGRect(origin: .zero, size: CGSize(width: width, height: target.height))
         return container
     }
 
@@ -215,15 +237,37 @@ final class StudentResultViewController: UIViewController, StudentResultViewProt
 
     private func relayoutHeader() {
         guard let header = tableView.tableHeaderView else { return }
+        let width = effectiveTableWidth()
         let newSize = header.systemLayoutSizeFitting(
-            CGSize(width: view.bounds.width, height: UIView.layoutFittingCompressedSize.height),
+            CGSize(width: width, height: UIView.layoutFittingCompressedSize.height),
             withHorizontalFittingPriority: .required,
             verticalFittingPriority: .fittingSizeLevel
         )
-        if header.frame.height != newSize.height {
+        if header.frame.height != newSize.height || header.frame.width != width {
+            header.frame.size.width = width
             header.frame.size.height = newSize.height
             tableView.tableHeaderView = header
         }
+        updateScrollBehavior()
+    }
+
+    private func effectiveTableWidth() -> CGFloat {
+        let width = tableView.bounds.width > 0 ? tableView.bounds.width : view.bounds.width
+        return width > 0 ? width : UIScreen.main.bounds.width
+    }
+
+    private func applyTopLayout() {
+        let sceneStatusBar = view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
+        let fallbackTop = sceneStatusBar > 0 ? sceneStatusBar : view.safeAreaInsets.top
+        let topInset = min(max(fallbackTop, 20), 60)
+
+        tableTopConstraint?.constant = topInset + 18
+    }
+
+    private func updateScrollBehavior() {
+        tableView.layoutIfNeeded()
+        let visibleHeight = tableView.bounds.height - tableView.adjustedContentInset.top - tableView.adjustedContentInset.bottom
+        tableView.isScrollEnabled = tableView.contentSize.height > visibleHeight + 1
     }
 
     // MARK: - StudentResultViewProtocol
@@ -251,6 +295,7 @@ final class StudentResultViewController: UIViewController, StudentResultViewProt
     func reloadAnswers() {
         tableView.reloadData()
         recomputeSummary()
+        updateScrollBehavior()
     }
 }
 

@@ -13,8 +13,10 @@ final class TeacherReviewDetailViewController: UIViewController {
     private let presenter: TeacherReviewDetailPresenterProtocol
 
     // MARK: - UI
+    private let closeButton = UIButton(type: .system)
     private let tableView = UITableView(frame: .zero, style: .plain)
     private var footerButton: PrimaryActionButton?
+    private var tableTopConstraint: NSLayoutConstraint?
 
     // MARK: - Init (DI идёт в презентер)
     init(attempt: StudentAttempt,
@@ -38,6 +40,7 @@ final class TeacherReviewDetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNav()
+        setupTopBar()
         setupTable()
         setupKeyboardDismiss()
 
@@ -45,32 +48,23 @@ final class TeacherReviewDetailViewController: UIViewController {
         presenter.viewDidLoad()
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: animated)
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
+
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        if let header = tableView.tableHeaderView {
-            let target = header.systemLayoutSizeFitting(
-                CGSize(width: view.bounds.width, height: 1),
-                withHorizontalFittingPriority: .required,
-                verticalFittingPriority: .fittingSizeLevel
-            )
-            if header.frame.height != target.height {
-                header.frame.size.height = target.height
-                tableView.tableHeaderView = header
-            }
-        }
-        if let footer = tableView.tableFooterView {
-            let target = footer.systemLayoutSizeFitting(
-                CGSize(width: view.bounds.width, height: 1),
-                withHorizontalFittingPriority: .required,
-                verticalFittingPriority: .fittingSizeLevel
-            )
-            if footer.frame.height != target.height {
-                footer.frame.size.height = target.height
-                tableView.tableFooterView = footer
-            }
-        }
+        applyTopLayout()
+        resizeSupplementaryViewsIfNeeded()
         tableView.contentInset.bottom = view.safeAreaInsets.bottom + 12
         tableView.scrollIndicatorInsets.bottom = view.safeAreaInsets.bottom
+        updateScrollBehavior()
     }
 
     // MARK: - Nav
@@ -80,13 +74,26 @@ final class TeacherReviewDetailViewController: UIViewController {
         title = nil
     }
 
+    private func setupTopBar() {
+        closeButton.setImage(UIImage(systemName: "chevron.backward"), for: .normal)
+        closeButton.tintColor = .white
+        closeButton.backgroundColor = UIColor.white.withAlphaComponent(0.14)
+        closeButton.layer.cornerRadius = 15
+        closeButton.clipsToBounds = true
+        closeButton.addTarget(self, action: #selector(closeTapped), for: .touchUpInside)
+        closeButton.translatesAutoresizingMaskIntoConstraints = false
+    }
+
     // MARK: - Table
     private func setupTable() {
         tableView.backgroundColor = .clear
         tableView.separatorStyle = .none
+        tableView.contentInsetAdjustmentBehavior = .never
+        tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 220
         tableView.keyboardDismissMode = .onDrag
+        tableView.sectionHeaderTopPadding = 0
 
         tableView.dataSource = self
         tableView.delegate   = self
@@ -95,10 +102,11 @@ final class TeacherReviewDetailViewController: UIViewController {
 
         tableView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tableView)
+        tableTopConstraint = tableView.topAnchor.constraint(equalTo: view.topAnchor, constant: 52)
         NSLayoutConstraint.activate([
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: view.topAnchor),
+            tableTopConstraint!,
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
@@ -122,17 +130,30 @@ final class TeacherReviewDetailViewController: UIViewController {
 
         let testTitlePill = PillLabel(text: testTitle, style: .white)
 
-        let stack = UIStackView(arrangedSubviews: [titleLabel, testTitlePill])
+        let rightSpacer = UIView()
+        rightSpacer.translatesAutoresizingMaskIntoConstraints = false
+        let titleRow = UIStackView(arrangedSubviews: [closeButton, titleLabel, rightSpacer])
+        titleRow.axis = .horizontal
+        titleRow.alignment = .center
+        titleRow.spacing = 8
+
+        NSLayoutConstraint.activate([
+            closeButton.widthAnchor.constraint(equalToConstant: 30),
+            closeButton.heightAnchor.constraint(equalToConstant: 30),
+            rightSpacer.widthAnchor.constraint(equalTo: closeButton.widthAnchor)
+        ])
+
+        let stack = UIStackView(arrangedSubviews: [titleRow, testTitlePill])
         stack.axis = .vertical
         stack.spacing = 10
 
         headerCard.addSubview(stack)
         stack.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: headerCard.topAnchor, constant: 14),
+            stack.topAnchor.constraint(equalTo: headerCard.topAnchor, constant: 12),
             stack.leadingAnchor.constraint(equalTo: headerCard.leadingAnchor, constant: 16),
             stack.trailingAnchor.constraint(equalTo: headerCard.trailingAnchor, constant: -16),
-            stack.bottomAnchor.constraint(equalTo: headerCard.bottomAnchor, constant: -14)
+            stack.bottomAnchor.constraint(equalTo: headerCard.bottomAnchor, constant: -12)
         ])
 
         let container = UIView()
@@ -140,20 +161,20 @@ final class TeacherReviewDetailViewController: UIViewController {
         container.addSubview(headerCard)
         headerCard.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            headerCard.topAnchor.constraint(equalTo: container.topAnchor, constant: 10),
+            headerCard.topAnchor.constraint(equalTo: container.topAnchor, constant: 2),
             headerCard.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
             headerCard.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
-            headerCard.bottomAnchor.constraint(equalTo: container.bottomAnchor),
-            container.widthAnchor.constraint(equalToConstant: view.bounds.width)
+            headerCard.bottomAnchor.constraint(equalTo: container.bottomAnchor)
         ])
 
         container.layoutIfNeeded()
+        let width = effectiveTableWidth()
         let size = container.systemLayoutSizeFitting(
-            CGSize(width: view.bounds.width, height: 1),
+            CGSize(width: width, height: 1),
             withHorizontalFittingPriority: .required,
             verticalFittingPriority: .fittingSizeLevel
         )
-        container.frame = CGRect(origin: .zero, size: size)
+        container.frame = CGRect(origin: .zero, size: CGSize(width: width, height: size.height))
         tableView.tableHeaderView = container
     }
 
@@ -190,21 +211,82 @@ final class TeacherReviewDetailViewController: UIViewController {
             footerCard.topAnchor.constraint(equalTo: container.topAnchor, constant: 10),
             footerCard.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
             footerCard.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
-            footerCard.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -6),
-            container.widthAnchor.constraint(equalToConstant: view.bounds.width)
+            footerCard.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -6)
         ])
 
         container.layoutIfNeeded()
+        let width = effectiveTableWidth()
         let size = container.systemLayoutSizeFitting(
-            CGSize(width: view.bounds.width, height: 1),
+            CGSize(width: width, height: 1),
             withHorizontalFittingPriority: .required,
             verticalFittingPriority: .fittingSizeLevel
         )
-        container.frame = CGRect(origin: .zero, size: size)
+        container.frame = CGRect(origin: .zero, size: CGSize(width: width, height: size.height))
         tableView.tableFooterView = container
     }
 
+    private func effectiveTableWidth() -> CGFloat {
+        let width = tableView.bounds.width > 0 ? tableView.bounds.width : view.bounds.width
+        return width > 0 ? width : UIScreen.main.bounds.width
+    }
+
+    private func resizeSupplementaryViewsIfNeeded() {
+        let width = effectiveTableWidth()
+
+        if let header = tableView.tableHeaderView {
+            let target = header.systemLayoutSizeFitting(
+                CGSize(width: width, height: 1),
+                withHorizontalFittingPriority: .required,
+                verticalFittingPriority: .fittingSizeLevel
+            )
+            var frame = header.frame
+            let needsWidth = abs(frame.width - width) > 0.5
+            let needsHeight = abs(frame.height - target.height) > 0.5
+            if needsWidth || needsHeight {
+                frame.size.width = width
+                frame.size.height = target.height
+                header.frame = frame
+                tableView.tableHeaderView = header
+            }
+        }
+
+        if let footer = tableView.tableFooterView {
+            let target = footer.systemLayoutSizeFitting(
+                CGSize(width: width, height: 1),
+                withHorizontalFittingPriority: .required,
+                verticalFittingPriority: .fittingSizeLevel
+            )
+            var frame = footer.frame
+            let needsWidth = abs(frame.width - width) > 0.5
+            let needsHeight = abs(frame.height - target.height) > 0.5
+            if needsWidth || needsHeight {
+                frame.size.width = width
+                frame.size.height = target.height
+                footer.frame = frame
+                tableView.tableFooterView = footer
+            }
+        }
+    }
+
+    private func updateScrollBehavior() {
+        tableView.layoutIfNeeded()
+        let visibleHeight = tableView.bounds.height - tableView.adjustedContentInset.top - tableView.adjustedContentInset.bottom
+        tableView.isScrollEnabled = tableView.contentSize.height > visibleHeight + 1
+    }
+
+    private func applyTopLayout() {
+        let sceneStatusBar = view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
+        let fallbackTop = sceneStatusBar > 0 ? sceneStatusBar : view.safeAreaInsets.top
+        let topInset = min(max(fallbackTop, 20), 60)
+
+        tableTopConstraint?.constant = topInset + 8
+    }
+
     // MARK: - Actions
+    @objc private func closeTapped() {
+        navigationController?.popViewController(animated: true)
+    }
+
     @objc private func saveTapped() {
         presenter.saveTapped()
     }
@@ -260,6 +342,7 @@ extension TeacherReviewDetailViewController: TeacherReviewDetailViewProtocol {
 
     func reloadAll() {
         tableView.reloadData()
+        updateScrollBehavior()
     }
 
     func reloadRow(_ row: Int) {

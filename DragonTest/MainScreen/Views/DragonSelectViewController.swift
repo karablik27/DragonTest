@@ -18,6 +18,11 @@ extension CarouselItem {
         if case .test = self { return true }
         return false
     }
+
+    var testId: String? {
+        if case .test(let test) = self { return test.id }
+        return nil
+    }
 }
 
 final class StatusBadgeView: UIView {
@@ -36,7 +41,6 @@ final class StatusBadgeView: UIView {
         backgroundColor = .clear
         isOpaque = false
 
-        // Card as background container
         card.translatesAutoresizingMaskIntoConstraints = false
         addSubview(card)
         NSLayoutConstraint.activate([
@@ -46,7 +50,6 @@ final class StatusBadgeView: UIView {
             card.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
 
-        // Content
         stack.axis = .horizontal
         stack.alignment = .center
         stack.spacing = 10
@@ -96,7 +99,9 @@ final class StatusBadgeView: UIView {
         accessibilityLabel = text
 
         let lower = text.lowercased()
-        if lower.contains("прошли:") {
+        if lower.contains("на проверке") {
+            apply(symbol: "hourglass.badge.exclamationmark", tint: .systemYellow)
+        } else if lower.contains("прошли:") {
             apply(symbol: "person.3.fill", tint: .systemTeal)
         } else if lower.contains("не пройдено") {
             apply(symbol: "xmark.seal.fill", tint: .systemOrange)
@@ -114,6 +119,7 @@ final class StatusBadgeView: UIView {
         card.layer.shadowOpacity = 0.22
     }
 }
+
 // MARK: - Controller
 
 final class DragonSelectViewController: UIViewController, DragonSelectViewProtocol {
@@ -128,6 +134,8 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
     private var teacherVC: TeacherReviewViewController?
     private var resultVC: StudentResultViewController?
     private var isTestVisible = false
+    private var preloadedStudentTestId: String?
+    private var preloadedTeacherTestId: String?
 
     // Hold
     private var holdTimer: Timer?
@@ -141,9 +149,21 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
     private let gradientHost = UIView()
     private let bgLayer = CAGradientLayer()
 
+    private let statusFilterButton = UIButton(type: .system)
+    private var selectedStatusFilterIndex = 0
+
     private let centerPreviewContainer = UIView()
     private let leftPreviewContainer = UIView()
     private let rightPreviewContainer = UIView()
+
+    private let centerDragonPreview = DragonPreviewView()
+    private let leftDragonPreview = DragonPreviewView()
+    private let rightDragonPreview = DragonPreviewView()
+    private let centerAddPreview = AddButtonPreviewView()
+    private let leftAddPreview = AddButtonPreviewView()
+    private let rightAddPreview = AddButtonPreviewView()
+    private var renderedPreviewKeys: [ObjectIdentifier: String] = [:]
+
     private let titleLabel = UILabel()
     private lazy var prevButton = makeArrowButton("◀︎", action: #selector(prevTap))
     private lazy var nextButton = makeArrowButton("▶︎", action: #selector(nextTap))
@@ -151,11 +171,9 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
     private var currentColors: [CGColor] = [UIColor.darkGray.cgColor, UIColor.black.cgColor]
 
     private let emptyStateView = EmptyStateView(message: "Нет доступных тестов")
-
-    // NEW: стеклянная плашка статуса
     private let statusBadge = StatusBadgeView(radius: 18)
 
-    // (Старые прогресс-элементы больше не используются, оставлены только чтобы не ломать код)
+    // Legacy widgets (hidden)
     private let progressView = UIProgressView(progressViewStyle: .bar)
     private let progressLabel = UILabel()
 
@@ -180,38 +198,59 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
 
     // MARK: - DragonSelectViewProtocol
     func updateUI(items: [CarouselItem], currentIndex: Int) {
+        guard !items.isEmpty, currentIndex >= 0, currentIndex < items.count else {
+            showEmptyState()
+            return
+        }
+
+        let previousItem = (self.currentIndex >= 0 && self.currentIndex < self.items.count) ? self.items[self.currentIndex] : nil
+
         self.items = items
         self.currentIndex = currentIndex
 
         emptyStateView.isHidden = true
         dragonsContainer.isHidden = false
+        centerPreviewContainer.isHidden = false
+        leftPreviewContainer.isHidden = false
+        rightPreviewContainer.isHidden = false
+        titleLabel.isHidden = false
 
         let item = items[currentIndex]
+        resetPreloadedControllersIfNeeded(from: previousItem, to: item)
 
-        // фон
         applyGradient(for: item, animated: false)
 
-        // драконы
-        configure(container: centerPreviewContainer, item: item, scale: [0.8, 0.8, 0.8])
-        configure(container: leftPreviewContainer,
-                  item: currentIndex > 0 ? items[currentIndex - 1] : nil,
-                  scale: [0.6, 0.6, 0.6])
-        configure(container: rightPreviewContainer,
-                  item: currentIndex < items.count - 1 ? items[currentIndex + 1] : nil,
-                  scale: [0.6, 0.6, 0.6])
+        configure(
+            container: centerPreviewContainer,
+            dragonPreview: centerDragonPreview,
+            addPreview: centerAddPreview,
+            item: item,
+            scale: [0.8, 0.8, 0.8]
+        )
+        configure(
+            container: leftPreviewContainer,
+            dragonPreview: leftDragonPreview,
+            addPreview: leftAddPreview,
+            item: currentIndex > 0 ? items[currentIndex - 1] : nil,
+            scale: [0.6, 0.6, 0.6]
+        )
+        configure(
+            container: rightPreviewContainer,
+            dragonPreview: rightDragonPreview,
+            addPreview: rightAddPreview,
+            item: currentIndex < items.count - 1 ? items[currentIndex + 1] : nil,
+            scale: [0.6, 0.6, 0.6]
+        )
 
-        // заголовки и стрелки
         titleLabel.text = titleForItem(item)
         prevButton.isHidden = currentIndex == 0
         nextButton.isHidden = currentIndex == items.count - 1
 
-        // скрываем старый прогресс и показываем статусный бейдж
         progressView.isHidden = true
         progressLabel.isHidden = true
         statusBadge.isHidden = false
-        hintView.isHidden = !(item.isTest)
+        hintView.isHidden = !item.isTest
 
-        // запрос статуса для бейджа
         presenter.requestStatus(for: currentIndex)
     }
 
@@ -222,15 +261,27 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
     }
 
     func showEmptyState() {
-        dragonsContainer.isHidden = true
+        dragonsContainer.isHidden = false
         emptyStateView.isHidden = false
+        centerPreviewContainer.isHidden = true
+        leftPreviewContainer.isHidden = true
+        rightPreviewContainer.isHidden = true
+        titleLabel.isHidden = true
+        prevButton.isHidden = true
+        nextButton.isHidden = true
         statusBadge.isHidden = true
+        hintView.isHidden = true
     }
 
     func openTest(_ test: Test) {
         guard !isTestVisible else { return }
 
         if DependencyInjection.shared.currentUser.role == .student {
+            if preloadedStudentTestId != test.id {
+                testVC = nil
+                preloadedStudentTestId = nil
+            }
+
             if testVC == nil {
                 testVC = DragonTestViewController(
                     test: test,
@@ -239,6 +290,7 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
                     self?.presenter.didFinishTest(completed: completed)
                     self?.closeTest()
                 }
+                preloadedStudentTestId = test.id
                 _ = testVC?.view
                 testVC?.view.layoutIfNeeded()
             }
@@ -251,6 +303,11 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
                 vc.didMove(toParent: self)
             }
         } else {
+            if preloadedTeacherTestId != test.id {
+                teacherVC = nil
+                preloadedTeacherTestId = nil
+            }
+
             if teacherVC == nil {
                 let vc = TeacherReviewViewController(
                     test: test,
@@ -258,6 +315,7 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
                 )
                 vc.onClose = { [weak self] in self?.closeTest() }
                 teacherVC = vc
+                preloadedTeacherTestId = test.id
                 _ = vc.view
                 vc.view.layoutIfNeeded()
             }
@@ -293,7 +351,7 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
         animateOpen()
     }
 
-    // MARK: - Общая анимация открытия
+    // MARK: - Animations
     private func animateOpen() {
         UIView.animate(withDuration: 0.6,
                        delay: 0,
@@ -363,6 +421,31 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
     @objc private func nextTap() { presenter.didSelectNext() }
     @objc private func addTap()  { presenter.didTapAdd() }
 
+    private func applyStatusFilter(index: Int) {
+        selectedStatusFilterIndex = index
+        rebuildStatusFilterMenu()
+        presenter.didChangeStatusFilter(index: index)
+    }
+
+    private func rebuildStatusFilterMenu() {
+        let menu = UIMenu(title: "Фильтр тестов", children: [
+            makeStatusFilterAction(title: "Все", index: 0),
+            makeStatusFilterAction(title: "Пройдено", index: 2),
+            makeStatusFilterAction(title: "Не пройдено", index: 1),
+            makeStatusFilterAction(title: "На проверке", index: 3)
+        ])
+        statusFilterButton.menu = menu
+    }
+
+    private func makeStatusFilterAction(title: String, index: Int) -> UIAction {
+        UIAction(
+            title: title,
+            state: selectedStatusFilterIndex == index ? .on : .off
+        ) { [weak self] _ in
+            self?.applyStatusFilter(index: index)
+        }
+    }
+
     // MARK: - Gestures
     private func addGestures() {
         let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe(_:)))
@@ -409,33 +492,54 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
             let percent = min(self.holdProgress / self.holdDuration, 1.0)
             self.hintView.updateProgress(percent)
 
-            // PRELOAD Student
-            if percent >= 0.3, self.testVC == nil,
-               case let .test(test) = self.items[self.currentIndex] {
-                self.testVC = DragonTestViewController(
-                    test: test,
-                    colors: test.dragonKind.gradientColors
-                ) { [weak self] completed in
-                    self?.presenter.didFinishTest(completed: completed)
-                    self?.closeTest()
+            guard self.currentIndex >= 0,
+                  self.currentIndex < self.items.count,
+                  case let .test(test) = self.items[self.currentIndex] else {
+                if percent >= 1.0 {
+                    t.invalidate()
                 }
-                _ = self.testVC?.view
-                self.testVC?.view.layoutIfNeeded()
+                return
             }
-            // PRELOAD Teacher
-            if DependencyInjection.shared.currentUser.role == .teacher,
-               percent >= 0.30,
-               self.teacherVC == nil,
-               case let .test(test) = self.items[self.currentIndex] {
 
-                let vc = TeacherReviewViewController(
-                    test: test,
-                    colors: test.dragonKind.gradientColors
-                )
-                vc.onClose = { [weak self] in self?.closeTest() }
-                self.teacherVC = vc
-                _ = vc.view
-                vc.view.layoutIfNeeded()
+            if percent >= 0.3,
+               DependencyInjection.shared.currentUser.role == .student {
+                if self.preloadedStudentTestId != test.id {
+                    self.testVC = nil
+                    self.preloadedStudentTestId = nil
+                }
+
+                if self.testVC == nil {
+                    self.testVC = DragonTestViewController(
+                        test: test,
+                        colors: test.dragonKind.gradientColors
+                    ) { [weak self] completed in
+                        self?.presenter.didFinishTest(completed: completed)
+                        self?.closeTest()
+                    }
+                    self.preloadedStudentTestId = test.id
+                    _ = self.testVC?.view
+                    self.testVC?.view.layoutIfNeeded()
+                }
+            }
+
+            if DependencyInjection.shared.currentUser.role == .teacher,
+               percent >= 0.30 {
+                if self.preloadedTeacherTestId != test.id {
+                    self.teacherVC = nil
+                    self.preloadedTeacherTestId = nil
+                }
+
+                if self.teacherVC == nil {
+                    let vc = TeacherReviewViewController(
+                        test: test,
+                        colors: test.dragonKind.gradientColors
+                    )
+                    vc.onClose = { [weak self] in self?.closeTest() }
+                    self.teacherVC = vc
+                    self.preloadedTeacherTestId = test.id
+                    _ = vc.view
+                    vc.view.layoutIfNeeded()
+                }
             }
 
             if percent >= 1.0 {
@@ -481,6 +585,8 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
                 nav.view.removeFromSuperview()
                 nav.removeFromParent()
             }
+            self.preloadedStudentTestId = nil
+            self.preloadedTeacherTestId = nil
             self.resultVC = nil
             self.isTestVisible = false
             self.testContainer.alpha = 1
@@ -488,11 +594,24 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
         })
     }
 
+    private func resetPreloadedControllersIfNeeded(from previousItem: CarouselItem?, to newItem: CarouselItem) {
+        guard !isTestVisible else { return }
+        guard previousItem?.testId != newItem.testId else { return }
+
+        testVC = nil
+        teacherVC = nil
+        preloadedStudentTestId = nil
+        preloadedTeacherTestId = nil
+    }
+
     // MARK: - UI
     private func setupUI() {
         [testContainer, dragonsContainer,
          gradientHost,
+         statusFilterButton,
          centerPreviewContainer, leftPreviewContainer, rightPreviewContainer,
+         centerDragonPreview, leftDragonPreview, rightDragonPreview,
+         centerAddPreview, leftAddPreview, rightAddPreview,
          titleLabel, prevButton, nextButton,
          hintView, emptyStateView,
          statusBadge,
@@ -504,7 +623,6 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
         view.addSubview(dragonsContainer)
         view.addSubview(emptyStateView)
 
-        // фон
         dragonsContainer.addSubview(gradientHost)
         NSLayoutConstraint.activate([
             gradientHost.leadingAnchor.constraint(equalTo: dragonsContainer.leadingAnchor),
@@ -513,25 +631,53 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
             gradientHost.bottomAnchor.constraint(equalTo: dragonsContainer.bottomAnchor)
         ])
         bgLayer.startPoint = CGPoint(x: 0, y: 0)
-        bgLayer.endPoint   = CGPoint(x: 1, y: 1)
+        bgLayer.endPoint = CGPoint(x: 1, y: 1)
         gradientHost.layer.addSublayer(bgLayer)
         dragonsContainer.sendSubviewToBack(gradientHost)
 
-        // контент
+        dragonsContainer.addSubview(statusFilterButton)
+        var menuButtonConfig = UIButton.Configuration.plain()
+        menuButtonConfig.image = UIImage(systemName: "ellipsis.circle")
+        menuButtonConfig.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 24, weight: .semibold)
+        statusFilterButton.configuration = menuButtonConfig
+        statusFilterButton.tintColor = .white
+        statusFilterButton.showsMenuAsPrimaryAction = true
+        statusFilterButton.accessibilityLabel = "Фильтр тестов"
+        rebuildStatusFilterMenu()
+
+        if DependencyInjection.shared.currentUser.role == .teacher {
+            statusFilterButton.isHidden = true
+        }
+
         dragonsContainer.addSubview(centerPreviewContainer)
         dragonsContainer.addSubview(leftPreviewContainer)
         dragonsContainer.addSubview(rightPreviewContainer)
         dragonsContainer.addSubview(titleLabel)
         dragonsContainer.addSubview(prevButton)
         dragonsContainer.addSubview(nextButton)
-
-        // статусная стеклянная плашка
         dragonsContainer.addSubview(statusBadge)
-
-        // хинт под статусом
         dragonsContainer.addSubview(hintView)
 
-        // пустой стейт и базовая раскладка
+        setupReusablePreview(
+            in: centerPreviewContainer,
+            dragonPreview: centerDragonPreview,
+            addPreview: centerAddPreview
+        )
+        setupReusablePreview(
+            in: leftPreviewContainer,
+            dragonPreview: leftDragonPreview,
+            addPreview: leftAddPreview
+        )
+        setupReusablePreview(
+            in: rightPreviewContainer,
+            dragonPreview: rightDragonPreview,
+            addPreview: rightAddPreview
+        )
+
+        [centerAddPreview, leftAddPreview, rightAddPreview].forEach {
+            $0.button.addTarget(self, action: #selector(addTap), for: .touchUpInside)
+        }
+
         NSLayoutConstraint.activate([
             testContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             testContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -542,6 +688,11 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
             dragonsContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             dragonsContainer.topAnchor.constraint(equalTo: view.topAnchor),
             dragonsContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            statusFilterButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
+            statusFilterButton.trailingAnchor.constraint(equalTo: dragonsContainer.trailingAnchor, constant: -14),
+            statusFilterButton.widthAnchor.constraint(equalToConstant: 36),
+            statusFilterButton.heightAnchor.constraint(equalToConstant: 36),
 
             centerPreviewContainer.centerXAnchor.constraint(equalTo: dragonsContainer.centerXAnchor),
             centerPreviewContainer.centerYAnchor.constraint(equalTo: dragonsContainer.centerYAnchor, constant: -40),
@@ -567,12 +718,10 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
             nextButton.centerYAnchor.constraint(equalTo: centerPreviewContainer.centerYAnchor),
             nextButton.trailingAnchor.constraint(equalTo: dragonsContainer.trailingAnchor, constant: -16),
 
-            // статус под драконом
             statusBadge.topAnchor.constraint(equalTo: centerPreviewContainer.bottomAnchor, constant: 16),
             statusBadge.leadingAnchor.constraint(equalTo: dragonsContainer.leadingAnchor, constant: 40),
             statusBadge.trailingAnchor.constraint(equalTo: dragonsContainer.trailingAnchor, constant: -40),
 
-            // хинт под статусом
             hintView.centerXAnchor.constraint(equalTo: dragonsContainer.centerXAnchor),
             hintView.topAnchor.constraint(equalTo: statusBadge.bottomAnchor, constant: 14),
             hintView.widthAnchor.constraint(equalToConstant: 80),
@@ -584,7 +733,6 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
             emptyStateView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
 
-        // стили
         titleLabel.font = .systemFont(ofSize: 22, weight: .bold)
         titleLabel.textColor = .white
 
@@ -592,44 +740,80 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
         nextButton.isHidden = true
         hintView.isHidden = true
         emptyStateView.isHidden = true
+        emptyStateView.isUserInteractionEnabled = false
 
-        // старые виджеты прогресса полностью прячем
         progressView.isHidden = true
         progressLabel.isHidden = true
 
         testContainer.backgroundColor = .clear
     }
 
-    private func configure(container: UIView, item: CarouselItem?, scale: SIMD3<Float>) {
-        container.subviews.forEach { $0.removeFromSuperview() }
-        guard let item else { return }
+    private func setupReusablePreview(in container: UIView,
+                                      dragonPreview: DragonPreviewView,
+                                      addPreview: AddButtonPreviewView) {
+        container.addSubview(dragonPreview)
+        container.addSubview(addPreview)
+
+        NSLayoutConstraint.activate([
+            dragonPreview.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            dragonPreview.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            dragonPreview.topAnchor.constraint(equalTo: container.topAnchor),
+            dragonPreview.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+
+            addPreview.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            addPreview.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            addPreview.topAnchor.constraint(equalTo: container.topAnchor),
+            addPreview.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+        ])
+
+        dragonPreview.isHidden = true
+        addPreview.isHidden = true
+    }
+
+    private func configure(container: UIView,
+                           dragonPreview: DragonPreviewView,
+                           addPreview: AddButtonPreviewView,
+                           item: CarouselItem?,
+                           scale: SIMD3<Float>) {
+        let cacheKey = previewKey(for: item, scale: scale)
+        let containerId = ObjectIdentifier(container)
+
+        if renderedPreviewKeys[containerId] == cacheKey {
+            return
+        }
+        renderedPreviewKeys[containerId] = cacheKey
+
+        guard let item else {
+            addPreview.isHidden = true
+            dragonPreview.isHidden = true
+            dragonPreview.clear()
+            return
+        }
 
         switch item {
         case .addButton:
-            let addView = AddButtonPreviewView()
-            addView.translatesAutoresizingMaskIntoConstraints = false
-            container.addSubview(addView)
-            NSLayoutConstraint.activate([
-                addView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-                addView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-                addView.topAnchor.constraint(equalTo: container.topAnchor),
-                addView.bottomAnchor.constraint(equalTo: container.bottomAnchor)
-            ])
-            addView.button.addTarget(self, action: #selector(addTap), for: .touchUpInside)
+            addPreview.isHidden = false
+            dragonPreview.isHidden = true
+            dragonPreview.clear()
 
         case .test(let test):
-            let preview = DragonPreviewView()
-            preview.translatesAutoresizingMaskIntoConstraints = false
-            container.addSubview(preview)
-            NSLayoutConstraint.activate([
-                preview.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-                preview.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-                preview.topAnchor.constraint(equalTo: container.topAnchor),
-                preview.bottomAnchor.constraint(equalTo: container.bottomAnchor)
-            ])
+            addPreview.isHidden = true
+            dragonPreview.isHidden = false
             if let entity = DependencyInjection.shared.dragonCache.clone(for: test.dragonKind, scale: scale) {
-                preview.displayEntity(entity)
+                dragonPreview.displayEntity(entity, animated: container === centerPreviewContainer)
+            } else {
+                dragonPreview.clear()
             }
+        }
+    }
+
+    private func previewKey(for item: CarouselItem?, scale: SIMD3<Float>) -> String {
+        guard let item else { return "none" }
+        switch item {
+        case .addButton:
+            return "add"
+        case .test(let test):
+            return "\(test.id)-\(scale.x)-\(scale.y)-\(scale.z)"
         }
     }
 
@@ -690,14 +874,10 @@ extension DragonSelectViewController: AddTestDelegate {
             studentIds: participants,
             time: Date()
         )
-        if let presenter = presenter as? DragonSelectPresenter {
-            presenter.didCreateTest(newTest)
-        }
+        presenter.didCreateTest(newTest)
     }
 
     func didCreateTest(_ test: Test) {
-        if let presenter = presenter as? DragonSelectPresenter {
-            presenter.didCreateTest(test)
-        }
+        presenter.didCreateTest(test)
     }
 }
