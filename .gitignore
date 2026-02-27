@@ -7,3 +7,4 @@ functions/
 DragonTest.xcodeproj/xcuserdata/
 DragonTest.xcodeproj/xcshareddata/
 DragonTest/Config/Secrets.swift
+DragonTest/GoogleService-Info.plist
