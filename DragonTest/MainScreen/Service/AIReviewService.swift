@@ -18,7 +18,13 @@ protocol AIReviewServiceProtocol {
 }
 
 final class AIReviewService: AIReviewServiceProtocol {
-    private let apiKey = Secrets.aiApiKey
+    private let apiKeys: [String] = [
+        Secrets.aiApiKey1,
+        Secrets.aiApiKey2,
+        Secrets.aiApiKey3,
+        Secrets.aiApiKey4,
+        Secrets.aiApiKey5
+    ]
 
     func reviewAnswers(_ answers: [StudentAnswer], questions: [Questions]) async throws -> [StudentAnswer] {
         guard !answers.isEmpty else { return answers }
@@ -27,9 +33,32 @@ final class AIReviewService: AIReviewServiceProtocol {
             return missingAnswerFallback(for: answers)
         }
 
+        var lastError: Error?
+
+        for key in apiKeys {
+            do {
+                return try await performReview(answers, questions: questions, apiKey: key)
+            } catch {
+                if isRateLimitError(error) {
+                    lastError = error
+                    continue
+                } else {
+                    throw error
+                }
+            }
+        }
+
+        throw lastError ?? NSError(
+            domain: "AIReviewService",
+            code: 999,
+            userInfo: [NSLocalizedDescriptionKey: "Все ключи исчерпали лимит запросов"]
+        )
+    }
+
+    private func performReview(_ answers: [StudentAnswer], questions: [Questions], apiKey: String) async throws -> [StudentAnswer] {
         let url = URL(string: Secrets.aiUrlKey)!
         var req = URLRequest(url: url)
-        
+
         req.httpMethod = "POST"
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
@@ -49,7 +78,7 @@ final class AIReviewService: AIReviewServiceProtocol {
         let userPrompt = """
         Ты проверяешь ответы студентов. Верни строго JSON-массив с результатами для каждого ответа.
         ⚠️ ВАЖНО: в массиве должен быть объект для КАЖДОГО вопроса из входных данных.
-        Если ответа нет, ставь { "score": 0, "comment": "Ответ отсутствует" }.
+        Если ответа нет, ставь { "questionId": "id", "score": 0, "comment": "Ответ отсутствует" }.
         
         Формат:
         [
@@ -61,15 +90,25 @@ final class AIReviewService: AIReviewServiceProtocol {
         """
 
         let body: [String: Any] = [
-            "model": "deepseek-ai/DeepSeek-R1",
-            "messages": [   
+            "model": "qwen/qwen-2.5-7b-instruct",
+            "messages": [
                 ["role": "system", "content": "Ты ассистент-проверяющий тесты."],
                 ["role": "user", "content": userPrompt]
             ]
         ]
         req.httpBody = try JSONSerialization.data(withJSONObject: body)
 
-        let (data, _) = try await URLSession.shared.data(for: req)
+        let (data, response) = try await URLSession.shared.data(for: req)
+
+        // Проверка лимитов по HTTP статусу
+        if let http = response as? HTTPURLResponse, http.statusCode == 429 {
+            throw NSError(
+                domain: "AIReviewService",
+                code: 429,
+                userInfo: [NSLocalizedDescriptionKey: "Лимит запросов по ключу исчерпан"]
+            )
+        }
+
         let rawResponse = String(data: data, encoding: .utf8) ?? ""
         let candidates = extractResponseCandidates(from: data, rawResponse: rawResponse)
 
@@ -88,7 +127,11 @@ final class AIReviewService: AIReviewServiceProtocol {
         )
     }
 
-    // MARK: - Helpers
+    private func isRateLimitError(_ error: Error) -> Bool {
+        let ns = error as NSError
+        return ns.domain == "AIReviewService" && ns.code == 429
+    }
+
     private func hasMeaningfulAnswer(in answers: [StudentAnswer]) -> Bool {
         answers.contains { answer in
             if answer.selectedIndex != nil { return true }
@@ -200,7 +243,6 @@ final class AIReviewService: AIReviewServiceProtocol {
         return String(text[start...end])
     }
 
-    // Объединяем ответы с результатами LLM, добавляем заглушки для пропущенных
     private func mergeEnsuringCompleteness(_ answers: [StudentAnswer], with reviews: [LLMReview]) -> [StudentAnswer] {
         return answers.map { ans in
             var updated = ans
