@@ -46,30 +46,12 @@ final class SignUpPresenter: SignUpViewOutput {
                 user.lastname = lastname
                 user.telegramId = telegramId
                 user.role = role
-
+                
                 try await self.userService.saveUser(user)
                 
-                let deviceId = DeviceIdProvider.shared.deviceId
-                do {
-                    _ = try await self.sessionService.startSession(
-                        uid: user.id,
-                        deviceId: deviceId,
-                        force: false
-                    )
-                } catch {
-                    await MainActor.run {
-                        self.view?.setLoading(false)
-                        self.view?.showError("Аккаунт уже активен на другом устройстве. Пожалуйста, завершите сессию на другом устройстве.")
-                    }
-                    return
-                }
-                
-                DependencyInjection.shared.currentUser.userId = user.id
-                DependencyInjection.shared.currentUser.role = .student
-                
                 await MainActor.run {
-                    self.view?.showSuccess()
-                    self.view?.openMain()
+                    self.view?.setLoading(false)
+                    self.view?.openEmailVerification(user: user)
                 }
             } catch {
                 await MainActor.run {

@@ -243,4 +243,10 @@ extension SignUpViewController: SignUpViewInput {
     func backToLogin() {
         dismiss(animated: true)
     }
+    
+    func openEmailVerification(user: User) {
+        let vc = EmailVerificationViewController(user: user)
+        vc.modalPresentationStyle = .fullScreen
+        present(vc, animated: true)
+    }
 }
