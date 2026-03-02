@@ -22,11 +22,13 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
     private let contentStack = UIStackView()
     
     private let timerLabel = UILabel()
+    private let progressTitleLabel = UILabel()
     private let progressLabel = UILabel()
     private let timerIcon = UIImageView(image: UIImage(systemName: "timer"))
     private let progressBar = UIProgressView(progressViewStyle: .default)
     private let questionNumbersCollection: UICollectionView
     private let onFinish: (Int) -> Void
+    private let infoButton = UIButton(type: .system)
     
     private let questionLabel = UILabel()
     private var answerButtons: [UIButton] = []
@@ -50,9 +52,10 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
     
     private let nextButton = UIButton(type: .system)
     private let hiddenTextField = UITextField(frame: .zero)
+    private var didStartAttemptLifecycle = false
     
     // MARK: - Init
-    init(test: Test, colors: [CGColor], onFinish: @escaping (Int) -> Void) {
+    init(test: Test, resumeAttempt: StudentAttempt? = nil, colors: [CGColor], onFinish: @escaping (Int) -> Void) {
         self.colors = colors
         
         let layout = UICollectionViewFlowLayout()
@@ -64,7 +67,7 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
         self.onFinish = onFinish
         
         super.init(nibName: nil, bundle: nil)
-        self.presenter = DragonTestPresenter(view: self, test: test)
+        self.presenter = DragonTestPresenter(view: self, test: test, resumeAttempt: resumeAttempt)
     }
     required init?(coder: NSCoder) { fatalError() }
     
@@ -94,9 +97,10 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
         super.viewDidLoad()
         setupBackground()
         setupLayout()
+        setupInfoButton()
         setupNextButton()
         setupKeyboardHandling()
-        presenter.viewDidLoad()
+        setupAppLifecycleHandling()
     }
     
     override func viewDidLayoutSubviews() {
@@ -110,6 +114,12 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+
+        if !didStartAttemptLifecycle {
+            didStartAttemptLifecycle = true
+            presenter.viewDidLoad()
+        }
+
         view.layoutIfNeeded()
         view.addSubview(hiddenTextField)
         hiddenTextField.becomeFirstResponder()
@@ -147,6 +157,15 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
         answerTextView.delegate = self
     }
 
+    private func setupAppLifecycleHandling() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appDidEnterBackground),
+            name: UIApplication.didEnterBackgroundNotification,
+            object: nil
+        )
+    }
+
     @objc private func keyboardWillShow(_ note: Notification) {
         guard let frame = note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
         let kbHeight = frame.height - view.safeAreaInsets.bottom
@@ -160,6 +179,10 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
     }
     
     @objc private func dismissKeyboard() { view.endEditing(true) }
+
+    @objc private func appDidEnterBackground() {
+        presenter.appDidEnterBackground()
+    }
     
     // MARK: - Background (градиент в contentRoot, чтобы пользователю всё видно)
     private func setupBackground() {
@@ -176,7 +199,7 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
         scrollView.alwaysBounceVertical = true
         scrollView.keyboardDismissMode = .interactive
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: contentRoot.safeAreaLayoutGuide.topAnchor),
+            scrollView.topAnchor.constraint(equalTo: contentRoot.safeAreaLayoutGuide.topAnchor, constant: 8),
             scrollView.leadingAnchor.constraint(equalTo: contentRoot.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: contentRoot.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: contentRoot.bottomAnchor)
@@ -202,11 +225,22 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
         timerLabel.textColor = .white
         timerLabel.text = "60:00"
         
-        progressLabel.font = .systemFont(ofSize: 16, weight: .medium)
+        progressTitleLabel.font = .systemFont(ofSize: 15, weight: .semibold)
+        progressTitleLabel.textColor = UIColor.white.withAlphaComponent(0.88)
+        progressTitleLabel.text = "Вопрос"
+
+        progressLabel.font = .monospacedDigitSystemFont(ofSize: 16, weight: .semibold)
         progressLabel.textColor = .white
-        progressLabel.text = "0 / 0"
-        
-        let headerStack = UIStackView(arrangedSubviews: [timerIcon, timerLabel, UIView(), progressLabel])
+        progressLabel.text = "0/0"
+
+        let progressStack = UIStackView(arrangedSubviews: [progressTitleLabel, progressLabel])
+        progressStack.axis = .horizontal
+        progressStack.alignment = .center
+        progressStack.spacing = 6
+        progressStack.setContentHuggingPriority(.required, for: .horizontal)
+        progressStack.setContentCompressionResistancePriority(.required, for: .horizontal)
+
+        let headerStack = UIStackView(arrangedSubviews: [timerIcon, timerLabel, UIView(), progressStack])
         headerStack.axis = .horizontal
         headerStack.alignment = .center
         headerStack.spacing = 6
@@ -293,6 +327,24 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
         contentStack.addArrangedSubview(questionCard)
         contentStack.addArrangedSubview(nextButton)
     }
+
+    private func setupInfoButton() {
+        infoButton.translatesAutoresizingMaskIntoConstraints = false
+        infoButton.setImage(UIImage(systemName: "questionmark.circle.fill"), for: .normal)
+        infoButton.tintColor = .white
+        infoButton.backgroundColor = UIColor.black.withAlphaComponent(0.24)
+        infoButton.layer.cornerRadius = 16
+        infoButton.clipsToBounds = true
+        infoButton.addTarget(self, action: #selector(infoTapped), for: .touchUpInside)
+
+        contentRoot.addSubview(infoButton)
+        NSLayoutConstraint.activate([
+            infoButton.leadingAnchor.constraint(equalTo: contentRoot.leadingAnchor, constant: 16),
+            infoButton.topAnchor.constraint(equalTo: contentRoot.safeAreaLayoutGuide.topAnchor, constant: 2),
+            infoButton.widthAnchor.constraint(equalToConstant: 34),
+            infoButton.heightAnchor.constraint(equalToConstant: 34)
+        ])
+    }
     
     private func setupNextButton() {
         nextButton.setTitle("Продолжить", for: .normal)
@@ -328,6 +380,10 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
     @objc private func nextTapped() {
         presenter.textAnswerSubmitted(text: answerTextView.text)
     }
+
+    @objc private func infoTapped() {
+        presenter.helpTapped()
+    }
     
     // MARK: - Protocol (DragonTestViewProtocol)
     func showQuestion(text: String, options: [String]?, answerText: String?) {
@@ -352,7 +408,7 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
             textViewDidChange(answerTextView)
         }
         
-        progressLabel.text = "\(presenter.currentIndex + 1) / \(presenter.questionsCount)"
+        progressLabel.text = "\(presenter.currentIndex + 1)/\(presenter.questionsCount)"
         progressBar.setProgress(Float(presenter.currentIndex + 1) / Float(presenter.questionsCount), animated: true)
         
         if presenter.currentIndex == presenter.questionsCount - 1 {
@@ -371,6 +427,29 @@ final class DragonTestViewController: UIViewController, DragonTestViewProtocol {
 
     func updateTimerLabel(text: String) {
         timerLabel.text = text
+    }
+
+    func showPreSubmitAlert(onConfirm: @escaping () -> Void) {
+        let alert = UIAlertController(
+            title: "Перед отправкой",
+            message: "Не выходите из приложения, чтобы получить предварительную оценку от ИИ сейчас. Если закрыть приложение, предварительная оценка будет получена при следующем заходе.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Отмена", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Отправить тест", style: .default) { _ in
+            onConfirm()
+        })
+        present(alert, animated: true)
+    }
+
+    func showInfoAlert(remainingExits: Int) {
+        let alert = UIAlertController(
+            title: "Как работает проверка",
+            message: "Вы можете выйти из приложения ещё \(remainingExits) раз(а). После этого попытка будет автоматически отправлена.\n\nПроверка ИИ — предварительная. Итоговый балл выставляет учитель.\n\nЧтобы получить предварительный результат ИИ сразу, дождитесь проверки в приложении после отправки теста.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Понятно", style: .default))
+        present(alert, animated: true)
     }
     
     func showFinishAlert(answerCount: Int) {

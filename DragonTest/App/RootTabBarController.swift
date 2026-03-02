@@ -11,6 +11,7 @@ final class RootTabBarController: UITabBarController {
     private let profileVC = ProfileViewController()
     private let dragonSelectVC = DragonSelectViewController()
     private let settingsVC = SettingsViewController()
+    private var didSetupAIRecoveryObserver = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,6 +41,32 @@ final class RootTabBarController: UITabBarController {
 
         _ = dragonSelectVC.view
         dragonSelectVC.view.layoutIfNeeded()
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        if !didSetupAIRecoveryObserver {
+            didSetupAIRecoveryObserver = true
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(scheduleAIRecovery),
+                name: UIApplication.didBecomeActiveNotification,
+                object: nil
+            )
+        }
+
+        scheduleAIRecovery()
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    @objc private func scheduleAIRecovery() {
+        Task {
+            await AIReviewRecoveryCoordinator.shared.recoverPendingAIReviews()
+        }
     }
 
     func preloadInitialData(timeout: TimeInterval = 2.2, completion: @escaping () -> Void) {
