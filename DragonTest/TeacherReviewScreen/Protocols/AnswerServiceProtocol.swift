@@ -13,6 +13,11 @@ struct TeacherTestStatusSummary {
 }
 
 protocol AnswerServiceProtocol {
+    func startAttempt(testId: String, studentId: String) async throws -> StudentAttempt
+    func fetchInProgressAttempt(testId: String, studentId: String) async throws -> StudentAttempt?
+    func saveAttemptProgress(_ attempt: StudentAttempt) async throws
+    func claimAttemptForAIReview(_ attemptId: String) async throws -> Bool
+    func markAttemptSubmittedForAIReviewRetry(_ attemptId: String) async throws
     func submitAttempt(_ attempt: StudentAttempt) async throws
     func fetchResult(testId: String, studentId: String) async throws -> TestResult?
     func fetchAttempts(for testId: String) async throws -> [StudentAttempt]

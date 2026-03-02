@@ -70,6 +70,7 @@ final class StudentResultViewController: UIViewController, StudentResultViewProt
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         applyTopLayout()
+        updateBottomInsets()
 
         if let header = tableView.tableHeaderView {
             let width = effectiveTableWidth()
@@ -85,6 +86,11 @@ final class StudentResultViewController: UIViewController, StudentResultViewProt
             }
         }
         updateScrollBehavior()
+    }
+
+    override func viewSafeAreaInsetsDidChange() {
+        super.viewSafeAreaInsetsDidChange()
+        updateBottomInsets()
     }
 
     // MARK: - Background (same as DragonTest)
@@ -115,6 +121,7 @@ final class StudentResultViewController: UIViewController, StudentResultViewProt
         tableView.separatorStyle = .none
         tableView.contentInsetAdjustmentBehavior = .never
         tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 28, right: 0)
+        tableView.verticalScrollIndicatorInsets.bottom = 28
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 180
         tableView.sectionHeaderTopPadding = 0
@@ -202,35 +209,53 @@ final class StudentResultViewController: UIViewController, StudentResultViewProt
     private func recomputeSummary() {
         let rows = presenter.numberOfRows()
         guard rows > 0 else {
-            pointsPill.set(value: "0")
-            gradePill.set(value: "0")
-            whoPill.set(value: "ИИ")
+            pointsPill.set(value: "—")
+            gradePill.set(value: "—")
+            whoPill.set(value: "—")
             relayoutHeader()
             return
         }
 
         var total = 0
-        var teacherCoveredAll = true
+        var teacherScoresCount = 0
+        var llmScoresCount = 0
 
         for i in 0..<rows {
             guard let item = presenter.answer(at: i) else { continue }
             let a = item.answer
             if let t = a.teacherScore {
                 total += t
+                teacherScoresCount += 1
             } else if let m = a.llmScore {
                 total += m
-                teacherCoveredAll = false
-            } else {
-                teacherCoveredAll = false
+                llmScoresCount += 1
             }
         }
 
-        let maxScore = rows * 10
-        let grade10 = maxScore > 0 ? Int(round(Double(total) / Double(maxScore) * 10.0)) : 0
+        let scoredCount = teacherScoresCount + llmScoresCount
+        guard scoredCount > 0 else {
+            pointsPill.set(value: "—")
+            gradePill.set(value: "—")
+            whoPill.set(value: "—")
+            relayoutHeader()
+            return
+        }
 
         pointsPill.set(value: "\(total)")
-        gradePill.set(value: "\(grade10)")
-        whoPill.set(value: teacherCoveredAll ? "Учитель" : "ИИ")
+
+        let maxScore = rows * 10
+        let grade10 = maxScore > 0 ? Int(round(Double(total) / Double(maxScore) * 10.0)) : 0
+        gradePill.set(value: scoredCount == rows ? "\(grade10)" : "—")
+
+        if teacherScoresCount == rows {
+            whoPill.set(value: "Учитель")
+        } else if llmScoresCount == rows {
+            whoPill.set(value: "ИИ")
+        } else if teacherScoresCount > 0 && llmScoresCount > 0 {
+            whoPill.set(value: "Уч/ИИ")
+        } else {
+            whoPill.set(value: teacherScoresCount > 0 ? "Учитель" : "ИИ")
+        }
 
         relayoutHeader()
     }
@@ -262,6 +287,38 @@ final class StudentResultViewController: UIViewController, StudentResultViewProt
         let topInset = min(max(fallbackTop, 20), 60)
 
         tableTopConstraint?.constant = topInset + 18
+    }
+
+    private func updateBottomInsets() {
+        let tabBarInset = visibleTabBarHeight()
+        let safeBottom = view.safeAreaInsets.bottom
+        let bottom = max(28, max(tabBarInset, safeBottom) + 12)
+
+        if tableView.contentInset.bottom != bottom {
+            tableView.contentInset.bottom = bottom
+            tableView.verticalScrollIndicatorInsets.bottom = bottom
+        }
+    }
+
+    private func visibleTabBarHeight() -> CGFloat {
+        if let tabBar = tabBarController?.tabBar,
+           !tabBar.isHidden,
+           tabBar.alpha > 0.01 {
+            return tabBar.bounds.height
+        }
+
+        var parentVC = parent
+        while let current = parentVC {
+            if let tabController = current as? UITabBarController {
+                let bar = tabController.tabBar
+                if !bar.isHidden, bar.alpha > 0.01 {
+                    return bar.bounds.height
+                }
+                return 0
+            }
+            parentVC = current.parent
+        }
+        return 0
     }
 
     private func updateScrollBehavior() {

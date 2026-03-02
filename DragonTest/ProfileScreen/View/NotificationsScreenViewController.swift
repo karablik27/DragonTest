@@ -113,6 +113,16 @@ final class NotificationsScreenViewController: UIViewController {
         title = "Уведомления"
         navigationItem.largeTitleDisplayMode = .never
 
+        if let nav = navigationController,
+           nav.viewControllers.first === self,
+           presentingViewController != nil {
+            navigationItem.leftBarButtonItem = UIBarButtonItem(
+                barButtonSystemItem: .close,
+                target: self,
+                action: #selector(closeTapped)
+            )
+        }
+
         let appearance = UINavigationBarAppearance()
         appearance.configureWithTransparentBackground()
         appearance.backgroundEffect = UIBlurEffect(style: .systemThinMaterial)
@@ -128,6 +138,10 @@ final class NotificationsScreenViewController: UIViewController {
         navigationItem.standardAppearance = appearance
         navigationItem.scrollEdgeAppearance = appearance
         navigationItem.compactAppearance = appearance
+    }
+
+    @objc private func closeTapped() {
+        dismiss(animated: true)
     }
 
     private func setupUI() {

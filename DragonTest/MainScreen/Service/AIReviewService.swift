@@ -21,6 +21,12 @@ final class AIReviewService: AIReviewServiceProtocol {
     private let apiKey = Secrets.aiApiKey
 
     func reviewAnswers(_ answers: [StudentAnswer], questions: [Questions]) async throws -> [StudentAnswer] {
+        guard !answers.isEmpty else { return answers }
+
+        if !hasMeaningfulAnswer(in: answers) {
+            return missingAnswerFallback(for: answers)
+        }
+
         let url = URL(string: Secrets.aiUrlKey)!
         var req = URLRequest(url: url)
         
@@ -64,32 +70,121 @@ final class AIReviewService: AIReviewServiceProtocol {
         req.httpBody = try JSONSerialization.data(withJSONObject: body)
 
         let (data, _) = try await URLSession.shared.data(for: req)
-        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        let rawResponse = String(data: data, encoding: .utf8) ?? ""
+        let candidates = extractResponseCandidates(from: data, rawResponse: rawResponse)
 
-        guard let text = (((json?["choices"] as? [[String: Any]])?.first?["message"] as? [String: Any])?["content"] as? String)
-        else {
-            throw NSError(domain: "AIReviewService", code: 1, userInfo: [NSLocalizedDescriptionKey: "Нет контента от DeepSeek"])
+        for candidate in candidates {
+            if let parsed = parseReviews(from: candidate) {
+                print("⚡️ RAW DeepSeek response:\n\(candidate)\n")
+                print("✅ Parsed after normalization: \(parsed)")
+                return mergeEnsuringCompleteness(answers, with: parsed)
+            }
         }
 
-        print("⚡️ RAW DeepSeek response:\n\(text)\n")
-
-        // --- Попытка 1: напрямую декодировать ---
-        if let result = try? decodeReviews(from: text) {
-            print("✅ Parsed as JSON directly: \(result)")
-            return mergeEnsuringCompleteness(answers, with: result)
-        }
-
-        // --- Попытка 2: найти JSON внутри текста ---
-        if let extracted = extractJSON(from: text),
-           let result = try? decodeReviews(from: extracted) {
-            print("✅ Parsed after JSON extraction: \(result)")
-            return mergeEnsuringCompleteness(answers, with: result)
-        }
-
-        throw NSError(domain: "AIReviewService", code: 2, userInfo: [NSLocalizedDescriptionKey: "DeepSeek вернул некорректный JSON"])
+        throw NSError(
+            domain: "AIReviewService",
+            code: 1,
+            userInfo: [NSLocalizedDescriptionKey: "Нет контента от DeepSeek"]
+        )
     }
 
     // MARK: - Helpers
+    private func hasMeaningfulAnswer(in answers: [StudentAnswer]) -> Bool {
+        answers.contains { answer in
+            if answer.selectedIndex != nil { return true }
+            let text = (answer.textAnswer ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            return !text.isEmpty && text != "—"
+        }
+    }
+
+    private func missingAnswerFallback(for answers: [StudentAnswer]) -> [StudentAnswer] {
+        answers.map { answer in
+            var updated = answer
+            updated.llmScore = 0
+            updated.llmComment = "Ответ отсутствует"
+            return updated
+        }
+    }
+
+    private func parseReviews(from text: String) -> [LLMReview]? {
+        if let direct = try? decodeReviews(from: text) {
+            return direct
+        }
+
+        if let extracted = extractJSON(from: text),
+           let extractedResult = try? decodeReviews(from: extracted) {
+            return extractedResult
+        }
+
+        return nil
+    }
+
+    private func extractResponseCandidates(from data: Data, rawResponse: String) -> [String] {
+        var candidates: [String] = []
+
+        if let object = try? JSONSerialization.jsonObject(with: data) {
+            candidates.append(contentsOf: collectCandidateStrings(from: object))
+        }
+
+        if !rawResponse.isEmpty {
+            candidates.append(rawResponse)
+        }
+
+        var seen = Set<String>()
+        var unique: [String] = []
+        for candidate in candidates {
+            let trimmed = candidate.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else { continue }
+            guard !seen.contains(trimmed) else { continue }
+            seen.insert(trimmed)
+            unique.append(trimmed)
+        }
+        return unique
+    }
+
+    private func collectCandidateStrings(from node: Any) -> [String] {
+        switch node {
+        case let text as String:
+            return [text]
+
+        case let dictionary as [String: Any]:
+            var collected: [String] = []
+
+            if let content = dictionary["content"] as? String {
+                collected.append(content)
+            }
+
+            if let parts = dictionary["content"] as? [[String: Any]] {
+                for part in parts {
+                    if let text = part["text"] as? String {
+                        collected.append(text)
+                    }
+                    if let text = part["content"] as? String {
+                        collected.append(text)
+                    }
+                }
+            }
+
+            if let reasoning = dictionary["reasoning_content"] as? String {
+                collected.append(reasoning)
+            }
+            if let reasoning = dictionary["reasoning"] as? String {
+                collected.append(reasoning)
+            }
+
+            for value in dictionary.values {
+                collected.append(contentsOf: collectCandidateStrings(from: value))
+            }
+            return collected
+
+        case let array as [Any]:
+            return array.flatMap { collectCandidateStrings(from: $0) }
+
+        default:
+            return []
+        }
+    }
+
     private func decodeReviews(from text: String) throws -> [LLMReview] {
         guard let data = text.data(using: .utf8) else {
             throw NSError(domain: "AIReviewService", code: 3, userInfo: [NSLocalizedDescriptionKey: "Пустая строка"])

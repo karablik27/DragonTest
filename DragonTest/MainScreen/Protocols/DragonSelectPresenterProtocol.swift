@@ -18,4 +18,5 @@ protocol DragonSelectPresenterProtocol: AnyObject {
     func didCreateTest(_ test: Test)
     func requestStatus(for index: Int)
     func didChangeStatusFilter(index: Int)
+    func refreshStatuses()
 }

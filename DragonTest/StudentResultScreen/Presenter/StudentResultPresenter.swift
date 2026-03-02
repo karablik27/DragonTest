@@ -16,6 +16,7 @@ final class StudentResultPresenter: StudentResultPresenterProtocol {
 
     // Внешний коллбэк на закрытие (прокидывается из VC)
     private let onClose: (() -> Void)?
+    private var attemptReviewObserver: NSObjectProtocol?
 
     init(test: Test,
          attempt: StudentAttempt,
@@ -29,6 +30,7 @@ final class StudentResultPresenter: StudentResultPresenterProtocol {
 
     func attach(view: StudentResultViewProtocol) {
         self.view = view
+        subscribeToAttemptUpdatesIfNeeded()
     }
 
     func viewDidLoad() {
@@ -36,15 +38,17 @@ final class StudentResultPresenter: StudentResultPresenterProtocol {
         view?.showStatus("Загрузка результата…")
         view?.showTeacherComment(nil, hidden: true)
         view?.showLLMSummary(nil, hidden: true)
+        view?.reloadAnswers()
         loadResult()
     }
 
     func numberOfRows() -> Int {
-        result?.answers.count ?? 0
+        result?.answers.count ?? attempt.answers.count
     }
 
     func answer(at index: Int) -> (answer: StudentAnswer, questionText: String)? {
-        guard let answers = result?.answers, index >= 0, index < answers.count else { return nil }
+        let answers = result?.answers ?? attempt.answers
+        guard index >= 0, index < answers.count else { return nil }
         let ans = answers[index]
         let qText = test.questions.first(where: { $0.id == ans.questionId })?.text ?? "Неизвестный вопрос"
         return (ans, qText)
@@ -63,7 +67,11 @@ final class StudentResultPresenter: StudentResultPresenterProtocol {
                     self.result = res
                     await MainActor.run { [weak self] in
                         guard let self else { return }
-                        self.view?.showStatus("✅ Проверено. Балл: \(res.totalScore)")
+                        if res.teacherReviewedAt != nil {
+                            self.view?.showStatus("✅ Проверено учителем. Балл: \(res.totalScore)")
+                        } else {
+                            self.view?.showStatus("🤖 Проверено ИИ, ждём проверки учителя")
+                        }
 
                         if let teacherComment = res.teacherComment, !teacherComment.isEmpty {
                             self.view?.showTeacherComment("Комментарий учителя: \(teacherComment)", hidden: false)
@@ -80,7 +88,8 @@ final class StudentResultPresenter: StudentResultPresenterProtocol {
                     }
                 } else {
                     await MainActor.run { [weak self] in
-                        self?.view?.showStatus("⏳ Работа на проверке…")
+                        self?.view?.showStatus("⏳ ИИ проверяет работу…")
+                        self?.view?.reloadAnswers()
                     }
                 }
             } catch {
@@ -88,6 +97,37 @@ final class StudentResultPresenter: StudentResultPresenterProtocol {
                     self?.view?.showStatus("❌ Ошибка загрузки результата")
                 }
             }
+        }
+    }
+
+    deinit {
+        if let attemptReviewObserver {
+            NotificationCenter.default.removeObserver(attemptReviewObserver)
+        }
+    }
+
+    private func subscribeToAttemptUpdatesIfNeeded() {
+        guard attemptReviewObserver == nil else { return }
+        attemptReviewObserver = NotificationCenter.default.addObserver(
+            forName: .attemptReviewDidChange,
+            object: nil,
+            queue: .main
+        ) { [weak self] note in
+            guard let self else { return }
+
+            if let testId = note.userInfo?[AttemptNotificationUserInfoKey.testId] as? String,
+               !testId.isEmpty,
+               testId != self.test.id {
+                return
+            }
+
+            if let studentId = note.userInfo?[AttemptNotificationUserInfoKey.studentId] as? String,
+               !studentId.isEmpty,
+               studentId != self.attempt.studentId {
+                return
+            }
+
+            self.loadResult()
         }
     }
 }

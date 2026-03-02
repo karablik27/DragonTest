@@ -13,5 +13,7 @@ protocol DragonTestPresenterProtocol {
     func answerSelected(index: Int?)
     func textAnswerSubmitted(text: String?)
     func questionTapped(at index: Int)
+    func helpTapped()
+    func appDidEnterBackground()
     func forceFinishTest()
 }

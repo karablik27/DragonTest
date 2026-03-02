@@ -10,17 +10,20 @@ import UIKit
 
 private enum StudentTestStatus: Int {
     case notPassed
-    case pendingTeacherReview
-    case passed
+    case aiReviewPending
+    case aiReviewedWaitingTeacher
+    case teacherReviewed
 
     var text: String {
         switch self {
         case .notPassed:
-            return "Статус: не пройдено"
-        case .pendingTeacherReview:
-            return "Статус: на проверке у учителя"
-        case .passed:
-            return "Статус: пройдено"
+            return "Не пройдено"
+        case .aiReviewPending:
+            return "ИИ проверяет"
+        case .aiReviewedWaitingTeacher:
+            return "Проверено ИИ, ждём учителя"
+        case .teacherReviewed:
+            return "Проверено учителем"
         }
     }
 }
@@ -38,9 +41,9 @@ private enum StudentStatusFilter: Int {
         case .notPassed:
             return status == .notPassed
         case .passed:
-            return status == .passed
+            return status == .teacherReviewed
         case .pendingTeacherReview:
-            return status == .pendingTeacherReview
+            return status == .aiReviewPending || status == .aiReviewedWaitingTeacher
         }
     }
 }
@@ -56,6 +59,7 @@ final class DragonSelectPresenter: DragonSelectPresenterProtocol {
 
     private var allTests: [Test] = []
     private var studentStatusByTestId: [String: StudentTestStatus] = [:]
+    private var dragonCapturedByTestId: [String: Bool] = [:]
     private var statusTextByTestId: [String: String] = [:]
     private var teacherStatusTasks: [String: Task<Void, Never>] = [:]
     private var teacherPrefetchTask: Task<Void, Never>?
@@ -81,6 +85,7 @@ final class DragonSelectPresenter: DragonSelectPresenterProtocol {
             allTests = tests
             currentIndex = 0
             studentStatusByTestId.removeAll(keepingCapacity: true)
+            dragonCapturedByTestId.removeAll(keepingCapacity: true)
             statusTextByTestId.removeAll(keepingCapacity: true)
             teacherStatusTasks.values.forEach { $0.cancel() }
             teacherStatusTasks.removeAll(keepingCapacity: true)
@@ -96,6 +101,7 @@ final class DragonSelectPresenter: DragonSelectPresenterProtocol {
                     for test in tests {
                         studentStatusByTestId[test.id] = .notPassed
                         statusTextByTestId[test.id] = StudentTestStatus.notPassed.text
+                        dragonCapturedByTestId[test.id] = false
                     }
                 }
             }
@@ -169,13 +175,35 @@ final class DragonSelectPresenter: DragonSelectPresenterProtocol {
             let latestAttempt = attemptsByTest[test.id]?.max(by: { $0.submittedAt < $1.submittedAt })
             let status: StudentTestStatus
             if let latestAttempt {
-                status = latestAttempt.reviewed ? .passed : .pendingTeacherReview
+                status = resolveStudentStatus(from: latestAttempt)
             } else {
                 status = .notPassed
             }
 
             studentStatusByTestId[test.id] = status
             statusTextByTestId[test.id] = status.text
+            dragonCapturedByTestId[test.id] = latestAttempt?.result?.capturedDragon ?? false
+        }
+    }
+
+    private func resolveStudentStatus(from attempt: StudentAttempt) -> StudentTestStatus {
+        if attempt.result?.teacherReviewedAt != nil {
+            return .teacherReviewed
+        }
+        if attempt.result?.llmReviewedAt != nil {
+            return .aiReviewedWaitingTeacher
+        }
+        if attempt.resultId != nil {
+            return .aiReviewedWaitingTeacher
+        }
+
+        switch attempt.normalizedStatus {
+        case .inProgress:
+            return .notPassed
+        case .submitted, .aiReviewing:
+            return .aiReviewPending
+        case .reviewed:
+            return .teacherReviewed
         }
     }
 
@@ -186,8 +214,15 @@ final class DragonSelectPresenter: DragonSelectPresenterProtocol {
         switch items[index] {
         case .addButton:
             view?.updateStatus("Создайте новый тест")
+            view?.updateDragonCapture(caught: nil)
 
         case .test(let test):
+            if di.currentUser.role == .student {
+                view?.updateDragonCapture(caught: dragonCapturedByTestId[test.id] ?? false)
+            } else {
+                view?.updateDragonCapture(caught: nil)
+            }
+
             if let cached = statusTextByTestId[test.id] {
                 view?.updateStatus(cached)
                 return
@@ -200,6 +235,7 @@ final class DragonSelectPresenter: DragonSelectPresenterProtocol {
             } else {
                 let fallback = StudentTestStatus.notPassed.text
                 statusTextByTestId[test.id] = fallback
+                dragonCapturedByTestId[test.id] = false
                 view?.updateStatus(fallback)
             }
         }
@@ -315,7 +351,7 @@ final class DragonSelectPresenter: DragonSelectPresenterProtocol {
         guard case let .test(test) = items[currentIndex] else { return }
 
         if di.currentUser.role == .teacher {
-            view?.openTest(test)
+            view?.openTest(test, resumeAttempt: nil)
             return
         }
 
@@ -331,8 +367,14 @@ final class DragonSelectPresenter: DragonSelectPresenterProtocol {
                         colors: colors
                     )
                     view?.openResult(vc)
+                } else if let inProgress = try await di.resultService.fetchInProgressAttempt(testId: test.id, studentId: studentId) {
+                    view?.openTest(test, resumeAttempt: inProgress)
                 } else {
-                    view?.openTest(test)
+                    let freshAttempt = try await di.answerService.startAttempt(
+                        testId: test.id,
+                        studentId: studentId
+                    )
+                    view?.openTest(test, resumeAttempt: freshAttempt)
                 }
             } catch {
                 print("Ошибка проверки попытки: \(error)")
@@ -345,11 +387,31 @@ final class DragonSelectPresenter: DragonSelectPresenterProtocol {
         guard case let .test(test) = items[currentIndex] else { return }
 
         if di.currentUser.role == .student {
-            studentStatusByTestId[test.id] = .pendingTeacherReview
-            statusTextByTestId[test.id] = StudentTestStatus.pendingTeacherReview.text
+            studentStatusByTestId[test.id] = .aiReviewPending
+            statusTextByTestId[test.id] = StudentTestStatus.aiReviewPending.text
+            dragonCapturedByTestId[test.id] = false
             applyFiltersAndRefresh()
         } else {
             view?.updateUI(items: items, currentIndex: currentIndex)
+        }
+    }
+
+    func refreshStatuses() {
+        guard di.currentUser.role == .student else { return }
+        guard !allTests.isEmpty else {
+            Task { await loadTests() }
+            return
+        }
+
+        Task {
+            let studentId = di.currentUser.userId ?? ""
+            do {
+                let attempts = try await di.resultService.fetchAttempts(studentId: studentId)
+                buildStudentStatuses(for: allTests, attempts: attempts)
+                applyFiltersAndRefresh(resetIndex: false)
+            } catch {
+                // Keep cached statuses on transient read failures.
+            }
         }
     }
 
@@ -359,6 +421,7 @@ final class DragonSelectPresenter: DragonSelectPresenterProtocol {
         if di.currentUser.role == .student {
             studentStatusByTestId[test.id] = .notPassed
             statusTextByTestId[test.id] = StudentTestStatus.notPassed.text
+            dragonCapturedByTestId[test.id] = false
         } else {
             statusTextByTestId[test.id] = teacherPlaceholderStatus(total: test.studentIds.count)
             prefetchTeacherStatuses(for: allTests)

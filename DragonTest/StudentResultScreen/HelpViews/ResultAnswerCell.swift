@@ -195,19 +195,44 @@ final class ResultAnswerCell: UITableViewCell {
             answerBox.text = "—"
         }
 
-        let hasAI = answer.llmScore != nil || ((answer.llmComment ?? "").isEmpty == false)
-        if let s = answer.llmScore { aiScorePill.setText("\(s)") } else { aiScorePill.setText("—") }
-        if let c = answer.llmComment, !c.isEmpty { aiComment.text = "  \(c)  "; aiComment.isHidden = false }
-        else { aiComment.text = nil; aiComment.isHidden = true }
+        let hasAIData = answer.llmScore != nil || ((answer.llmComment ?? "").isEmpty == false)
+        let hasTeacherData = answer.teacherScore != nil || ((answer.teacherComment ?? "").isEmpty == false)
 
-        let hasTeacher = answer.teacherScore != nil || ((answer.teacherComment ?? "").isEmpty == false)
+        if hasAIData {
+            if let s = answer.llmScore { aiScorePill.setText("\(s)") } else { aiScorePill.setText("—") }
+            if let c = answer.llmComment, !c.isEmpty {
+                aiComment.text = "  \(c)  "
+                aiComment.isHidden = false
+            } else {
+                aiComment.text = nil
+                aiComment.isHidden = true
+            }
+            aiBlock.isHidden = false
+        } else if !hasTeacherData {
+            aiScorePill.setText("—")
+            aiComment.text = "  Проверка ИИ в процессе  "
+            aiComment.isHidden = false
+            aiBlock.isHidden = false
+        } else {
+            aiScorePill.setText("—")
+            aiComment.text = nil
+            aiComment.isHidden = true
+            aiBlock.isHidden = true
+        }
+
         if let s = answer.teacherScore { teacherScorePill.setText("\(s)") } else { teacherScorePill.setText("—") }
-        if let c = answer.teacherComment, !c.isEmpty { teacherComment.text = "  \(c)  "; teacherComment.isHidden = false }
-        else { teacherComment.text = nil; teacherComment.isHidden = true }
+        if let c = answer.teacherComment, !c.isEmpty {
+            teacherComment.text = "  \(c)  "
+            teacherComment.isHidden = false
+        } else {
+            teacherComment.text = nil
+            teacherComment.isHidden = true
+        }
+        teacherBlock.isHidden = !hasTeacherData
 
-        aiBlock.isHidden = !hasAI
-        teacherBlock.isHidden = !hasTeacher
-        sepAfterAnswer.isHidden = !hasAI && !hasTeacher
-        sepAfterAI.isHidden = !hasAI || !hasTeacher
+        let showAI = !aiBlock.isHidden
+        let showTeacher = !teacherBlock.isHidden
+        sepAfterAnswer.isHidden = !showAI && !showTeacher
+        sepAfterAI.isHidden = !(showAI && showTeacher)
     }
 }

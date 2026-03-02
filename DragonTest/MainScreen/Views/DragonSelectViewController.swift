@@ -29,8 +29,7 @@ final class StatusBadgeView: UIView {
 
     private let card: TestGlassCard
     private let stack = UIStackView()
-    private let iconView = UIImageView()
-    private let separator = UIView()
+    private let titleLabel = UILabel()
     private let textLabel = UILabel()
 
     init(radius: CGFloat = 16) {
@@ -50,9 +49,9 @@ final class StatusBadgeView: UIView {
             card.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
 
-        stack.axis = .horizontal
-        stack.alignment = .center
-        stack.spacing = 10
+        stack.axis = .vertical
+        stack.alignment = .fill
+        stack.spacing = 4
         stack.isLayoutMarginsRelativeArrangement = true
         stack.layoutMargins = UIEdgeInsets(top: 10, left: 14, bottom: 10, right: 14)
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -65,27 +64,20 @@ final class StatusBadgeView: UIView {
             stack.bottomAnchor.constraint(equalTo: card.bottomAnchor)
         ])
 
-        iconView.translatesAutoresizingMaskIntoConstraints = false
-        iconView.contentMode = .scaleAspectFit
-        iconView.preferredSymbolConfiguration = .init(pointSize: 18, weight: .semibold)
-        iconView.tintColor = .white
-        NSLayoutConstraint.activate([
-            iconView.widthAnchor.constraint(equalToConstant: 22),
-            iconView.heightAnchor.constraint(equalToConstant: 22)
-        ])
-
-        separator.translatesAutoresizingMaskIntoConstraints = false
-        separator.backgroundColor = UIColor.white.withAlphaComponent(0.15)
-        separator.widthAnchor.constraint(equalToConstant: 1.0 / UIScreen.main.scale).isActive = true
-        separator.layer.cornerRadius = 0.5
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.font = .systemFont(ofSize: 12, weight: .semibold)
+        titleLabel.textColor = UIColor.white.withAlphaComponent(0.82)
+        titleLabel.textAlignment = .center
+        titleLabel.text = "Статус"
+        titleLabel.numberOfLines = 1
 
         textLabel.translatesAutoresizingMaskIntoConstraints = false
-        textLabel.font = .systemFont(ofSize: 16, weight: .semibold)
+        textLabel.font = .systemFont(ofSize: 14, weight: .semibold)
         textLabel.textColor = .white
-        textLabel.numberOfLines = 2
+        textLabel.numberOfLines = 3
+        textLabel.textAlignment = .center
 
-        stack.addArrangedSubview(iconView)
-        stack.addArrangedSubview(separator)
+        stack.addArrangedSubview(titleLabel)
         stack.addArrangedSubview(textLabel)
 
         isAccessibilityElement = true
@@ -96,27 +88,81 @@ final class StatusBadgeView: UIView {
 
     func update(text: String) {
         textLabel.text = text
-        accessibilityLabel = text
-
-        let lower = text.lowercased()
-        if lower.contains("на проверке") {
-            apply(symbol: "hourglass.badge.exclamationmark", tint: .systemYellow)
-        } else if lower.contains("прошли:") {
-            apply(symbol: "person.3.fill", tint: .systemTeal)
-        } else if lower.contains("не пройдено") {
-            apply(symbol: "xmark.seal.fill", tint: .systemOrange)
-        } else if lower.contains("пройдено") {
-            apply(symbol: "checkmark.seal.fill", tint: .systemGreen)
-        } else {
-            apply(symbol: "questionmark.circle.fill", tint: UIColor.white.withAlphaComponent(0.85))
-        }
+        accessibilityLabel = "Статус: \(text)"
+        applyAccent(for: text)
     }
 
-    private func apply(symbol: String, tint: UIColor) {
-        iconView.image = UIImage(systemName: symbol)
-        iconView.tintColor = tint
-        separator.backgroundColor = tint.withAlphaComponent(0.22)
+    private func applyAccent(for text: String) {
+        let lower = text.lowercased()
+        let tint: UIColor
+        if lower.contains("ии проверяет") || lower.contains("ждём учителя") || lower.contains("на проверке") {
+            tint = .systemYellow
+        } else if lower.contains("проверено учителем") || lower.contains("прошли:") || lower.contains("пройдено") {
+            tint = .systemGreen
+        } else if lower.contains("не пройдено") {
+            tint = .systemOrange
+        } else {
+            tint = UIColor.white.withAlphaComponent(0.85)
+        }
+
+        titleLabel.textColor = tint.withAlphaComponent(0.92)
         card.layer.shadowOpacity = 0.22
+    }
+}
+
+final class DragonCaptureBadgeView: UIControl {
+    private let card = TestGlassCard(radius: 14)
+    private let valueLabel = UILabel()
+    private let iconView = UIImageView(image: UIImage(systemName: "flame.fill"))
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        translatesAutoresizingMaskIntoConstraints = false
+
+        card.translatesAutoresizingMaskIntoConstraints = false
+        card.isUserInteractionEnabled = false
+        addSubview(card)
+        NSLayoutConstraint.activate([
+            card.leadingAnchor.constraint(equalTo: leadingAnchor),
+            card.trailingAnchor.constraint(equalTo: trailingAnchor),
+            card.topAnchor.constraint(equalTo: topAnchor),
+            card.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
+
+        iconView.translatesAutoresizingMaskIntoConstraints = false
+        iconView.tintColor = UIColor(red: 1.0, green: 0.79, blue: 0.22, alpha: 1.0)
+        iconView.preferredSymbolConfiguration = .init(pointSize: 18, weight: .semibold)
+
+        valueLabel.translatesAutoresizingMaskIntoConstraints = false
+        valueLabel.font = .systemFont(ofSize: 26, weight: .bold)
+        valueLabel.textColor = .white
+        valueLabel.text = "0/1"
+        valueLabel.numberOfLines = 1
+        valueLabel.adjustsFontSizeToFitWidth = true
+        valueLabel.minimumScaleFactor = 0.65
+        valueLabel.lineBreakMode = .byClipping
+        valueLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+
+        card.addSubview(iconView)
+        card.addSubview(valueLabel)
+
+        NSLayoutConstraint.activate([
+            iconView.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 14),
+            iconView.centerYAnchor.constraint(equalTo: card.centerYAnchor),
+            iconView.widthAnchor.constraint(equalToConstant: 20),
+            iconView.heightAnchor.constraint(equalToConstant: 20),
+
+            valueLabel.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 10),
+            valueLabel.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -12),
+            valueLabel.centerYAnchor.constraint(equalTo: card.centerYAnchor)
+        ])
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    func update(caught: Bool) {
+        valueLabel.text = caught ? "1/1" : "0/1"
+        accessibilityLabel = "Пойман дракон \(caught ? "1 из 1" : "0 из 1")"
     }
 }
 
@@ -163,6 +209,8 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
     private let leftAddPreview = AddButtonPreviewView()
     private let rightAddPreview = AddButtonPreviewView()
     private var renderedPreviewKeys: [ObjectIdentifier: String] = [:]
+    private var isDragonScreenVisible = false
+    private var didSetupStatusObservers = false
 
     private let titleLabel = UILabel()
     private lazy var prevButton = makeArrowButton("◀︎", action: #selector(prevTap))
@@ -171,6 +219,7 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
     private var currentColors: [CGColor] = [UIColor.darkGray.cgColor, UIColor.black.cgColor]
 
     private let emptyStateView = EmptyStateView(message: "Нет доступных тестов")
+    private let dragonCaptureBadge = DragonCaptureBadgeView()
     private let statusBadge = StatusBadgeView(radius: 18)
 
     // Legacy widgets (hidden)
@@ -194,7 +243,57 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
         bgLayer.frame = gradientHost.bounds
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        isDragonScreenVisible = true
+        refreshDragonPreviews()
+
+        if !didSetupStatusObservers {
+            didSetupStatusObservers = true
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(handleAppDidBecomeActive),
+                name: UIApplication.didBecomeActiveNotification,
+                object: nil
+            )
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(handleAttemptReviewDidChange(_:)),
+                name: .attemptReviewDidChange,
+                object: nil
+            )
+        }
+
+        presenter.refreshStatuses()
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        isDragonScreenVisible = false
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
     func currentGradientColors() -> [CGColor] { currentColors }
+
+    @objc private func handleAppDidBecomeActive() {
+        presenter.refreshStatuses()
+    }
+
+    @objc private func handleAttemptReviewDidChange(_ note: Notification) {
+        guard DependencyInjection.shared.currentUser.role == .student else { return }
+        let currentStudentId = DependencyInjection.shared.currentUser.userId ?? ""
+
+        if let studentId = note.userInfo?[AttemptNotificationUserInfoKey.studentId] as? String,
+           !studentId.isEmpty,
+           studentId != currentStudentId {
+            return
+        }
+
+        presenter.refreshStatuses()
+    }
 
     // MARK: - DragonSelectViewProtocol
     func updateUI(items: [CarouselItem], currentIndex: Int) {
@@ -249,6 +348,7 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
         progressView.isHidden = true
         progressLabel.isHidden = true
         statusBadge.isHidden = false
+        dragonCaptureBadge.isHidden = DependencyInjection.shared.currentUser.role != .student || !item.isTest
         hintView.isHidden = !item.isTest
 
         presenter.requestStatus(for: currentIndex)
@@ -258,6 +358,15 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
         UIView.transition(with: statusBadge, duration: 0.2, options: .transitionCrossDissolve) {
             self.statusBadge.update(text: text)
         }
+    }
+
+    func updateDragonCapture(caught: Bool?) {
+        guard let caught else {
+            dragonCaptureBadge.isHidden = true
+            return
+        }
+        dragonCaptureBadge.update(caught: caught)
+        dragonCaptureBadge.isHidden = false
     }
 
     func showEmptyState() {
@@ -270,14 +379,15 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
         prevButton.isHidden = true
         nextButton.isHidden = true
         statusBadge.isHidden = true
+        dragonCaptureBadge.isHidden = true
         hintView.isHidden = true
     }
 
-    func openTest(_ test: Test) {
+    func openTest(_ test: Test, resumeAttempt: StudentAttempt?) {
         guard !isTestVisible else { return }
 
         if DependencyInjection.shared.currentUser.role == .student {
-            if preloadedStudentTestId != test.id {
+            if resumeAttempt != nil || preloadedStudentTestId != test.id {
                 testVC = nil
                 preloadedStudentTestId = nil
             }
@@ -285,6 +395,7 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
             if testVC == nil {
                 testVC = DragonTestViewController(
                     test: test,
+                    resumeAttempt: resumeAttempt,
                     colors: test.dragonKind.gradientColors
                 ) { [weak self] completed in
                     self?.presenter.didFinishTest(completed: completed)
@@ -420,6 +531,15 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
     @objc private func prevTap() { presenter.didSelectPrev() }
     @objc private func nextTap() { presenter.didSelectNext() }
     @objc private func addTap()  { presenter.didTapAdd() }
+    @objc private func dragonCaptureInfoTap() {
+        let alert = UIAlertController(
+            title: "Как считается дракон",
+            message: "Пойманный дракон = 1, если по этому тесту в результате стоит capturedDragon = true (обычно это 320+ баллов из 400).\n\nВ профиле сумма драконов считается по всем вашим результатам.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Понятно", style: .default))
+        present(alert, animated: true)
+    }
 
     private func applyStatusFilter(index: Int) {
         selectedStatusFilterIndex = index
@@ -458,6 +578,7 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
 
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
         longPress.minimumPressDuration = 0.2
+        longPress.cancelsTouchesInView = false
         dragonsContainer.addGestureRecognizer(longPress)
     }
 
@@ -609,6 +730,7 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
         [testContainer, dragonsContainer,
          gradientHost,
          statusFilterButton,
+         dragonCaptureBadge,
          centerPreviewContainer, leftPreviewContainer, rightPreviewContainer,
          centerDragonPreview, leftDragonPreview, rightDragonPreview,
          centerAddPreview, leftAddPreview, rightAddPreview,
@@ -655,8 +777,11 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
         dragonsContainer.addSubview(titleLabel)
         dragonsContainer.addSubview(prevButton)
         dragonsContainer.addSubview(nextButton)
+        dragonsContainer.addSubview(dragonCaptureBadge)
         dragonsContainer.addSubview(statusBadge)
         dragonsContainer.addSubview(hintView)
+
+        dragonCaptureBadge.addTarget(self, action: #selector(dragonCaptureInfoTap), for: .touchUpInside)
 
         setupReusablePreview(
             in: centerPreviewContainer,
@@ -694,6 +819,12 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
             statusFilterButton.widthAnchor.constraint(equalToConstant: 36),
             statusFilterButton.heightAnchor.constraint(equalToConstant: 36),
 
+            dragonCaptureBadge.leadingAnchor.constraint(equalTo: dragonsContainer.leadingAnchor, constant: 12),
+            dragonCaptureBadge.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
+            dragonCaptureBadge.heightAnchor.constraint(equalToConstant: 54),
+            dragonCaptureBadge.widthAnchor.constraint(greaterThanOrEqualToConstant: 112),
+            dragonCaptureBadge.widthAnchor.constraint(lessThanOrEqualToConstant: 146),
+
             centerPreviewContainer.centerXAnchor.constraint(equalTo: dragonsContainer.centerXAnchor),
             centerPreviewContainer.centerYAnchor.constraint(equalTo: dragonsContainer.centerYAnchor, constant: -40),
             centerPreviewContainer.widthAnchor.constraint(equalTo: dragonsContainer.widthAnchor, multiplier: 0.80),
@@ -709,7 +840,7 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
             rightPreviewContainer.widthAnchor.constraint(equalTo: centerPreviewContainer.widthAnchor, multiplier: 0.55),
             rightPreviewContainer.heightAnchor.constraint(equalTo: rightPreviewContainer.widthAnchor),
 
-            titleLabel.bottomAnchor.constraint(equalTo: centerPreviewContainer.topAnchor, constant: -16),
+            titleLabel.bottomAnchor.constraint(equalTo: centerPreviewContainer.topAnchor, constant: -4),
             titleLabel.centerXAnchor.constraint(equalTo: dragonsContainer.centerXAnchor),
 
             prevButton.centerYAnchor.constraint(equalTo: centerPreviewContainer.centerYAnchor),
@@ -718,12 +849,16 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
             nextButton.centerYAnchor.constraint(equalTo: centerPreviewContainer.centerYAnchor),
             nextButton.trailingAnchor.constraint(equalTo: dragonsContainer.trailingAnchor, constant: -16),
 
-            statusBadge.topAnchor.constraint(equalTo: centerPreviewContainer.bottomAnchor, constant: 16),
-            statusBadge.leadingAnchor.constraint(equalTo: dragonsContainer.leadingAnchor, constant: 40),
-            statusBadge.trailingAnchor.constraint(equalTo: dragonsContainer.trailingAnchor, constant: -40),
+            statusBadge.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
+            statusBadge.centerXAnchor.constraint(equalTo: dragonsContainer.centerXAnchor),
+            statusBadge.leadingAnchor.constraint(greaterThanOrEqualTo: dragonCaptureBadge.trailingAnchor, constant: 8),
+            statusBadge.trailingAnchor.constraint(lessThanOrEqualTo: statusFilterButton.leadingAnchor, constant: -8),
+            statusBadge.widthAnchor.constraint(lessThanOrEqualTo: dragonsContainer.widthAnchor, multiplier: 0.60),
+            statusBadge.widthAnchor.constraint(greaterThanOrEqualToConstant: 188),
+            statusBadge.heightAnchor.constraint(greaterThanOrEqualToConstant: 68),
 
             hintView.centerXAnchor.constraint(equalTo: dragonsContainer.centerXAnchor),
-            hintView.topAnchor.constraint(equalTo: statusBadge.bottomAnchor, constant: 14),
+            hintView.topAnchor.constraint(equalTo: centerPreviewContainer.bottomAnchor, constant: 20),
             hintView.widthAnchor.constraint(equalToConstant: 80),
             hintView.heightAnchor.constraint(equalToConstant: 120),
 
@@ -739,6 +874,7 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
         prevButton.isHidden = true
         nextButton.isHidden = true
         hintView.isHidden = true
+        dragonCaptureBadge.isHidden = true
         emptyStateView.isHidden = true
         emptyStateView.isUserInteractionEnabled = false
 
@@ -800,11 +936,42 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
             addPreview.isHidden = true
             dragonPreview.isHidden = false
             if let entity = DependencyInjection.shared.dragonCache.clone(for: test.dragonKind, scale: scale) {
-                dragonPreview.displayEntity(entity, animated: container === centerPreviewContainer)
+                dragonPreview.displayEntity(
+                    entity,
+                    animated: container === centerPreviewContainer && isDragonScreenVisible
+                )
             } else {
                 dragonPreview.clear()
             }
         }
+    }
+
+    private func refreshDragonPreviews() {
+        guard !items.isEmpty, currentIndex >= 0, currentIndex < items.count else { return }
+        renderedPreviewKeys.removeAll(keepingCapacity: true)
+
+        let item = items[currentIndex]
+        configure(
+            container: centerPreviewContainer,
+            dragonPreview: centerDragonPreview,
+            addPreview: centerAddPreview,
+            item: item,
+            scale: [0.8, 0.8, 0.8]
+        )
+        configure(
+            container: leftPreviewContainer,
+            dragonPreview: leftDragonPreview,
+            addPreview: leftAddPreview,
+            item: currentIndex > 0 ? items[currentIndex - 1] : nil,
+            scale: [0.6, 0.6, 0.6]
+        )
+        configure(
+            container: rightPreviewContainer,
+            dragonPreview: rightDragonPreview,
+            addPreview: rightAddPreview,
+            item: currentIndex < items.count - 1 ? items[currentIndex + 1] : nil,
+            scale: [0.6, 0.6, 0.6]
+        )
     }
 
     private func previewKey(for item: CarouselItem?, scale: SIMD3<Float>) -> String {

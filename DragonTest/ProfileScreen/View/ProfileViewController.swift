@@ -173,9 +173,13 @@ private extension ProfileViewController {
         bellButton.setImage(bellImage, for: .normal)
         bellButton.tintColor = .label
         bellButton.translatesAutoresizingMaskIntoConstraints = false
+        bellButton.contentHorizontalAlignment = .center
+        bellButton.contentVerticalAlignment = .center
+        bellButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+        bellButton.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 17, weight: .semibold), forImageIn: .normal)
         NSLayoutConstraint.activate([
-            bellButton.widthAnchor.constraint(equalToConstant: 28),
-            bellButton.heightAnchor.constraint(equalToConstant: 28)
+            bellButton.widthAnchor.constraint(equalToConstant: 40),
+            bellButton.heightAnchor.constraint(equalToConstant: 40)
         ])
         bellButton.addTarget(self, action: #selector(didTapBell), for: .touchUpInside)
 
@@ -204,7 +208,7 @@ private extension ProfileViewController {
         NSLayoutConstraint.activate([
             mainStack.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 16),
             mainStack.trailingAnchor.constraint(equalTo: headerView.trailingAnchor, constant: -16),
-            mainStack.topAnchor.constraint(equalTo: headerView.safeAreaLayoutGuide.topAnchor, constant: -40),
+            mainStack.topAnchor.constraint(equalTo: headerView.safeAreaLayoutGuide.topAnchor, constant: 8),
             mainStack.bottomAnchor.constraint(equalTo: headerView.bottomAnchor, constant: -16)
         ])
     }
@@ -562,10 +566,20 @@ private extension ProfileViewController {
     @objc func didTapBell() {
         presenter.didTapBell()
 
+        if navigationController?.topViewController is NotificationsScreenViewController {
+            return
+        }
+
         let vc = NotificationsScreenViewController(notifications: notifications)
         vc.hidesBottomBarWhenPushed = true
         notificationsScreen = vc
-        navigationController?.pushViewController(vc, animated: true)
+        if let nav = navigationController {
+            nav.pushViewController(vc, animated: true)
+        } else {
+            let nav = UINavigationController(rootViewController: vc)
+            nav.modalPresentationStyle = .fullScreen
+            present(nav, animated: true)
+        }
     }
 
     @objc func calendarViewChanged(_ sender: UISegmentedControl) {
