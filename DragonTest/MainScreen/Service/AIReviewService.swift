@@ -55,8 +55,8 @@ final class AIReviewService: AIReviewServiceProtocol {
         """
 
         let body: [String: Any] = [
-            "model": "deepseek/deepseek-r1",
-            "messages": [
+            "model": "deepseek-ai/DeepSeek-R1",
+            "messages": [   
                 ["role": "system", "content": "Ты ассистент-проверяющий тесты."],
                 ["role": "user", "content": userPrompt]
             ]
