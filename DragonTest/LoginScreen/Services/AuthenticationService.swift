@@ -12,12 +12,28 @@ import FirebaseAuth
 final class AuthenticationService: AuthenticationServiceProtocol {
     func createUser(email: String, password: String) async throws -> User {
         let authDataResult = try await Auth.auth().createUser(withEmail: email, password: password)
+
+        try await authDataResult.user.sendEmailVerification()
+
         return User(firebaseUser: authDataResult.user)
     }
     
     func signInUser(email: String, password: String) async throws -> User {
         let authDataResult = try await Auth.auth().signIn(withEmail: email, password: password)
-        return User(firebaseUser: authDataResult.user)
+        let firebaseUser = authDataResult.user
+
+        // Обновляем состояние и проверяем, подтверждена ли почта
+        try await firebaseUser.reload()
+        guard firebaseUser.isEmailVerified else {
+            try? Auth.auth().signOut()
+            throw NSError(
+                domain: "AuthenticationService",
+                code: 1001,
+                userInfo: [NSLocalizedDescriptionKey: "Email не подтверждён. Проверьте почту и перейдите по ссылке из письма."]
+            )
+        }
+
+        return User(firebaseUser: firebaseUser)
     }
     
     func resetPassword(email: String) async throws {

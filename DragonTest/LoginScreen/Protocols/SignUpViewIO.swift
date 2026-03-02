@@ -11,6 +11,7 @@ protocol SignUpViewInput: AnyObject {
     func showSuccess()
     func openMain()
     func backToLogin()
+    func openEmailVerification(user: User)
 }
 
 protocol SignUpViewOutput: AnyObject {

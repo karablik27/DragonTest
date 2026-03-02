@@ -42,12 +42,39 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
                 guard let self = self else { return }
 
-                if Auth.auth().currentUser == nil {
-                    let login = LoginViewController()
-                    let nav = UINavigationController(rootViewController: login)
-                    self.transitionRoot(to: nav, duration: 0.8)
-                } else {
-                    self.transitionToMain(preloadData: true, duration: 0.8)
+                Task {
+                    if let user = Auth.auth().currentUser {
+                        do {
+                            try await user.reload()
+                        } catch {
+                            // если не смогли обновить — кидаем на логин
+                            await MainActor.run {
+                                let login = LoginViewController()
+                                let nav = UINavigationController(rootViewController: login)
+                                self.transitionRoot(to: nav, duration: 0.8)
+                            }
+                            return
+                        }
+
+                        if user.isEmailVerified {
+                            await MainActor.run {
+                                self.transitionToMain(preloadData: true, duration: 0.8)
+                            }
+                        } else {
+                            // пользователь есть, но почта не подтверждена — считаем, что он не залогинен
+                            await MainActor.run {
+                                let login = LoginViewController()
+                                let nav = UINavigationController(rootViewController: login)
+                                self.transitionRoot(to: nav, duration: 0.8)
+                            }
+                        }
+                    } else {
+                        await MainActor.run {
+                            let login = LoginViewController()
+                            let nav = UINavigationController(rootViewController: login)
+                            self.transitionRoot(to: nav, duration: 0.8)
+                        }
+                    }
                 }
             }
         }
