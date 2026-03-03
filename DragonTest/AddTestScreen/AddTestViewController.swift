@@ -133,11 +133,14 @@ final class AddTestViewController: UIViewController {
         stepLabel.textAlignment = .center
 
         backButton.setTitle("Назад", for: .normal)
-        nextButton.setTitle("Далее", for: .normal)
-        nextButton.backgroundColor = .systemBlue
-        nextButton.tintColor = .white
-        nextButton.layer.cornerRadius = 10
-        nextButton.contentEdgeInsets = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: 10)
+
+        var nextConfig = UIButton.Configuration.filled()
+        nextConfig.title = "Далее"
+        nextConfig.baseForegroundColor = .white
+        nextConfig.baseBackgroundColor = .systemBlue
+        nextConfig.cornerStyle = .medium
+        nextConfig.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 10, bottom: 6, trailing: 10)
+        nextButton.configuration = nextConfig
 
         let headerContainer = UIView()
         headerContainer.translatesAutoresizingMaskIntoConstraints = false
@@ -171,20 +174,26 @@ final class AddTestViewController: UIViewController {
         participantsHeaderRow.axis = .horizontal
         participantsHeaderRow.alignment = .center
         participantsHeaderRow.spacing = 8
+        
+        let isLight = traitCollection.userInterfaceStyle == .light
 
-        var addAllConfig = UIButton.Configuration.tinted()
+        var addAllConfig = UIButton.Configuration.filled()
         addAllConfig.title = "Добавить всех"
         addAllConfig.baseForegroundColor = .white
-        addAllConfig.baseBackgroundColor = UIColor.systemBlue.withAlphaComponent(0.35)
+        addAllConfig.baseBackgroundColor = isLight
+            ? UIColor(red: 0/255, green: 100/255, blue: 220/255, alpha: 1.0)
+            : .systemBlue
         addAllConfig.cornerStyle = .medium
         addAllConfig.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 10, bottom: 6, trailing: 10)
         addAllStudentsButton.configuration = addAllConfig
         addAllStudentsButton.titleLabel?.font = .systemFont(ofSize: 13, weight: .semibold)
 
-        var clearConfig = UIButton.Configuration.tinted()
+        var clearConfig = UIButton.Configuration.filled()
         clearConfig.title = "Очистить"
         clearConfig.baseForegroundColor = .white
-        clearConfig.baseBackgroundColor = UIColor.systemGray.withAlphaComponent(0.30)
+        clearConfig.baseBackgroundColor = isLight
+            ? UIColor(white: 0.4, alpha: 1.0)
+            : .systemGray
         clearConfig.cornerStyle = .medium
         clearConfig.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 10, bottom: 6, trailing: 10)
         clearParticipantsButton.configuration = clearConfig
@@ -446,11 +455,9 @@ final class AddTestViewController: UIViewController {
     private func updateParticipantsActionButtons() {
         let canAddAll = !allStudents.isEmpty && addedUsers.count < allStudents.count
         addAllStudentsButton.isEnabled = canAddAll
-        addAllStudentsButton.alpha = canAddAll ? 1.0 : 0.55
 
         let canClear = !addedUsers.isEmpty
         clearParticipantsButton.isEnabled = canClear
-        clearParticipantsButton.alpha = canClear ? 1.0 : 0.55
     }
 
     private func syncParticipantsState() {
@@ -550,8 +557,12 @@ final class AddTestViewController: UIViewController {
     }
 
     private func updateNextButtonState() {
-        nextButton.isEnabled = !currentTitle.isEmpty
-        nextButton.alpha = nextButton.isEnabled ? 1.0 : 0.5
+        let enabled = !currentTitle.isEmpty
+        nextButton.isEnabled = enabled
+
+        var config = nextButton.configuration ?? .filled()
+        config.baseBackgroundColor = enabled ? .systemBlue : .systemGray3
+        nextButton.configuration = config
     }
 
     private func updateStepUI(animated: Bool) {

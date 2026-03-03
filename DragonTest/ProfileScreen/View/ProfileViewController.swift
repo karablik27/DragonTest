@@ -525,6 +525,23 @@ private extension ProfileViewController {
             title: "Рейтинг прохождения",
             subtitle: "Лучшие результаты среди студентов"
         )
+        
+        let infoButton = UIButton(type: .system)
+        infoButton.setImage(
+            UIImage(systemName: "questionmark.circle.fill")?
+                .withConfiguration(UIImage.SymbolConfiguration(pointSize: 16, weight: .semibold)),
+            for: .normal
+        )
+        infoButton.tintColor = .label
+        infoButton.addTarget(self, action: #selector(showRatingInfo), for: .touchUpInside)
+        infoButton.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            infoButton.widthAnchor.constraint(equalToConstant: 24),
+            infoButton.heightAnchor.constraint(equalToConstant: 24)
+        ])
+
+        // Добавляем кнопку в правый край заголовка
+        header.addArrangedSubview(infoButton)
 
         let first = ProfilePodiumCardView(place: 1)
         let second = ProfilePodiumCardView(place: 2)
@@ -586,6 +603,19 @@ private extension ProfileViewController {
         isWeekView = (sender.selectedSegmentIndex == 0)
         calendarCollectionView?.reloadData()
         presenter.calendarViewChanged(isWeekView: isWeekView)
+    }
+    
+    @objc func showRatingInfo() {
+        let message = """
+        Рейтинг считается по сумме баллов за все тесты, которые были проверены преподавателем.
+        
+        Учитываются только итоговые результаты:
+        • баллы по каждому тесту суммируются;
+        • чем больше общая сумма, тем выше место в рейтинге.
+        """
+        let alert = UIAlertController(title: "Как считается рейтинг", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Понятно", style: .default))
+        present(alert, animated: true)
     }
 }
 
