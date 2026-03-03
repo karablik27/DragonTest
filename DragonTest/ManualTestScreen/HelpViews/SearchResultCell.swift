@@ -59,20 +59,27 @@ final class SearchResultCell: UITableViewCell {
         self.isAdded = isAdded
         self.onAdd = onAdd
 
-        var config = UIButton.Configuration.tinted()
-        config.cornerStyle = .capsule
-        config.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 10, bottom: 6, trailing: 10)
-        if isAdded {
-            config.title = "Добавлен"
-            config.baseForegroundColor = .white
-            config.baseBackgroundColor = UIColor.systemGreen.withAlphaComponent(0.35)
-        } else {
-            config.title = "Добавить"
-            config.baseForegroundColor = .white
-            config.baseBackgroundColor = UIColor.systemBlue.withAlphaComponent(0.35)
-        }
-        addButton.configuration = config
-        addButton.isEnabled = !isAdded
-        addButton.alpha = isAdded ? 0.8 : 1.0
+        var config = UIButton.Configuration.filled()
+            config.cornerStyle = .capsule
+            config.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 10, bottom: 6, trailing: 10)
+
+            let isLight = traitCollection.userInterfaceStyle == .light
+
+            if isAdded {
+                config.title = "Добавлен"
+                config.baseForegroundColor = .white
+                config.baseBackgroundColor = isLight
+                    ? UIColor(red: 0/255, green: 150/255, blue: 60/255, alpha: 1.0)
+                    : .systemGreen
+            } else {
+                config.title = "Добавить"
+                config.baseForegroundColor = .white
+                config.baseBackgroundColor = isLight
+                    ? UIColor(red: 0/255, green: 100/255, blue: 220/255, alpha: 1.0)
+                    : .systemBlue
+            }
+
+            addButton.configuration = config
+            addButton.isEnabled = !isAdded
     }
 }
