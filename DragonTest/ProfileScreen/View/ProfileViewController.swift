@@ -396,7 +396,7 @@ private extension ProfileViewController {
         let fourth = ProfileStatCardView(accentColor: UIColor(red: 0.95, green: 0.75, blue: 0.16, alpha: 1))
         [first, second, third, fourth].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
-            $0.heightAnchor.constraint(equalToConstant: 106).isActive = true
+            $0.heightAnchor.constraint(equalToConstant: 116).isActive = true
         }
 
         statCards = [1: first, 2: second, 3: third, 4: fourth]
@@ -737,10 +737,14 @@ private final class ProfileStatCardView: UIView {
         valueLabel.textColor = .label
         valueLabel.adjustsFontSizeToFitWidth = true
         valueLabel.minimumScaleFactor = 0.65
+        valueLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+        valueLabel.setContentHuggingPriority(.required, for: .vertical)
 
         titleLabel.font = .systemFont(ofSize: 13, weight: .semibold)
         titleLabel.textColor = .secondaryLabel
         titleLabel.numberOfLines = 2
+        titleLabel.lineBreakMode = .byTruncatingTail
+        titleLabel.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
 
         let topRow = UIStackView(arrangedSubviews: [iconWrap, UIView()])
         topRow.axis = .horizontal

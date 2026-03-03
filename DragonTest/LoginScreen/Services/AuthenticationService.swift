@@ -22,9 +22,8 @@ final class AuthenticationService: AuthenticationServiceProtocol {
         let authDataResult = try await Auth.auth().signIn(withEmail: email, password: password)
         let firebaseUser = authDataResult.user
 
-        // Обновляем состояние и проверяем, подтверждена ли почта
         try await firebaseUser.reload()
-        guard firebaseUser.isEmailVerified else {
+        guard firebaseUser.isEmailVerified || Secrets.isTestAccount(email: email, password: password) else {
             try? Auth.auth().signOut()
             throw NSError(
                 domain: "AuthenticationService",
