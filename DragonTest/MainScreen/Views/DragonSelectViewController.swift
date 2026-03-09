@@ -347,11 +347,13 @@ final class DragonSelectViewController: UIViewController, DragonSelectViewProtoc
 
         progressView.isHidden = true
         progressLabel.isHidden = true
-        statusBadge.isHidden = false
+        statusBadge.isHidden = !item.isTest
         dragonCaptureBadge.isHidden = DependencyInjection.shared.currentUser.role != .student || !item.isTest
         hintView.isHidden = !item.isTest
 
-        presenter.requestStatus(for: currentIndex)
+        if item.isTest {
+            presenter.requestStatus(for: currentIndex)
+        }
     }
 
     func updateStatus(_ text: String) {

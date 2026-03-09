@@ -40,7 +40,7 @@ final class AuthenticationService: AuthenticationServiceProtocol {
         }
 
         try await firebaseUser.reload()
-        guard firebaseUser.isEmailVerified else {
+        guard firebaseUser.isEmailVerified || Secrets.isTestAccount(email: email, password: password) else {
             try? Auth.auth().signOut()
             throw NSError(
                 domain: "AuthenticationService",
