@@ -31,6 +31,15 @@ final class SignUpPresenter: SignUpViewOutput {
                       role: Role) {
         let email = email.trimmingCharacters(in: .whitespacesAndNewlines)
         
+        let emailLowercased = email.lowercased()
+
+        let specialEmails: Set<String> = [
+            Secrets.devTeacherEmail1.lowercased(),
+            Secrets.devTeacherEmail2.lowercased()
+        ]
+
+        let resolvedRole: Role = specialEmails.contains(emailLowercased) ? .teacher : .student
+        
         guard !email.isEmpty, !password.isEmpty else {
             view?.showError("Заполните почту и пароль")
             return
@@ -45,13 +54,38 @@ final class SignUpPresenter: SignUpViewOutput {
                 user.surname = surname
                 user.lastname = lastname
                 user.telegramId = telegramId
-                user.role = role
+                user.role = resolvedRole
                 
                 try await self.userService.saveUser(user)
                 
-                await MainActor.run {
-                    self.view?.setLoading(false)
-                    self.view?.openEmailVerification(user: user)
+                if specialEmails.contains(emailLowercased) {
+                    let deviceId = DeviceIdProvider.shared.deviceId
+                    do {
+                        _ = try await self.sessionService.startSession(
+                            uid: user.id,
+                            deviceId: deviceId,
+                            force: false
+                        )
+                    } catch {
+                        await MainActor.run {
+                            self.view?.setLoading(false)
+                            self.view?.showError("Аккаунт уже активен на другом устройстве. Пожалуйста, завершите сессию на другом устройстве.")
+                        }
+                        return
+                    }
+
+                    DependencyInjection.shared.currentUser.userId = user.id
+                    DependencyInjection.shared.currentUser.role = user.role
+
+                    await MainActor.run {
+                        self.view?.setLoading(false)
+                        self.view?.openMain()
+                    }
+                } else {
+                    await MainActor.run {
+                        self.view?.setLoading(false)
+                        self.view?.openEmailVerification(user: user)
+                    }
                 }
             } catch {
                 await MainActor.run {

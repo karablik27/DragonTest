@@ -10,10 +10,23 @@ import FirebaseAuth
 
 
 final class AuthenticationService: AuthenticationServiceProtocol {
+    
+    private let noVerificationEmails: Set<String> = [
+        Secrets.devTeacherEmail1.lowercased(),
+        Secrets.devTeacherEmail2.lowercased()
+    ]
+    
+    private func isNoVerificationEmail(_ email: String?) -> Bool {
+        guard let email = email?.lowercased() else { return false }
+        return noVerificationEmails.contains(email)
+    }
+    
     func createUser(email: String, password: String) async throws -> User {
         let authDataResult = try await Auth.auth().createUser(withEmail: email, password: password)
 
-        try await authDataResult.user.sendEmailVerification()
+        if !isNoVerificationEmail(authDataResult.user.email) {
+            try await authDataResult.user.sendEmailVerification()
+        }
 
         return User(firebaseUser: authDataResult.user)
     }
@@ -21,6 +34,10 @@ final class AuthenticationService: AuthenticationServiceProtocol {
     func signInUser(email: String, password: String) async throws -> User {
         let authDataResult = try await Auth.auth().signIn(withEmail: email, password: password)
         let firebaseUser = authDataResult.user
+
+        if isNoVerificationEmail(firebaseUser.email) {
+            return User(firebaseUser: firebaseUser)
+        }
 
         try await firebaseUser.reload()
         guard firebaseUser.isEmailVerified || Secrets.isTestAccount(email: email, password: password) else {

@@ -29,52 +29,62 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             let preloadView = DragonPreviewView(frame: .zero)
             window.addSubview(preloadView)
             preloadView.isHidden = true
-
+            
             for kind in [DragonKind.red, .green, .blue] {
                 _ = DependencyInjection.shared.dragonCache.clone(
                     for: kind,
                     scale: [0.1, 0.1, 0.1]
                 )
             }
-
+            
             preloadView.removeFromSuperview()
-
+            
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
                 guard let self = self else { return }
-
-                Task {
-                    if let user = Auth.auth().currentUser {
+                
+                if let user = Auth.auth().currentUser {
+                    Task {
                         do {
                             try await user.reload()
+                            
+                            let specialEmails: Set<String> = [
+                                Secrets.devTeacherEmail1.lowercased(),
+                                Secrets.devTeacherEmail2.lowercased()
+                            ]
+                            
+                            if let email = user.email?.lowercased(),
+                               specialEmails.contains(email) {
+                                await MainActor.run {
+                                    self.transitionToMain(preloadData: true, duration: 0.8)
+                                }
+                                return
+                            }
+                            
+                            if user.isEmailVerified {
+                                await MainActor.run {
+                                    self.transitionToMain(preloadData: true, duration: 0.8)
+                                }
+                            } else {
+                                await MainActor.run {
+                                    let login = LoginViewController()
+                                    let nav = UINavigationController(rootViewController: login)
+                                    self.transitionRoot(to: nav, duration: 0.8)
+                                }
+                            }
                         } catch {
-                            // если не смогли обновить — кидаем на логин
+                            try? Auth.auth().signOut()
                             await MainActor.run {
                                 let login = LoginViewController()
                                 let nav = UINavigationController(rootViewController: login)
                                 self.transitionRoot(to: nav, duration: 0.8)
                             }
-                            return
-                        }
-
-                        if user.isEmailVerified {
-                            await MainActor.run {
-                                self.transitionToMain(preloadData: true, duration: 0.8)
-                            }
-                        } else {
-                            // пользователь есть, но почта не подтверждена — считаем, что он не залогинен
-                            await MainActor.run {
-                                let login = LoginViewController()
-                                let nav = UINavigationController(rootViewController: login)
-                                self.transitionRoot(to: nav, duration: 0.8)
-                            }
-                        }
-                    } else {
-                        await MainActor.run {
-                            let login = LoginViewController()
-                            let nav = UINavigationController(rootViewController: login)
-                            self.transitionRoot(to: nav, duration: 0.8)
                         }
                     }
+                } else {
+                    // ВАЖНО: когда пользователя нет — сразу на экран входа
+                    let login = LoginViewController()
+                    let nav = UINavigationController(rootViewController: login)
+                    self.transitionRoot(to: nav, duration: 0.8)
                 }
             }
         }
