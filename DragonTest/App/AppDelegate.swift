@@ -22,10 +22,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         Task { @MainActor in
             await DependencyInjection.shared.dragonCache.preload()
         }
-        
-        #if DEBUG
-        AppCheck.setAppCheckProviderFactory(AppCheckDebugProviderFactory())
-        #endif
 
         // Firebase
         FirebaseApp.configure()
